@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,14 +18,14 @@
 <meta name="theme-color" content="#1877f2">
 <meta property="og:title" content="Makcek Ngobrol">
 <meta property="og:description" content="Tempat ngobrol santai, berbagi cerita & komentar seru.">
-<meta property="og:image" content="https://yourdomain.com/icon-192.png">
-<meta property="og:url" content="https://yourdomain.com">
+<meta property="og:image" content="https://makcek-ngobrol.web.app/icon-192.png">
+<meta property="og:url" content="https://makcek-ngobrol.web.app">
 <meta property="og:type" content="website">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Makcek Ngobrol">
 <meta name="twitter:description" content="Ngobrol santai, share cerita, dan interaksi seru di Makcek Ngobrol.">
-<meta name="twitter:image" content="https://yourdomain.com/icon-192.png">
+<meta name="twitter:image" content="https://makcek-ngobrol.web.app/icon-192.png">
 <meta name="robots" content="index, follow">
 <!-- THEME COLOR (ANDROID UI) -->
 <meta name="theme-color" content="#1877f2">
@@ -44,11 +45,11 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "Makcek Ngobrol",
-  "url": "https://yourdomain.com",
+  "url": "https://makcek-ngobrol.web.app",
   "description": "Tempat ngobrol santai, berbagi cerita dan komentar.",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://yourdomain.com/?q={search_term_string}",
+    "target": "https://makcek-ngobrol.web.app/?q={search_term_string}",
     "query-input": "required name=search_term_string"
   }
 }
@@ -58,7 +59,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <style>
-body { font-family: Arial, sans-serif; margin:0; }
+  
+body { font-family: Arial, sans-serif; }
 .logo {
   display: flex;
   align-items: center;
@@ -76,6 +78,7 @@ body { font-family: Arial, sans-serif; margin:0; }
 .post-box {
  position: fixed;
   top: 15px;
+  
   width: 100%;
   max-width: 600px;
   left: 50%;
@@ -94,7 +97,7 @@ body { font-family: Arial, sans-serif; margin:0; }
 }
 .post-box button {
   background: #1877f2;
-  color: white;
+  color: red;
   border: none;
   padding: 10px 18px;
   border-radius: 999px;
@@ -167,11 +170,11 @@ button {
 }
 /* INPUT */
 .post-input {
-  width:100%;
+  width:80%;
   border:none;
   background:#f0f2f5;
   border-radius:20px;
-  padding:10px;
+  padding:6px;
   outline:none;
 }
 
@@ -187,7 +190,7 @@ button {
 .post-actions button {
   background: transparent;
   border: none;
-  padding: 6px 10px;
+  padding: 4px 6px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
@@ -242,20 +245,36 @@ button {
   display: none;
 }
 
-.file-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #f0f2f5;
-  cursor: pointer;
-  margin-left: 8px;
-  font-size: 18px;
-}
+
 .file-label:hover {
   background: #e4e6eb;
+}
+.post-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.post-top button {
+  flex-shrink: 0;
+}
+
+.post-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.username {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.post-tools {
+  
+  position: relative;
+ 
+  width: 25px;
+ 
 }
 
 @media (max-width: 600px) {
@@ -277,16 +296,16 @@ button {
     top: 180px;
     padding: 8px;
   }
+  
 
   .post-top {
     display: flex;
+    flex-direction: row;
     gap: 8px;
     align-items: flex-start;
   }
 
-  .post-input {
-    font-size: 14px;
-  }
+  
 
   .post-box h1 {
     font-size: 18px;
@@ -300,6 +319,24 @@ button {
 .post-top .avatar {
   flex-shrink: 0;
 }
+ .post-top {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .post-input {
+    font-size: 14px;
+    padding: 4px;
+    position: absolute;
+    width: 50%;
+  }
+
+  #fileInfo {
+    font-size: 11px;
+    word-break: break-word;
+  }
+ 
+  
 }
 
 </style>
@@ -316,19 +353,30 @@ button {
   <div style="font-size:13px; color:#444; margin-bottom:8px;">
   ⚠️ Isi nama & foto dulu di ⚙️ pengaturan ya
 </div>
-  <button id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
+  <button title="buat ID mu..." id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
 
-  <div style="display:flex;">
-    <div class="avatar"></div>
+  <div class="post-top">
+   
+  <div class="avatar"></div>
+   <div class="username"></div>  
+  <div class="post-body">
 
     <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
-    <label class="file-label">
-  📷
-  <input type="file" id="file">
-</label>
+
+    <div class="post-tools">
+      
+      <div id="fileInfo"></div>
+    </div>
+
   </div>
 
-  <button onclick="createPost(event)">Posting</button>
+</div>
+      <label class="file-label" title="pilih file...">
+        📷
+        <input type="file" id="file">
+      </label>
+
+<button onclick="createPost(event)">Posting</button>
 </div>
 
 <div id="settingsBox" class="settings-box">
@@ -339,6 +387,7 @@ button {
     <br><br>
     <button onclick="saveSettings()">Simpan</button>
     <button onclick="closeSettings()">Batal</button>
+    <button onclick="removeAvatar()">Hapus Avatar</button>
   </div>
 </div>
 
@@ -355,7 +404,10 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
- 
+ const currentUser = localStorage.getItem('username');
+const role = localStorage.getItem('role');
+
+const isAdmin = role === 'admin';
 // ESCAPE HTML (ANTI XSS)
 function escapeHTML(text){
   return text.replace(/[&<>"']/g, m => ({
@@ -370,11 +422,26 @@ function escapeHTML(text){
 
 // LOAD USER
 window.onload = () => {
+   const username = localStorage.getItem('username');
   const avatar = localStorage.getItem('avatar');
   if(avatar){
     document.querySelectorAll('.avatar').forEach(el=>{
       el.style.backgroundImage = `url(${avatar})`;
     });
+     if(username){
+    document.querySelectorAll('.username').forEach(el=>{
+      el.innerText = username;
+    });
+  }
+  if (!username || username.trim() === "") {
+    setTimeout(() => {
+      openSettings();
+    }, 500);
+  }
+     const topAvatar = document.querySelector('.post-box .avatar');
+    if(topAvatar){
+      topAvatar.style.backgroundImage = `url(${avatar})`;
+    }
   }
  
 };
@@ -436,7 +503,9 @@ function renderFeed(snapshot){
 
   snapshot.forEach(doc=>{
     const p = doc.data();
-
+    const currentUser = localStorage.getItem('username');
+    const isOwner = p.user === currentUser;
+    const isAdmin = role === 'admin';
     let media = '';
     if(p.fileUrl){
       if(p.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i)){
@@ -468,7 +537,9 @@ function renderFeed(snapshot){
       <div class="post-actions">
         <button onclick="toggleLike('${doc.id}')">👍 Suka</button>
         <button onclick="document.getElementById('c${doc.id}').focus()">💬 Komentar</button>
-        <button onclick="deletePost('${doc.id}')">🗑 Hapus</button>
+        ${(isOwner || isAdmin) 
+  ? `<button onclick="deletePost('${doc.id}')">🗑 Hapus</button>` 
+  : ""}
       </div>
 
       
@@ -569,7 +640,7 @@ db.collection('posts').orderBy('timestamp','desc')
 async function createPost(e){
   const btn = e.target;
   btn.disabled = true;
-
+  btn.innerText = "Posting...";
   const user = localStorage.getItem('username') || 'Anon';
   const avatar = localStorage.getItem('avatar') || '';
   const content = document.getElementById('content').value;
@@ -601,6 +672,7 @@ async function createPost(e){
   document.getElementById('content').value = '';
   fileInput.value = ''; // reset file
   btn.disabled = false;
+  btn.innerText = "Posting";
 }
 // LIKE
 async function toggleLike(id){
@@ -623,11 +695,23 @@ async function toggleLike(id){
 
 // DELETE
 async function deletePost(id){
+  const currentUser = localStorage.getItem('username');
+  const role = localStorage.getItem('role');
+
+  const doc = await db.collection('posts').doc(id).get();
+  const data = doc.data();
+
+  const isAdmin = role === 'admin';
+
+  if(data.user !== currentUser && !isAdmin){
+    alert("❌ Tidak boleh hapus");
+    return;
+  }
+
   if(confirm('Hapus?')){
     await db.collection('posts').doc(id).delete();
   }
 }
-
 // ADD COMMENT
 async function addComment(postId){
   const avatar = localStorage.getItem('avatar') || '';
@@ -650,16 +734,7 @@ async function addComment(postId){
   input.value = '';
 }
 // DELETE COMMENT
-async function deleteComment(postId, index){
-  const postRef = db.collection('posts').doc(postId);
 
-  await db.runTransaction(async t => {
-    const doc = await t.get(postRef);
-    const comments = doc.data().comments || [];
-    comments.splice(index,1);
-    t.update(postRef, {comments});
-  });
-}
 async function deleteCommentNew(postId, commentId){
   await db.collection("posts")
     .doc(postId)
@@ -697,18 +772,6 @@ async function addReply(postId, commentId){
   input.value = "";
   document.getElementById(`reply-${postId}-${commentId}`).style.display = "none";
 }
-// DELETE REPLY
-async function deleteReply(postId, commentIndex, replyIndex){
-  const postRef = db.collection('posts').doc(postId);
-
-  await db.runTransaction(async t => {
-    const doc = await t.get(postRef);
-    const comments = doc.data().comments || [];
-
-    comments[commentIndex].replies.splice(replyIndex,1);
-    t.update(postRef, {comments});
-  });
-}
 
 // SETTINGS
 function openSettings(){
@@ -718,18 +781,56 @@ function openSettings(){
 function closeSettings(){
   document.getElementById('settingsBox').style.display='none';
 }
-function saveSettings(){
+async function saveSettings(){
   const name = document.getElementById('setName').value;
+  const file = document.getElementById('setAvatar').files[0];
+
+  if(!name.trim()){
+    alert("Isi nama dulu");
+    return;
+  }
+
+  let avatarUrl = localStorage.getItem('avatar') || '';
+
+  if(file){
+    avatarUrl = await uploadToCloudinary(file);
+    localStorage.setItem('avatar', avatarUrl);
+  }
+
   localStorage.setItem('username', name);
+
   closeSettings();
+  location.reload();
+}
+
+document.getElementById("file").addEventListener("change", function(){
+  const file = this.files[0];
+  const info = document.getElementById("fileInfo");
+
+  if(file){
+    info.innerText = "📎 " + file.name;
+  } else {
+    info.innerText = "";
+  }
+});
+
+function removeAvatar(){
+  localStorage.removeItem('avatar');
+  localStorage.removeItem('username');
+
+  alert("Avatar & nama dihapus");
+
+  location.reload();
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
+  });
 }
 </script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("SW registered"))
-    .catch(err => console.log("SW error", err));
-}
+
 </script>
 </body>
 </html>
