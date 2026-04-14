@@ -12,20 +12,20 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" href="favicon.ico">
+<link rel="icon" href="/favicon.ico">
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1877f2">
+
 <meta property="og:title" content="Makcek Ngobrol">
 <meta property="og:description" content="Tempat ngobrol santai, berbagi cerita & komentar seru.">
-<meta property="og:image" content="https://makcek-ngobrol.web.app/icon-192.png">
+<meta property="og:image" content="https://makcek-ngobrol.web.app/android-chrome-512x512.png">
 <meta property="og:url" content="https://makcek-ngobrol.web.app">
 <meta property="og:type" content="website">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Makcek Ngobrol">
 <meta name="twitter:description" content="Ngobrol santai, share cerita, dan interaksi seru di Makcek Ngobrol.">
-<meta name="twitter:image" content="https://makcek-ngobrol.web.app/icon-192.png">
+<meta name="twitter:image" content="https://makcek-ngobrol.web.app/android-chrome-512x512.png">
 <meta name="robots" content="index, follow">
 <!-- THEME COLOR (ANDROID UI) -->
 <meta name="theme-color" content="#1877f2">
@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://firestore.googleapis.com">
 <link rel="preconnect" href="https://api.cloudinary.com">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
-<link rel="shortcut icon" href="/favicon.ico">
+
 <meta name="google-site-verification" content="8Gdh9ibYVHBmqAuoMrvufB9-ie9oU_x3WFAfSSdpZAU" />
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -57,14 +57,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
   
-body { font-family: Arial, sans-serif; }
+body { padding:0; margin: 0; font-family: Arial, sans-serif; }
 .logo {
+  top: 0;
   display: flex;
   align-items: center;
   gap: 10px;
+ 
 }
 
 .logo img {
@@ -77,8 +79,7 @@ body { font-family: Arial, sans-serif; }
 /* POST BOX */
 .post-box {
  position: fixed;
-  top: 15px;
-  
+  top: 0;
   width: 100%;
   max-width: 600px;
   left: 50%;
@@ -96,9 +97,9 @@ body { font-family: Arial, sans-serif; }
   padding:10px;
 }
 .post-box button {
-  background: #1877f2;
-  color: red;
+  background: #eef2f6;
   border: none;
+  color:#1877f2;
   padding: 10px 18px;
   border-radius: 999px;
   cursor: pointer;
@@ -106,27 +107,47 @@ body { font-family: Arial, sans-serif; }
   transition: all 0.2s ease;
   box-shadow: 0 2px 6px rgba(24,119,242,0.3);
 }
+.post-body{
+  font-size: clamp(0.5rem,1rem,1.5rem);
+  display: flex;
+  justify-content: space-between;
+  max-width: 500px;
+}
+textarea{
+  width: 100%;
+ 
+}
+#gear{
+  
+  padding: 5px 5px;
+}
+.file-label{
+  position: absolute;
+  right: 20%;
+  
+  width: 20px;
+}
 
 .post-box button:hover {
-  background: #166fe5;
-  transform: translateY(-1px);
+  transform: translateY(-5px);
   box-shadow: 0 4px 10px rgba(24,119,242,0.4);
 }
 .post-box button:active {
   transform: scale(0.96);
 }
 
+
 /* FEED */
 #feed {
   position: absolute;
-  top: 160px;
+  top: 200px;
   bottom: 0;
   width: 100%;
   max-width: 600px;
   left: 50%;
   transform: translateX(-50%);
   overflow-y: auto;
-  padding: 10px;
+  padding: 50px;
 }
 
 /* SETTINGS */
@@ -147,21 +168,11 @@ body { font-family: Arial, sans-serif; }
   width:300px;
 }
 
-/* POST */
-.post { background:#fff; border-radius:10px; padding:12px; margin:12px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.post img, .post video { width:100%; max-height:400px; object-fit:cover; border-radius:10px; margin-top:8px; }
-.post:hover {
-  transform: translateY(-1px);
-  transition: 0.2s;
-}
+
 /* AVATAR */
 .avatar { width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; }
 .comment .avatar { width:32px; height:32px; }
 
-/* HEADER */
-.post-header { display:flex; align-items:center; margin-bottom:8px; }
-.post-user { font-weight:bold; font-size:14px; }
-.post-time { font-size:12px; color:#65676b; }
 
 button {
   border: none;
@@ -176,6 +187,19 @@ button {
   border-radius:20px;
   padding:6px;
   outline:none;
+}
+.post-header{
+  display: flex;
+}
+.post-user{
+  color: black;
+  font-weight: 600;
+  font-family: sans-serif;
+  font-size: 14px;
+}
+.post-time{
+  color: #222;
+  font-size: 12px;
 }
 
 /* ACTION */
@@ -218,19 +242,20 @@ button {
   color: #1877f2;
 }
 .comment-input button {
-  background: #1877f2;
-  color: white;
+  box-shadow:0 1-5px 10px rgba(0,0,0,0.2);
+  color: #222;
   border-radius: 50%;
   width: 32px;
   height: 32px;
   border: none;
   margin-left: 6px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
 }
 
 .comment-input button:hover {
-  background: #166fe5;
+  background: #f5f5f5;
+  transform: translateY(-5px);
 }
 
 .comment-input button:active {
@@ -244,10 +269,12 @@ button {
 #file {
   display: none;
 }
-
+.file-label{
+  transition: all 0.3s ease;
+}
 
 .file-label:hover {
-  background: #e4e6eb;
+  transform: translateY(-7px);
 }
 .post-top {
   display: flex;
@@ -256,6 +283,20 @@ button {
 }
 .post-top button {
   flex-shrink: 0;
+}
+label{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loginBox{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  background: white;
+  z-index: 99999;
 }
 
 .post-body {
@@ -277,6 +318,70 @@ button {
  
 }
 
+#playerBox {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999999; /* 🔥 paling tinggi */
+}
+
+ #bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  display: flex;              /* 🔥 bikin sejajar */
+  justify-content: space-around; /* 🔥 jarak rata */
+  align-items: center;
+
+  background: #fff;
+  border-top: 1px solid #ddd;
+
+  padding: 8px 0;
+  z-index: 9999;
+}
+
+#bottomNav button {
+  flex: 1;                   /* 🔥 semua tombol sama lebar */
+  text-align: center;
+  transition: all 0.3s ease;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+#bottomNav button:hover{
+  transform: translateY(-5px);
+}
+#movieList{
+  position: relative;
+  z-index: 5000;
+  background: #444;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+#movieSection{
+display: none;
+}
+#movieSection.show{
+  display: block;
+}
+#affiliateSection {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 10px;
+  width: 100%;
+  height: 100%;
+
+  background: #fff;
+  z-index: 99999; /* 🔥 paling atas */
+
+  overflow-y: auto;
+}
+
 @media (max-width: 600px) {
 
   .post-box {
@@ -293,8 +398,8 @@ button {
     max-width: 100%;
     left: 0;
     transform: none;
-    top: 180px;
-    padding: 8px;
+    top: 190px;
+    padding: 20px;
   }
   
 
@@ -327,7 +432,7 @@ button {
   .post-input {
     font-size: 14px;
     padding: 4px;
-    position: absolute;
+    
     width: 50%;
   }
 
@@ -336,7 +441,23 @@ button {
     word-break: break-word;
   }
  
+#adBox img {
+  width: 100%;
+  border-radius: 12px;
+}
+textarea{
+  max-width: 500px;
+  min-width: 250px;
+}
+.file-label{
+  right: 70px;
+  padding: 0 2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   
+}
+ 
 }
 
 </style>
@@ -344,38 +465,45 @@ button {
 
 <body>
 
+  <div id="loginBox" style="padding:20px; border:1px solid #ddd; width:300px;">
+  <h3>Isi identitas</h3>
+  <input id="email" placeholder="Email" style="width:100%; margin-bottom:10px;">
+  <input id="password" type="password" placeholder="Password" style="width:100%; margin-bottom:10px;">
+
+  <button onclick="login(email.value, password.value)">Login</button>
+  <button onclick="registerEmail()">Daftar</button>
+</div>
+
 <div class="post-box">
   <div class="logo">
-  <img style="z-index: 9999;" src="android-chrome-512x512.png">
+  <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="foto avatar">
   <h1>Makcek Ngobrol</h1>
 </div>
 
-  <div style="font-size:13px; color:#444; margin-bottom:8px;">
+  <div class="caption" style="font-size:13px;text-align: center; color:#444; margin-bottom:8px;">
   ⚠️ Isi nama & foto dulu di ⚙️ pengaturan ya
 </div>
   <button title="buat ID mu..." id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
 
   <div class="post-top">
-   
   <div class="avatar"></div>
    <div class="username"></div>  
   <div class="post-body">
 
     <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
-
+    <label class="file-label" title="pilih file...">
+        📷
+        <input type="file" id="file">
+      </label>
     <div class="post-tools">
-      
       <div id="fileInfo"></div>
     </div>
 
   </div>
 
 </div>
-      <label class="file-label" title="pilih file...">
-        📷
-        <input type="file" id="file">
-      </label>
-
+      
+<div id="previewBox" style="margin-top:10px;"></div>
 <button onclick="createPost(event)">Posting</button>
 </div>
 
@@ -391,23 +519,43 @@ button {
   </div>
 </div>
 
+<div id="movieSection">
+  <input style="position: fixed;z-index: 9999;width: 100%;background: wheat;color: #444; " id="search" placeholder="Cari film...">
+  <div id="movieList"></div>
+  <div id="playerBox"></div> <!-- WAJIB DI SINI -->
+</div>
+<div id="affiliateSection" style="display:none; padding:10px; ">
+  <h3>🔥 Produk Rekomendasi</h3>
+  <div id="affiliateList" style="z-index: 9999;" ></div>
+  <button onclick="closeAffiliate()" 
+  style="position:absolute;top:10px;right:10px;">❌</button>
+</div>
 <div id="feed"></div>
 
 <script>
+  let lastPostId = null;
+let isFirstLoad = true;
+let products = [];
+let adsReady = false;
+  const YT_API_KEY = "AIzaSyDiVHmHgrD9Po6SK_WHb5Ni58qTkaBGZsU";
 // FIREBASE
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDFKC...",
+  apiKey: "AIzaSyDFKC5jU_xmRZ3QhB9yDhxJzHpFL3eYxro",
   authDomain: "makcek-ngobrol.firebaseapp.com",
   projectId: "makcek-ngobrol",
   storageBucket: "makcek-ngobrol.firebasestorage.app",
+  messagingSenderId: "178172356647",
+  appId: "1:178172356647:web:749b23412c15e11c65c602",
+  measurementId: "G-B54PN92FD4"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
- const currentUser = localStorage.getItem('username');
-const role = localStorage.getItem('role');
+const auth = firebase.auth();
 
-const isAdmin = role === 'admin';
+window.isAdmin = false;
+window.currentRole = "user";
 // ESCAPE HTML (ANTI XSS)
 function escapeHTML(text){
   return text.replace(/[&<>"']/g, m => ({
@@ -419,32 +567,49 @@ function escapeHTML(text){
   }[m]));
 }
 
-
 // LOAD USER
-window.onload = () => {
-   const username = localStorage.getItem('username');
-  const avatar = localStorage.getItem('avatar');
-  if(avatar){
-    document.querySelectorAll('.avatar').forEach(el=>{
-      el.style.backgroundImage = `url(${avatar})`;
-    });
-     if(username){
-    document.querySelectorAll('.username').forEach(el=>{
-      el.innerText = username;
-    });
-  }
-  if (!username || username.trim() === "") {
-    setTimeout(() => {
-      openSettings();
-    }, 500);
-  }
-     const topAvatar = document.querySelector('.post-box .avatar');
-    if(topAvatar){
-      topAvatar.style.backgroundImage = `url(${avatar})`;
+auth.onAuthStateChanged(async (user) => {
+  try {
+
+    if (!user) {
+      window.isAdmin = false;
+      window.currentRole = "user";
+
+      const loginBox = document.getElementById("loginBox");
+      if (loginBox) loginBox.style.display = "block";
+
+      return;
     }
+
+   let role = "user";
+
+   const snap = await db.collection("users").doc(user.uid).get();
+
+if (snap.exists) {
+  role = snap.data().role || "user";
+}
+
+
+    // 🔥 SINGLE SOURCE OF TRUTH
+    window.currentRole = role;
+    window.isAdmin = (role === "admin");
+
+    document.getElementById("loginBox").style.display = "none";
+
+    document.querySelectorAll(".username").forEach(el => {
+      el.innerText = user.displayName || user.email;
+    });
+
+    if (user.photoURL) {
+      document.querySelectorAll(".avatar").forEach(el => {
+        el.style.backgroundImage = `url(${user.photoURL})`;
+      });
+    }
+
+  } catch (err) {
+    console.log("AUTH ERROR:", err);
   }
- 
-};
+});
 async function uploadToCloudinary(file){
 
   let uploadFile = file;
@@ -496,6 +661,40 @@ function compressImage(file, quality = 0.7, maxWidth = 1280){
   });
 }
 
+  // register
+async function registerEmail(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const result = await auth.createUserWithEmailAndPassword(email, password);
+
+    const user = result.user;
+
+    // simpan ke firestore (biar ada profile)
+    db.collection("users").doc(user.uid).set({
+  email: user.email,
+  role: "user",
+  username: "makcek"
+});
+
+    alert("Register berhasil");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+
+  // login
+async function login(email, password){
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    alert("Login sukses");
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
 // RENDER
 function renderFeed(snapshot){
   const feed = document.getElementById('feed');
@@ -503,9 +702,9 @@ function renderFeed(snapshot){
 
   snapshot.forEach(doc=>{
     const p = doc.data();
-    const currentUser = localStorage.getItem('username');
-    const isOwner = p.user === currentUser;
-    const isAdmin = role === 'admin';
+    const user = auth.currentUser;
+const isOwner = user && p.uid === user.uid;
+const isAdmin = window.isAdmin === true;
     let media = '';
     if(p.fileUrl){
       if(p.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i)){
@@ -541,11 +740,6 @@ function renderFeed(snapshot){
   ? `<button onclick="deletePost('${doc.id}')">🗑 Hapus</button>` 
   : ""}
       </div>
-
-      
-        
-      
-
         <div class="comment-input">
           <input placeholder="Tulis komentar..." id="c${doc.id}">
           <button onclick="addComment('${doc.id}')">➤</button>
@@ -563,6 +757,7 @@ db.collection("posts")
   .orderBy("timestamp", "asc")
   .onSnapshot(snap => {
 
+    if (!document.body.contains(commentBox)) return;
     commentBox.innerHTML = "";
 
     snap.forEach(cdoc => {
@@ -633,16 +828,52 @@ db.collection("posts")
 
 
 // REALTIME
-db.collection('posts').orderBy('timestamp','desc')
-.onSnapshot(snap => renderFeed(snap.docs));
+db.collection('posts')
+  .orderBy('timestamp', 'desc')
+  .onSnapshot(snap => {
 
+    // 🔥 pertama kali load: tidak notif
+    if (isFirstLoad) {
+      isFirstLoad = false;
+      renderFeed(snap.docs);
+      return;
+    }
+
+    snap.docChanges().forEach(change => {
+
+      if (change.type === "added") {
+
+        const data = change.doc.data();
+
+        // ❌ jangan notif posting sendiri
+        if (data.uid === auth.currentUser?.uid) return;
+
+        // 🔥 anti duplikat
+        if (change.doc.id !== lastPostId) {
+          showNotification(data.user, data.content);
+        }
+
+        lastPostId = change.doc.id;
+      }
+    });
+
+    renderFeed(snap.docs);
+  });
 // POST
 async function createPost(e){
   const btn = e.target;
   btn.disabled = true;
   btn.innerText = "Posting...";
-  const user = localStorage.getItem('username') || 'Anon';
-  const avatar = localStorage.getItem('avatar') || '';
+  const user = auth.currentUser;
+if (!user) {
+  alert("Login dulu!");
+  btn.disabled = false;
+  btn.innerText = "Posting";
+  return;
+}
+
+const username = user.displayName || user.email;
+const avatar = user.photoURL || '';
   const content = document.getElementById('content').value;
 
   const fileInput = document.getElementById('file');
@@ -659,51 +890,58 @@ async function createPost(e){
     fileUrl = await uploadToCloudinary(file);
   }
 
-  await db.collection('posts').add({
-    user,
-    content,
-    avatar,
-    fileUrl,   // ✅ ini yang dipakai renderFeed kamu
-    likes: [],
-    comments: [],
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  });
+ await db.collection('posts').add({
+  user: username,
+  uid: user.uid,
+  avatar: avatar,
+  content: content,
+  fileUrl: fileUrl,
+  likes: [],
+  timestamp: firebase.firestore.FieldValue.serverTimestamp()
+});
 
   document.getElementById('content').value = '';
+  document.getElementById("fileInfo").innerText = "";
   fileInput.value = ''; // reset file
   btn.disabled = false;
   btn.innerText = "Posting";
+  document.getElementById("previewBox").innerHTML=""
 }
 // LIKE
 async function toggleLike(id){
-  const user = localStorage.getItem('username') || 'Anon';
+  const user = auth.currentUser;
+
+  if(!user){
+    alert("Login dulu!");
+    return;
+  }
+
+  const userId = user.uid; // paling aman (unik)
   const ref = db.collection('posts').doc(id);
 
-  await db.runTransaction(async t=>{
-    const doc = await t.get(ref);
-    let likes = doc.data().likes || [];
+  await db.runTransaction(async (t) => {
+    const docSnap = await t.get(ref);
+    let likes = docSnap.data().likes || [];
 
-    if(likes.includes(user)){
-      likes = likes.filter(u=>u!==user);
+    if(likes.includes(userId)){
+      likes = likes.filter(u => u !== userId);
     } else {
-      likes.push(user);
+      likes.push(userId);
     }
 
-    t.update(ref,{likes});
+    t.update(ref, { likes });
   });
 }
-
 // DELETE
 async function deletePost(id){
-  const currentUser = localStorage.getItem('username');
-  const role = localStorage.getItem('role');
+  const currentUser = auth.currentUser;
+  const docSnap = await db.collection('posts').doc(id).get();
+  const data = docSnap.data();
 
-  const doc = await db.collection('posts').doc(id).get();
-  const data = doc.data();
+  const isAdmin = window.isAdmin === true;
+  const isOwner = currentUser && data.uid === currentUser.uid;
 
-  const isAdmin = role === 'admin';
-
-  if(data.user !== currentUser && !isAdmin){
+  if(!isAdmin && !isOwner){
     alert("❌ Tidak boleh hapus");
     return;
   }
@@ -719,14 +957,18 @@ async function addComment(postId){
   const text = input.value.trim();
   if(!text) return;
 
-  const user = localStorage.getItem('username') || 'Anon';
-
+  const user = auth.currentUser;
+  if(!user){
+  alert("Login dulu!");
+  return;
+}
   await db.collection('posts')
     .doc(postId)
     .collection('comments')
     .add({
-      user,
-      avatar,
+     user: user.displayName || user.email,
+      uid: user.uid,
+      avatar: user.photoURL || "",
       text,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -736,13 +978,31 @@ async function addComment(postId){
 // DELETE COMMENT
 
 async function deleteCommentNew(postId, commentId){
+
+  const user = auth.currentUser;
+  const isAdmin = window.isAdmin === true;
+
+  const snap = await db.collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .doc(commentId)
+    .get();
+
+  const data = snap.data();
+
+  const isOwner = user && data.uid === user.uid;
+
+  if(!isAdmin && !isOwner){
+    alert("❌ Tidak boleh hapus komentar ini");
+    return;
+  }
+
   await db.collection("posts")
     .doc(postId)
     .collection("comments")
     .doc(commentId)
     .delete();
 }
-
 // SHOW REPLY INPUT
 function showReplyInput(postId, i){
   const el = document.getElementById(`reply-${postId}-${i}`);
@@ -757,14 +1017,17 @@ async function addReply(postId, commentId){
   const text = input.value.trim();
   if(!text) return;
 
+  const user = auth.currentUser;
+
   await db.collection("posts")
     .doc(postId)
     .collection("comments")
     .doc(commentId)
     .collection("replies")
     .add({
-      user: localStorage.getItem('username') || 'Anon',
-      avatar: localStorage.getItem('avatar') || '',
+      user: user?.displayName || "Anon",
+      avatar: user?.photoURL || "",
+      uid: user?.uid,   // 🔥 penting biar aman & unik
       text,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -772,11 +1035,14 @@ async function addReply(postId, commentId){
   input.value = "";
   document.getElementById(`reply-${postId}-${commentId}`).style.display = "none";
 }
-
 // SETTINGS
 function openSettings(){
-  document.getElementById('settingsBox').style.display='flex';
-  document.getElementById('setName').value = localStorage.getItem('username') || '';
+  document.getElementById('settingsBox').style.display = 'flex';
+
+  const user = auth.currentUser;
+
+  document.getElementById('setName').value =
+    user?.displayName || '';
 }
 function closeSettings(){
   document.getElementById('settingsBox').style.display='none';
@@ -790,47 +1056,460 @@ async function saveSettings(){
     return;
   }
 
-  let avatarUrl = localStorage.getItem('avatar') || '';
+  const user = auth.currentUser;
+  if(!user){
+    alert("Belum login");
+    return;
+  }
+
+  let avatarUrl = user.photoURL || '';
 
   if(file){
     avatarUrl = await uploadToCloudinary(file);
-    localStorage.setItem('avatar', avatarUrl);
   }
 
-  localStorage.setItem('username', name);
+  await user.updateProfile({
+    displayName: name,
+    photoURL: avatarUrl
+  });
 
   closeSettings();
-  location.reload();
-}
 
+  // 🔥 penting: refresh UI tanpa reload berat
+  document.querySelectorAll('.username').forEach(el=>{
+    el.innerText = name;
+  });
+
+  document.querySelectorAll('.avatar').forEach(el=>{
+    el.style.backgroundImage = `url(${avatarUrl})`;
+  });
+}
 document.getElementById("file").addEventListener("change", function(){
   const file = this.files[0];
-  const info = document.getElementById("fileInfo");
+  const previewBox = document.getElementById("previewBox");
 
-  if(file){
-    info.innerText = "📎 " + file.name;
-  } else {
-    info.innerText = "";
+  previewBox.innerHTML = "";
+
+  if(!file) return;
+
+  const url = URL.createObjectURL(file);
+
+  if(file.type.startsWith("image/")){
+    previewBox.innerHTML = `
+      <div style="position:relative; display:inline-block;">
+        <img src="${url}" style="max-width:100%; max-height:200px; border-radius:10px;" alt="foto preview">
+
+        <button onclick="removePreview()" 
+          style="
+            position:absolute;
+            top:6px;
+            right:6px;
+            background:red;
+            color:white;
+            border:none;
+            border-radius:50%;
+            width:26px;
+            height:26px;
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+          ">X</button>
+      </div>
+    `;
+  }
+
+  else {
+    previewBox.innerHTML = `
+      <div style="
+        background:#222;
+        padding:10px;
+        border-radius:10px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      ">
+        📄 File siap upload
+
+        <button onclick="removePreview()" style="background:red;color:white;border:none;padding:5px 10px;border-radius:6px;">
+          batal
+        </button>
+      </div>
+    `;
   }
 });
+function removePreview(){
+  document.getElementById("file").value = "";
+  document.getElementById("previewBox").innerHTML = "";
+}
+async function removeAvatar(){
+  const user = auth.currentUser;
 
-function removeAvatar(){
-  localStorage.removeItem('avatar');
-  localStorage.removeItem('username');
+  if(!user){
+    alert("Belum login");
+    return;
+  }
+
+  await user.updateProfile({
+    displayName: "",
+    photoURL: ""
+  });
 
   alert("Avatar & nama dihapus");
 
   location.reload();
 }
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for (let registration of registrations) {
-      registration.unregister();
-    }
+
+// pop up iklan
+
+
+let lastStep = 0;
+let currentAd = null;
+
+function showRandomAd(){
+
+  if(!adsReady || products.length === 0){
+    console.log("ADS belum ready");
+    return;
+  }
+
+  const item = products[Math.floor(Math.random() * products.length)];
+
+  if(!item || !item.img) return;
+
+  const ad = document.createElement("div");
+
+  ad.innerHTML = `
+    <div style="display:flex;gap:10px;padding:10px;background:#fff;border-radius:10px;">
+      <img src="${item.img}" style="width:70px;height:70px;" alt="gambar iklan">
+      <div>
+        <b>${item.name || "Produk"}</b>
+        <button onclick="window.open('${item.link}','_blank')"style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">>Beli</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("feed").appendChild(ad);
+
+  setTimeout(() => ad.remove(), 10000);
+}
+
+const feed = document.getElementById("feed");
+
+feed.addEventListener("scroll", function(){
+
+  const step = Math.floor(feed.scrollTop / 600);
+
+  if(step > lastStep){
+    showRandomAd();
+    lastStep = step;
+  }
+
+});
+//  tombol afiliate
+function openAffiliate(){
+
+  // hide section lain
+  document.getElementById("movieSection").classList.remove("show");
+
+  // toggle affiliate
+  const box = document.getElementById("affiliateSection");
+
+  if(box.style.display === "block"){
+    box.style.display = "none";
+  } else {
+    box.style.display = "block";
+    loadAffiliate(); // 🔥 load produk
+  }
+}
+let affiliateProducts = [];
+
+async function loadAffiliate(){
+
+  const box = document.getElementById("affiliateList");
+  box.innerHTML = "Loading...";
+
+  try {
+    const snap = await db.collection("iklan").get();
+
+    affiliateProducts = snap.docs.map(doc => doc.data());
+
+    box.innerHTML = "";
+
+    affiliateProducts.forEach(p => {
+
+      box.innerHTML += `
+        <div style="
+          display:flex;
+          gap:10px;
+          padding:10px;
+          margin-bottom:10px;
+          background:#fff;
+          border-radius:10px;
+          box-shadow:0 2px 8px rgba(0,0,0,0.1);
+          max-width: 300px;
+        ">
+          
+          <img src="${p.img}" style="width:80px;border-radius:8px;" alt="gambar produk">
+
+          <div style="flex:1;">
+            <div style="font-weight:bold;">${p.name}</div>
+
+            <button onclick="window.open('${p.link}','_blank')" 
+              style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">
+              Beli Sekarang
+            </button>
+          </div>
+
+        </div>
+      `;
+    });
+
+    console.log("AFFILIATE LOADED:", affiliateProducts);
+
+  } catch (e) {
+    console.log("AFFILIATE ERROR:", e);
+    box.innerHTML = "Gagal load data";
+  }
+}
+// FUNTION LINK RESIZE FOTO
+function openLink(){
+  window.open("https://makcex.github.io/Rubah-Ukuran-Foto/", "_blank");
+}
+//  movies
+async function loadMovies(){
+  const box = document.getElementById("movieList");
+  box.innerHTML = "⏳ Loading film...";
+
+  try{
+   const keyword = document.getElementById("search").value || "movie";
+
+const res = await fetch(
+  `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+full+movie&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
+);
+    const data = await res.json();
+    renderMovies(data.items);
+
+  } catch(e){
+    box.innerHTML = "❌ Gagal load film";
+  }
+}
+
+let allMovies = [];
+
+function renderMovies(list){
+  allMovies = list;
+
+  const box = document.getElementById("movieList");
+  box.innerHTML = "";
+
+  list.forEach(v => {
+    const id = v.id.videoId;
+    const title = v.snippet.title;
+   
+    const img = v.snippet.thumbnails.medium.url;
+
+    box.innerHTML += `
+      <div onclick="playMovie('${id}')"
+        style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #ddd;cursor:pointer;align-items:center;">
+        
+        <img src="${img}" style="width:80px;border-radius:8px;" alt="gambar produk">
+        
+        <div>🎬 ${title}</div>
+      </div>
+    `;
   });
 }
-</script>
+//  search movie
+window.onload = function(){
+
+document.getElementById("search").addEventListener("input", async function(){
+
+  const keyword = this.value || "movie";
+
+  const box = document.getElementById("movieList");
+  box.innerHTML = "⏳ Cari film...";
+
+  try{
+
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+full+movie&type=video&videoDuration=long&maxResults=20&key=${YT_API_KEY}`
+    );
+
+    const data = await res.json();
+
+    box.innerHTML = "";
+
+    data.items.forEach(v => {
+      const id = v.id.videoId;
+      const title = v.snippet.title;
+      const img = v.snippet.thumbnails.medium.url;
+
+      box.innerHTML += `
+        <div onclick="playMovie('${id}')"
+          style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #ddd;cursor:pointer;align-items:center;">
+          
+          <img src="${img}" style="width:80px;border-radius:8px;" alt="movie">
+          
+          <div>🎬 ${title}</div>
+        </div>
+      `;
+    });
+
+  } catch(e){
+    box.innerHTML = "❌ Gagal cari film";
+  }
+
+});
+}
+// iklan di movies
+function showMovieAd(){
+  if(!adsReady || !products.length){
+    console.log("ADS belum ready");
+    return;
+  }
+
+  const item = products[Math.floor(Math.random() * products.length)];
+  if(!item?.img) return;
+
+  const ad = document.createElement("div");
+
+  ad.innerHTML = `
+    <div style="display:flex;gap:10px;padding:10px;background:#fff;border-radius:10px;">
+      <img src="${item.img}" style="width:70px;height:70px;object-fit:cover;" alt="iklan">
+      <div>
+        <b>${item.name}</b><br>
+        <button onclick="window.open('${item.link}','_blank')"style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">Beli</button>
+      </div>
+    </div>
+  `;
+
+  const container = document.getElementById("movieList");
+  const items = container.children;
+  const middle = Math.floor(items.length / 2);
+
+  if(items.length > 0){
+    container.insertBefore(ad, items[middle]);
+  } else {
+    container.appendChild(ad);
+  }
+
+  setTimeout(() => ad.remove(), 8000);
+}
+function playMovie(id){
+  const player = document.getElementById("playerBox");
+
+  player.innerHTML = `
+    <div style="position:fixed;bottom:0;left:0;width:100%;background:#000;z-index:100000;padding:10px;">
+      
+      <iframe
+        width="100%"
+        height="220"
+        src="https://www.youtube.com/embed/${id}?autoplay=1"
+        allow="autoplay; encrypted-media"
+        allowfullscreen>
+      </iframe>
+
+      <button onclick="window.open('https://www.youtube.com/watch?v=${id}','_blank')"
+        style="position:absolute;top:5px;left:10px;background:#fff;color:#000;border:none;padding:5px 10px;border-radius:6px;">
+        ▶️ Buka di YouTube
+      </button>
+
+      <button onclick="closePlayer()"
+        style="position:absolute;top:5px;right:10px;background:red;color:white;border:none;border-radius:50%;width:30px;height:30px;">
+        ✕
+      </button>
+    </div>
+  `;
+}
+function closeAffiliate(){
+  document.getElementById("affiliateSection").style.display = "none";
+}
+function closePlayer(){
+  document.getElementById("playerBox").innerHTML = "";
+ 
+}
+
+function openMovies(){
+  document.getElementById("movieSection").classList.toggle("show")
+
+  loadMovies(); // 🔥 dipanggil di sini
+}
+// NOTIFIKASI
+function showNotification(user, text){
+
+  // suara (optional)
+  // playNotifSound();
+
+  const notif = document.createElement("div");
+
+  notif.innerHTML = `
+    <div style="
+      position:fixed;
+      top:10px;
+      right:50px;
+      background:#1877f2;
+      color:white;
+      padding:10px;
+      border-radius:10px;
+      z-index:99999;
+      box-shadow:0 4px 10px rgba(0,0,0,0.2);
+      max-width:250px;
+    ">
+      🔔 <b>${user}</b> posting baru
+      <div style="font-size:12px;opacity:0.8;margin-top:5px;">
+        ${text ? text.slice(0,60) : ""}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(notif);
+
+  setTimeout(() => {
+    notif.remove();
+  }, 4000);
+}
+window.addEventListener("load", () => {
+  const movieList = document.getElementById("movieList");
+  let movieLastStep = 0;
+
+  movieList.addEventListener("scroll", function () {
+    console.log("SCROLL MOVIE JALAN");
+    const step = Math.floor(movieList.scrollTop / 600);
+
+    if (step > movieLastStep) {
+       showMovieAd();
+      movieLastStep = step;
+    }
+  });
+});
+
+async function loadAdsFromFirebase(){
+  try {
+    const snap = await db.collection("iklan").get();
+
+    products = snap.docs.map(doc => doc.data());
+
+    console.log("ADS LOADED:", products);
+
+    adsReady = true;
+
+  } catch (e) {
+    console.log("ADS ERROR:", e);
+    adsReady = false;
+  }
+}
+window.addEventListener("load", async () => {
+  await loadAdsFromFirebase();
+});
 
 </script>
+
+<div id="bottomNav">
+  <button onclick="openLink()">🌐</button>
+  <button onclick="openMovies()">🎬</button>
+  <button onclick="openAffiliate()">💰</button>
+</div>
+</div>
 </body>
 </html>
