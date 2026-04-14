@@ -68,6 +68,13 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   gap: 10px;
  
 }
+.commentBox {
+  display: none;
+}
+
+.commentBox.show {
+  display: block;
+}
 
 .logo img {
   width: 36px;
@@ -118,8 +125,9 @@ textarea{
  
 }
 #gear{
-  
+  position: relative;
   padding: 5px 5px;
+  z-index: 2000;
 }
 .file-label{
   position: absolute;
@@ -280,6 +288,7 @@ button {
   display: flex;
   gap: 10px;
   align-items: flex-start;
+   margin-top: 10px;
 }
 .post-top button {
   flex-shrink: 0;
@@ -384,34 +393,11 @@ display: none;
 
 @media (max-width: 600px) {
 
-  .post-box {
-    width: 100%;
-    max-width: 100%;
-    left: 0;
-    transform: none;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-
   #feed {
-    width: 100%;
-    max-width: 100%;
-    left: 0;
-    transform: none;
-    top: 190px;
-    padding: 20px;
+    
+    padding: 10px;
   }
   
-
-  .post-top {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  
-
   .post-box h1 {
     font-size: 18px;
   }
@@ -445,10 +431,7 @@ display: none;
   width: 100%;
   border-radius: 12px;
 }
-textarea{
-  max-width: 500px;
-  min-width: 250px;
-}
+
 .file-label{
   right: 70px;
   padding: 0 2px;
@@ -457,6 +440,32 @@ textarea{
   border-radius: 50%;
   
 }
+.post-box {
+    left: 0;
+    transform: none;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .post-top {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 60px;
+    z-index: 1;
+  }
+
+  #gear {
+    position: absolute;
+    right: 20px;
+    top: 50px;
+    z-index: 2000;
+  }
  
 }
 
@@ -535,6 +544,8 @@ textarea{
 <script>
   let lastPostId = null;
 let isFirstLoad = true;
+let commentListeners = {};
+let replyListeners = {};
 let products = [];
 let adsReady = false;
   const YT_API_KEY = "AIzaSyDiVHmHgrD9Po6SK_WHb5Ni58qTkaBGZsU";
@@ -593,7 +604,8 @@ if (snap.exists) {
     // 🔥 SINGLE SOURCE OF TRUTH
     window.currentRole = role;
     window.isAdmin = (role === "admin");
-
+console.log("ROLE USER:", role);
+console.log("IS ADMIN:", window.isAdmin);
     document.getElementById("loginBox").style.display = "none";
 
     document.querySelectorAll(".username").forEach(el => {
@@ -700,17 +712,19 @@ function renderFeed(snapshot){
   const feed = document.getElementById('feed');
   feed.innerHTML = '';
 
-  snapshot.forEach(doc=>{
+  snapshot.forEach(doc => {
     const p = doc.data();
     const user = auth.currentUser;
-const isOwner = user && p.uid === user.uid;
-const isAdmin = window.isAdmin === true;
+
+    const isOwner = user && p.uid === user.uid;
+    const isAdmin = window.isAdmin === true;
+
     let media = '';
     if(p.fileUrl){
       if(p.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i)){
-        media = `<img src="${p.fileUrl}">`;
+        media = `<img src="${p.fileUrl}" style="max-width:100%;">`;
       } else {
-        media = `<video src="${p.fileUrl}" controls></video>`;
+        media = `<video src="${p.fileUrl}" controls style="max-width:100%;"></video>`;
       }
     }
 
@@ -735,83 +749,127 @@ const isAdmin = window.isAdmin === true;
 
       <div class="post-actions">
         <button onclick="toggleLike('${doc.id}')">👍 Suka</button>
-        <button onclick="document.getElementById('c${doc.id}').focus()">💬 Komentar</button>
-        ${(isOwner || isAdmin) 
-  ? `<button onclick="deletePost('${doc.id}')">🗑 Hapus</button>` 
-  : ""}
+        <button onclick="toggleComment('${doc.id}')">💬 Komentar</button>
+
+        ${(isOwner || isAdmin)
+          ? `<button onclick="deletePost('${doc.id}')">🗑 Hapus</button>`
+          : ""}
       </div>
+
+      <div id="commentBox-${doc.id}">
         <div class="comment-input">
-          <input placeholder="Tulis komentar..." id="c${doc.id}">
+          <input id="c${doc.id}" placeholder="Tulis komentar...">
           <button onclick="addComment('${doc.id}')">➤</button>
         </div>
 
+        <div id="comments-${doc.id}"></div>
       </div>
     `;
-    const commentBox = document.createElement("div");
-commentBox.id = `comment-${doc.id}`;
-div.appendChild(commentBox);
 
-db.collection("posts")
-  .doc(doc.id)
-  .collection("comments")
-  .orderBy("timestamp", "asc")
-  .onSnapshot(snap => {
+    feed.appendChild(div);
 
-    if (!document.body.contains(commentBox)) return;
-    commentBox.innerHTML = "";
+    loadComments(doc.id);
+    console.log("LOAD COMMENTS FOR:", doc.id);
+  });
+}
+function loadComments(postId){
 
-    snap.forEach(cdoc => {
-      const c = cdoc.data();
+  const boxId = `comments-${postId}`;
+  const box = document.getElementById(boxId);
 
-      const commentEl = document.createElement("div");
-commentEl.className = "comment";
+  if(!box){
+    console.log("❌ comment box tidak ditemukan:", boxId);
+    return;
+  }
 
-commentEl.innerHTML = `
-  <div class="avatar" style="background-image:url('${c.avatar || ""}')"></div>
+  if(commentListeners[postId]){
+    commentListeners[postId]();
+  }
 
-  <div>
-    <div class="bubble">
-      <b>${c.user}</b><br>
-      ${escapeHTML(c.text)}
-    </div>
+  const user = auth.currentUser;
 
-    <div class="actions">
-      <span onclick="showReplyInput('${doc.id}','${cdoc.id}')">💬 Balas</span>
-      <span onclick="deleteCommentNew('${doc.id}','${cdoc.id}')">🗑 Hapus</span>
-    </div>
+  commentListeners[postId] =
+    db.collection("posts")
+      .doc(postId)
+      .collection("comments")
+      .orderBy("timestamp","asc")
+      .onSnapshot(snap => {
 
-    <div id="reply-${doc.id}-${cdoc.id}" style="display:none;">
-      <input id="r-${doc.id}-${cdoc.id}" placeholder="Balas komentar...">
-      <button onclick="addReply('${doc.id}','${cdoc.id}')">➤</button>
-    </div>
+        box.innerHTML = "";
 
-    <div id="replyList-${doc.id}-${cdoc.id}" style="margin-left:30px;"></div>
-  </div>
-`;
+        snap.forEach(cdoc => {
+          const c = cdoc.data();
 
-commentBox.appendChild(commentEl);
-      const replyBox = document.getElementById(`replyList-${doc.id}-${cdoc.id}`);
-      if (!replyBox) return; 
-db.collection("posts")
-  .doc(doc.id)
-  .collection("comments")
-  .doc(cdoc.id)
-  .collection("replies")
-  .orderBy("timestamp","asc")
-  .onSnapshot(rsnap => {
+          const isOwner = user && c.uid === user.uid;
+          const isAdmin = window.isAdmin === true;
 
-    if (replyBox) replyBox.innerHTML = "";
+          box.innerHTML += `
+            <div class="comment">
 
-    rsnap.forEach(rdoc => {
+              <div class="avatar" style="background-image:url('${c.avatar || ""}')"></div>
+
+              <div style="flex:1">
+
+                <div class="bubble">
+                  <b>${escapeHTML(c.user)}</b><br>
+                  ${escapeHTML(c.text)}
+                </div>
+
+                <!-- 🔥 INI YANG KAMU KURANG -->
+                <div class="actions">
+                  <span onclick="showReplyInput('${postId}','${cdoc.id}')">💬 Balas</span>
+
+                  ${(isOwner || isAdmin)
+                    ? `<span onclick="deleteCommentNew('${postId}','${cdoc.id}')">🗑 Hapus</span>`
+                    : ""}
+                </div>
+
+                <div id="reply-${postId}-${cdoc.id}" style="display:none;">
+                  <input id="r-${postId}-${cdoc.id}" placeholder="Balas komentar...">
+                  <button onclick="addReply('${postId}','${cdoc.id}')">➤</button>
+                </div>
+
+                <div id="replies-${postId}-${cdoc.id}" style="margin-left:30px;"></div>
+
+              </div>
+            </div>
+          `;
+
+          loadReplies(postId, cdoc.id);
+        });
+      });
+}
+function loadReplies(postId, commentId){
+
+  const key = `${postId}_${commentId}`;
+
+  if(replyListeners[key]){
+    replyListeners[key]();
+  }
+
+  const ref = db.collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .doc(commentId)
+    .collection("replies")
+    .orderBy("timestamp","asc");
+
+  replyListeners[key] = ref.onSnapshot(snap => {
+
+    const box = document.getElementById(`replies-${postId}-${commentId}`);
+    if(!box) return;
+
+    box.innerHTML = "";
+
+    snap.forEach(rdoc => {
       const r = rdoc.data();
 
-      if (replyBox)replyBox.innerHTML += `
+      box.innerHTML += `
         <div class="comment">
           <div class="avatar" style="background-image:url('${r.avatar || ""}')"></div>
-
           <div>
             <div class="bubble">
-              <b>${r.user}</b><br>
+              <b>${escapeHTML(r.user)}</b><br>
               ${escapeHTML(r.text)}
             </div>
           </div>
@@ -819,36 +877,31 @@ db.collection("posts")
       `;
     });
   });
-    });
-  });
-
-    feed.appendChild(div);
-  });
 }
 
+function toggleComment(postId){
+  const box = document.getElementById(`commentBox-${postId}`);
+  if(!box) return;
+
+  box.classList.toggle("show");
+}
 
 // REALTIME
 db.collection('posts')
   .orderBy('timestamp', 'desc')
   .onSnapshot(snap => {
 
-    // 🔥 pertama kali load: tidak notif
     if (isFirstLoad) {
       isFirstLoad = false;
-      renderFeed(snap.docs);
-      return;
     }
 
     snap.docChanges().forEach(change => {
-
       if (change.type === "added") {
 
         const data = change.doc.data();
 
-        // ❌ jangan notif posting sendiri
         if (data.uid === auth.currentUser?.uid) return;
 
-        // 🔥 anti duplikat
         if (change.doc.id !== lastPostId) {
           showNotification(data.user, data.content);
         }
@@ -952,21 +1005,21 @@ async function deletePost(id){
 }
 // ADD COMMENT
 async function addComment(postId){
-  const avatar = localStorage.getItem('avatar') || '';
   const input = document.getElementById('c' + postId);
   const text = input.value.trim();
   if(!text) return;
 
   const user = auth.currentUser;
   if(!user){
-  alert("Login dulu!");
-  return;
-}
+    alert("Login dulu!");
+    return;
+  }
+
   await db.collection('posts')
     .doc(postId)
     .collection('comments')
     .add({
-     user: user.displayName || user.email,
+      user: user.displayName || user.email,
       uid: user.uid,
       avatar: user.photoURL || "",
       text,
