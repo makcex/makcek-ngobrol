@@ -68,13 +68,7 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   gap: 10px;
  
 }
-.commentBox {
-  display: none;
-}
 
-.commentBox.show {
-  display: block;
-}
 
 .logo img {
   width: 36px;
@@ -149,13 +143,13 @@ textarea{
 #feed {
   position: absolute;
   top: 200px;
-  bottom: 0;
+  bottom: 100px;
   width: 100%;
   max-width: 600px;
   left: 50%;
   transform: translateX(-50%);
   overflow-y: auto;
-  padding: 50px;
+  padding-bottom: 80px;
 }
 
 /* SETTINGS */
@@ -179,7 +173,7 @@ textarea{
 
 /* AVATAR */
 .avatar { width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; }
-.comment .avatar { width:32px; height:32px; }
+.comment .avatar { width:28px; height:28px; }
 
 
 button {
@@ -198,16 +192,22 @@ button {
 }
 .post-header{
   display: flex;
+  margin-bottom: 10px;
 }
 .post-user{
-  color: black;
+  color: #222;
   font-weight: 600;
   font-family: sans-serif;
   font-size: 14px;
 }
 .post-time{
   color: #222;
-  font-size: 12px;
+  font-size: 10px;
+}
+
+.content{
+  color: #222;
+  font-size: clamp(0.5rem, 0.8rem, 1rem) ;
 }
 
 /* ACTION */
@@ -218,6 +218,7 @@ button {
   border-bottom:1px solid #ddd;
   padding:6px 0;
   margin-top:8px;
+  margin-bottom: 15px;
 }
 .post-actions button {
   background: transparent;
@@ -270,8 +271,11 @@ button {
   transform: scale(0.9);
 }
 /* COMMENT */
+.commentBox{
+  margin-bottom: 15px;
+}
 .comment { display:flex; margin-top:8px; }
-.bubble { background:#f0f2f5; border-radius:18px; padding:8px 12px; }
+.bubble { background:#f0f2f5; border-radius:18px; padding:8px 12px;font-size: 12px; }
 .comment-input { display:flex; margin-top:8px; }
 .comment-input input { flex:1; border-radius:20px; border:none; padding:8px; background:#f0f2f5; }
 #file {
@@ -282,7 +286,7 @@ button {
 }
 
 .file-label:hover {
-  transform: translateY(-7px);
+  transform: translateY(-4px);
 }
 .post-top {
   display: flex;
@@ -315,8 +319,9 @@ label{
   gap: 6px;
 }
 .username {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 14px;
+  color: #222;
 }
 
 .post-tools {
@@ -348,7 +353,7 @@ label{
   background: #fff;
   border-top: 1px solid #ddd;
 
-  padding: 8px 0;
+  padding: 5px 0;
   z-index: 9999;
 }
 
@@ -394,7 +399,8 @@ display: none;
 @media (max-width: 600px) {
 
   #feed {
-    
+    position: absolute;
+    bottom: 50px;
     padding: 10px;
   }
   
@@ -445,6 +451,7 @@ display: none;
     transform: none;
     width: 100%;
     border-radius: 0;
+    max-height: 160px;
   }
 
   .post-top {
@@ -462,9 +469,15 @@ display: none;
 
   #gear {
     position: absolute;
-    right: 20px;
-    top: 50px;
+    right: 30px;
+    top: 85px;
     z-index: 2000;
+  }
+  .actions{
+    margin-bottom: 20px;
+  }
+  .post-actions{
+    margin-bottom: 15px;
   }
  
 }
@@ -490,7 +503,7 @@ display: none;
 </div>
 
   <div class="caption" style="font-size:13px;text-align: center; color:#444; margin-bottom:8px;">
-  ⚠️ Isi nama & foto dulu di ⚙️ pengaturan ya
+  ⚠️ Isi nama & foto Di Pengaturan ⚙️ 
 </div>
   <button title="buat ID mu..." id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
 
@@ -502,7 +515,7 @@ display: none;
     <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
     <label class="file-label" title="pilih file...">
         📷
-        <input type="file" id="file">
+        <input type="file" id="file" accept="image/*,video/*">
       </label>
     <div class="post-tools">
       <div id="fileInfo"></div>
@@ -544,7 +557,7 @@ display: none;
 <script>
   let lastPostId = null;
 let isFirstLoad = true;
-let commentListeners = {};
+
 let replyListeners = {};
 let products = [];
 let adsReady = false;
@@ -635,13 +648,17 @@ async function uploadToCloudinary(file){
   formData.append("file", uploadFile);
   formData.append("upload_preset", "mini_fb_avatar");
 
-  const res = await fetch("https://api.cloudinary.com/v1_1/dutbbao5r/upload", {
+const isVideo = file.type.startsWith("video");
+  const resourceType = isVideo ? "video" : "image";
+
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/dutbbao5r/${resourceType}/upload`, {
     method: "POST",
     body: formData
   });
 
   const data = await res.json();
-  return data.secure_url;
+  return data.secure_url.replace("/upload/", "/upload/q_auto,f_auto/");
 }
   // compres
 function compressImage(file, quality = 0.7, maxWidth = 1280){
@@ -707,84 +724,14 @@ async function login(email, password){
   }
 }
 
+let commentListeners = {};
 // RENDER
-function renderFeed(snapshot){
-  const feed = document.getElementById('feed');
-  feed.innerHTML = '';
+function initComments(postId){
 
-  snapshot.forEach(doc => {
-    const p = doc.data();
-    const user = auth.currentUser;
+  if(commentListeners[postId]) return;
 
-    const isOwner = user && p.uid === user.uid;
-    const isAdmin = window.isAdmin === true;
-
-    let media = '';
-    if(p.fileUrl){
-      if(p.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)/i)){
-        media = `<img src="${p.fileUrl}" style="max-width:100%;">`;
-      } else {
-        media = `<video src="${p.fileUrl}" controls style="max-width:100%;"></video>`;
-      }
-    }
-
-    const time = p.timestamp?.toDate().toLocaleString() || '...';
-
-    const div = document.createElement('div');
-    div.className = 'post';
-
-    div.innerHTML = `
-      <div class="post-header">
-        <div class="avatar" style="background-image:url('${p.avatar || ""}')"></div>
-        <div style="margin-left:8px;">
-          <div class="post-user">${p.user}</div>
-          <div class="post-time">${time}</div>
-        </div>
-      </div>
-
-      <div>${escapeHTML(p.content)}</div>
-      ${media}
-
-      <div>👍 ${p.likes?.length || 0}</div>
-
-      <div class="post-actions">
-        <button onclick="toggleLike('${doc.id}')">👍 Suka</button>
-        <button onclick="toggleComment('${doc.id}')">💬 Komentar</button>
-
-        ${(isOwner || isAdmin)
-          ? `<button onclick="deletePost('${doc.id}')">🗑 Hapus</button>`
-          : ""}
-      </div>
-
-      <div id="commentBox-${doc.id}">
-        <div class="comment-input">
-          <input id="c${doc.id}" placeholder="Tulis komentar...">
-          <button onclick="addComment('${doc.id}')">➤</button>
-        </div>
-
-        <div id="comments-${doc.id}"></div>
-      </div>
-    `;
-
-    feed.appendChild(div);
-
-    loadComments(doc.id);
-    console.log("LOAD COMMENTS FOR:", doc.id);
-  });
-}
-function loadComments(postId){
-
-  const boxId = `comments-${postId}`;
-  const box = document.getElementById(boxId);
-
-  if(!box){
-    console.log("❌ comment box tidak ditemukan:", boxId);
-    return;
-  }
-
-  if(commentListeners[postId]){
-    commentListeners[postId]();
-  }
+  const box = document.getElementById("comments-" + postId);
+  if(!box) return;
 
   const user = auth.currentUser;
 
@@ -796,9 +743,24 @@ function loadComments(postId){
       .onSnapshot(snap => {
 
         box.innerHTML = "";
+        snap.docChanges().forEach(change => {
 
-        snap.forEach(cdoc => {
-          const c = cdoc.data();
+  if(change.type === "added"){
+
+    const c = change.doc.data();
+
+    // ❗ jangan notif kalau komentar sendiri
+    if(auth.currentUser && c.uid === auth.currentUser.uid) return;
+
+    showNotification(c.user, c.text);
+  }
+
+});
+
+        snap.forEach(doc => {
+          
+          const c = doc.data();
+          const commentId = doc.id;
 
           const isOwner = user && c.uid === user.uid;
           const isAdmin = window.isAdmin === true;
@@ -815,30 +777,34 @@ function loadComments(postId){
                   ${escapeHTML(c.text)}
                 </div>
 
-                <!-- 🔥 INI YANG KAMU KURANG -->
+                <!-- 🔥 INI YANG HILANG SEBELUMNYA -->
                 <div class="actions">
-                  <span onclick="showReplyInput('${postId}','${cdoc.id}')">💬 Balas</span>
+                  <span onclick="showReplyInput('${postId}','${commentId}')">💬 Balas</span>
 
                   ${(isOwner || isAdmin)
-                    ? `<span onclick="deleteCommentNew('${postId}','${cdoc.id}')">🗑 Hapus</span>`
+                    ? `<span onclick="deleteCommentNew('${postId}','${commentId}')">🗑 Hapus</span>`
                     : ""}
                 </div>
 
-                <div id="reply-${postId}-${cdoc.id}" style="display:none;">
-                  <input id="r-${postId}-${cdoc.id}" placeholder="Balas komentar...">
-                  <button onclick="addReply('${postId}','${cdoc.id}')">➤</button>
+                <!-- reply input -->
+                <div id="reply-${postId}-${commentId}" style="display:none;">
+                  <input id="r-${postId}-${commentId}" placeholder="Balas komentar...">
+                  <button onclick="addReply('${postId}','${commentId}')">➤</button>
                 </div>
 
-                <div id="replies-${postId}-${cdoc.id}" style="margin-left:30px;"></div>
+                <!-- replies -->
+                <div id="replies-${postId}-${commentId}" style="margin-left:30px;font-size:12px;color:#222"></div>
 
               </div>
             </div>
           `;
 
-          loadReplies(postId, cdoc.id);
+          loadReplies(postId, commentId);
         });
+
       });
 }
+
 function loadReplies(postId, commentId){
 
   const key = `${postId}_${commentId}`;
@@ -879,38 +845,88 @@ function loadReplies(postId, commentId){
   });
 }
 
-function toggleComment(postId){
-  const box = document.getElementById(`commentBox-${postId}`);
-  if(!box) return;
 
-  box.classList.toggle("show");
+
+function addPost(id, p){
+
+  let div = document.getElementById("post-" + id);
+  const feed = document.getElementById("feed");
+
+  // 🔥 kalau belum ada → buat
+  if(!div){
+    div = document.createElement("div");
+    div.className = "post";
+    div.id = "post-" + id;
+
+    // 🔥 masukin ke ATAS (biar realtime terasa)
+    feed.prepend(div);
+  }
+
+  const time = p.timestamp?.toDate?.().toLocaleString?.() 
+            || (p.timestamp instanceof Date ? p.timestamp.toLocaleString() : "...");
+
+  div.innerHTML = `
+    <div class="post-header">
+      <div class="avatar" style="background-image:url('${p.avatar || ""}')"></div>
+      <div style="margin-left:8px;">
+        <div class="post-user">${p.user}</div>
+        <div class="post-time">${time}</div>
+      </div>
+    </div>
+
+    <div class="content">${escapeHTML(p.content)}</div>
+
+    ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;">` : ""}
+
+    <div>👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
+
+    <div class="post-actions">
+      <button onclick="toggleLike('${id}')">👍 Suka</button>
+      <button onclick="toggleComment('${id}')">💬 Komentar</button>
+
+      ${(p.uid === auth.currentUser?.uid || window.isAdmin)
+        ? `<button onclick="deletePost('${id}')">🗑 Hapus</button>`
+        : ""}
+    </div>
+
+    <div id="commentBox-${id}" style="display:none">
+      <div class="comment-input">
+        <input id="c${id}" placeholder="Tulis komentar...">
+        <button onclick="addComment('${id}')">➤</button>
+      </div>
+    </div>
+
+    <div id="comments-${id}"></div>
+  `;
+
+  // 🔥 init komentar hanya sekali
+  initComments(id);
 }
 
 // REALTIME
+let postCache = {};
+
 db.collection('posts')
   .orderBy('timestamp', 'desc')
   .onSnapshot(snap => {
 
-    if (isFirstLoad) {
-      isFirstLoad = false;
-    }
-
     snap.docChanges().forEach(change => {
+      const id = change.doc.id;
+      const data = change.doc.data();
+
       if (change.type === "added") {
+        addPost(id, data);
+      }
 
-        const data = change.doc.data();
+      if (change.type === "modified") {
+        updatePost(id, data);
+      }
 
-        if (data.uid === auth.currentUser?.uid) return;
-
-        if (change.doc.id !== lastPostId) {
-          showNotification(data.user, data.content);
-        }
-
-        lastPostId = change.doc.id;
+      if (change.type === "removed") {
+        removePost(id);
       }
     });
 
-    renderFeed(snap.docs);
   });
 // POST
 async function createPost(e){
@@ -1003,6 +1019,18 @@ async function deletePost(id){
     await db.collection('posts').doc(id).delete();
   }
 }
+function updatePost(id, p){
+  const likeEl = document.getElementById("like-" + id);
+  if(likeEl){
+    likeEl.innerText = p.likes?.length || 0;
+  }
+}
+
+function removePost(id){
+  const el = document.getElementById("post-" + id);
+  if(el) el.remove();
+}
+
 // ADD COMMENT
 async function addComment(postId){
   const input = document.getElementById('c' + postId);
@@ -1060,6 +1088,12 @@ async function deleteCommentNew(postId, commentId){
 function showReplyInput(postId, i){
   const el = document.getElementById(`reply-${postId}-${i}`);
   if(el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+function toggleComment(postId){
+  const box = document.getElementById("commentBox-" + postId);
+  if(!box) return;
+
+  box.style.display = (box.style.display === "block") ? "none" : "block";
 }
 
 
