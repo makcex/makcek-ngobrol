@@ -68,8 +68,39 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   gap: 10px;
  
 }
+/* POST FILM */
+.post-video{
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  cursor: pointer;
+  
+}
 
+.post-video img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
+.post-video iframe{
+  width: 100%;
+  height: 100%;
+}
+
+.play-overlay{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 40px;
+  color: white;
+  pointer-events: none;
+  opacity: 0.8;
+}
 .logo img {
   width: 36px;
   height: 36px;
@@ -557,7 +588,7 @@ display: none;
 <script>
   let lastPostId = null;
 let isFirstLoad = true;
-
+let currentPlaying = null;
 let replyListeners = {};
 let products = [];
 let adsReady = false;
@@ -845,6 +876,165 @@ function loadReplies(postId, commentId){
   });
 }
 
+// CARD FILM
+function getVideoData(text) {
+
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urls = text.match(urlRegex);
+  if (!urls) return null;
+
+  for (let url of urls) {
+
+    // 🔵 YOUTUBE
+    if (url.includes("youtube.com/watch") || url.includes("youtu.be/")) {
+      let id = null;
+
+      try {
+        if (url.includes("youtube.com/watch")) {
+          const params = new URL(url).searchParams;
+          id = params.get("v");
+        }
+
+        if (url.includes("youtu.be/")) {
+          id = url.split("youtu.be/")[1].split(/[?&]/)[0];
+        }
+
+        if (id) {
+          return {
+            type: "youtube",
+            src: id
+          };
+        }
+
+      } catch (e) {}
+    }
+
+    // 🟢 MP4 / VIDEO FILE
+    if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/)) {
+      return {
+        type: "video",
+        src: url
+      };
+    }
+  }
+
+  return null;
+}
+
+function renderContent(text){
+
+  const video = getVideoData(text);
+  const safeText = escapeHTML(text);
+
+  let html = `<div class="post-text">${safeText}</div>`;
+
+  if (video) {
+
+    let thumb = "";
+
+    if (video.type === "youtube") {
+      thumb = `https://img.youtube.com/vi/${video.src}/hqdefault.jpg`;
+    } else {
+      thumb = ""; // optional custom thumbnail
+    }
+
+    html += `
+      <div class="post-video" 
+           data-type="${video.type}" 
+           data-src="${video.src}">
+           
+        ${thumb ? `<img src="${thumb}" loading="lazy">` : `<div class="video-placeholder">▶ Video</div>`}
+        <div class="play-overlay">▶</div>
+
+      </div>
+    `;
+  }
+
+  return html;
+}
+
+/* =========================
+   OBSERVER (ANTI BLANK FIX)
+========================= */
+function stopVideo(el){
+  if(!el) return;
+
+  const iframe = el.querySelector("iframe");
+  const video = el.querySelector("video");
+
+  if (iframe) iframe.remove();
+  if (video) {
+    video.pause();
+    video.src = "";
+  }
+
+  el.dataset.loaded = "0";
+}
+
+const observer = new IntersectionObserver(entries => {
+
+  entries.forEach(entry => {
+
+    const el = entry.target;
+    const type = el.dataset.type;
+    const src = el.dataset.src;
+
+    if (!src) return;
+
+    if (entry.isIntersecting) {
+
+      if (currentPlaying && currentPlaying !== el) {
+        stopVideo(currentPlaying);
+      }
+
+      if (el.dataset.loaded === "1") return;
+
+      el.dataset.loaded = "1";
+      currentPlaying = el;
+
+      el.innerHTML = "";
+
+      // 🔵 YOUTUBE
+      if (type === "youtube") {
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://www.youtube.com/embed/${src}?autoplay=1&mute=1&playsinline=1&rel=0`;
+        iframe.allow = "autoplay; encrypted-media";
+        el.appendChild(iframe);
+      }
+
+      // 🟢 MP4 / LOCAL VIDEO
+      if (type === "video") {
+        const video = document.createElement("video");
+        video.src = src;
+        video.autoplay = true;
+        video.muted = true;
+        video.controls = true;
+        el.appendChild(video);
+      }
+
+    }
+
+    else {
+      if (currentPlaying === el) {
+        stopVideo(el);
+        currentPlaying = null;
+      }
+    }
+
+  });
+
+}, { threshold: 0.7 });
+
+function initVideoObserver(){
+  document.querySelectorAll(".post-video").forEach(el => {
+    if (!el.dataset.observed) {
+      observer.observe(el);
+      el.dataset.observed = "1";
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initVideoObserver);
 
 
 function addPost(id, p){
@@ -874,8 +1064,7 @@ function addPost(id, p){
       </div>
     </div>
 
-    <div class="content">${escapeHTML(p.content)}</div>
-
+    <div class="content">${renderContent(p.content)}</div>
     ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;">` : ""}
 
     <div>👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
@@ -901,7 +1090,9 @@ function addPost(id, p){
 
   // 🔥 init komentar hanya sekali
   initComments(id);
+  
 }
+initVideoObserver()
 
 // REALTIME
 let postCache = {};
@@ -917,6 +1108,10 @@ db.collection('posts')
       if (change.type === "added") {
         addPost(id, data);
       }
+       setTimeout(() => {
+    initVideoObserver();
+  }, 200);
+
 
       if (change.type === "modified") {
         updatePost(id, data);
@@ -1267,7 +1462,7 @@ function showRandomAd(){
   const ad = document.createElement("div");
 
   ad.innerHTML = `
-    <div style="display:flex;gap:10px;padding:10px;background:#fff;border-radius:10px;">
+    <div style="display:flex;gap:10px;padding:10px;background:transparent;border-radius:10px;">
       <img src="${item.img}" style="width:70px;height:70px;" alt="gambar iklan">
       <div>
         <b>${item.name || "Produk"}</b>
@@ -1331,7 +1526,7 @@ async function loadAffiliate(){
           gap:10px;
           padding:10px;
           margin-bottom:10px;
-          background:#fff;
+          background:transparent;
           border-radius:10px;
           box-shadow:0 2px 8px rgba(0,0,0,0.1);
           max-width: 300px;
@@ -1462,7 +1657,7 @@ function showMovieAd(){
   const ad = document.createElement("div");
 
   ad.innerHTML = `
-    <div style="display:flex;gap:10px;padding:10px;background:#fff;border-radius:10px;">
+    <div style="display:flex;gap:10px;padding:10px;background:transparent;border-radius:10px;justify-content:center;align-items:center;">
       <img src="${item.img}" style="width:70px;height:70px;object-fit:cover;" alt="iklan">
       <div>
         <b>${item.name}</b><br>
