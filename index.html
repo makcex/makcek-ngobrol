@@ -60,7 +60,22 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
   
-body { padding:0; margin: 0; font-family: Arial, sans-serif; }
+body { 
+  padding:0; 
+  margin: 0;
+   font-family: Arial, sans-serif;
+   color: #ECECF1;
+   background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
+
+   }
+.post{
+   background:  #333;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid black;
+}
 .logo {
   top: 0;
   display: flex;
@@ -77,6 +92,11 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   overflow: hidden;
   border-radius: 10px;
   cursor: pointer;
+  
+}
+.brand{
+  display: inline-block;
+ 
   
 }
 
@@ -117,8 +137,9 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 
-  background: #fff;
+  background: #202123;
 
   border-radius: 16px; /* 🔥 bikin card */
   box-shadow: 0 8px 24px rgba(0,0,0,0.12); /* 🔥 efek ngambang */
@@ -129,10 +150,10 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   padding:10px;
 }
 .post-box button {
-  background: #eef2f6;
+  background: #222;
   border: none;
-  color:#1877f2;
-  padding: 10px 18px;
+  color:#ddd;
+  padding: 6px 15px;
   border-radius: 999px;
   cursor: pointer;
   font-weight: bold;
@@ -143,21 +164,18 @@ body { padding:0; margin: 0; font-family: Arial, sans-serif; }
   font-size: clamp(0.5rem,1rem,1.5rem);
   display: flex;
   justify-content: space-between;
-  max-width: 500px;
+  width: 80%;
+  padding-bottom: 0;
 }
-textarea{
-  width: 100%;
- 
+#content{
+  border: 1px solid black;
+ background: #333;
 }
 #gear{
   position: relative;
-  padding: 5px 5px;
   z-index: 2000;
 }
 .file-label{
-  position: absolute;
-  right: 20%;
-  
   width: 20px;
 }
 
@@ -168,19 +186,31 @@ textarea{
 .post-box button:active {
   transform: scale(0.96);
 }
-
+#affiliateSection{
+  color: #222;
+  background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
+}
 
 /* FEED */
 #feed {
-  position: absolute;
-  top: 200px;
-  bottom: 100px;
-  width: 100%;
-  max-width: 600px;
+  position: fixed;
+  top: 180px;
+  height: 60vh;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 -5px 16px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 600px;
+
   overflow-y: auto;
-  padding-bottom: 80px;
+  scroll-behavior: smooth;
+   /* mirip ChatGPT dark */
+  color: #e6e6e6;
+  padding: 10px;
+  padding-bottom: 10px;
+  padding-top: 50px;
 }
 
 /* SETTINGS */
@@ -188,20 +218,47 @@ textarea{
   position: fixed;
   top:0; left:0;
   width:100%; height:100%;
-  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
   display:none;
   align-items:center;
   justify-content:center;
   z-index:2000;
+  background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
 }
 .settings-content {
   background:#fff;
+  box-shadow: 0 5px 18px rgba(255,255,255,0.25);
   padding:20px;
   border-radius:10px;
   width:300px;
 }
-
-
+.settings-content h3{
+  color: #222;
+  font-size: 1rem;
+}
+.settings-content input{
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 2px;
+}
+#setAvatar{
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 2px;
+}
+.settings-content button{
+  width: 80px;
+  border: none;
+  background: #222;
+  color: #ddd;
+  padding: 5px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+.settings-content button:hover{
+  transform: scale(1.1);
+  transition: 0.3s;
+}
 /* AVATAR */
 .avatar { width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; }
 .comment .avatar { width:28px; height:28px; }
@@ -216,29 +273,35 @@ button {
 .post-input {
   width:80%;
   border:none;
-  background:#f0f2f5;
-  border-radius:20px;
+  background: #444654;
+  border-radius:8px;
   padding:6px;
   outline:none;
+  color: #ECECF1;
 }
 .post-header{
   display: flex;
   margin-bottom: 10px;
+  background: #222;
+  border-radius: 5px;
 }
 .post-user{
-  color: #222;
+  color: #ddd;
   font-weight: 600;
   font-family: sans-serif;
   font-size: 14px;
 }
 .post-time{
-  color: #222;
+  color: #ddd;
   font-size: 10px;
 }
 
 .content{
-  color: #222;
+  color: #ddd;
   font-size: clamp(0.5rem, 0.8rem, 1rem) ;
+  margin-left: 20px;
+  text-indent: 10px;
+  text-align: justify;
 }
 
 /* ACTION */
@@ -248,7 +311,7 @@ button {
   border-top:1px solid #ddd;
   border-bottom:1px solid #ddd;
   padding:6px 0;
-  margin-top:8px;
+  margin-top:2px;
   margin-bottom: 15px;
 }
 .post-actions button {
@@ -263,13 +326,13 @@ button {
 }
 
 .post-actions button:hover {
-  background: #f0f2f5;
+  background: #444;
   color: #1877f2;
 }
 
 .actions span {
   font-size: 13px;
-  color: #65676b;
+  color: #ddd;
   margin-right: 10px;
   cursor: pointer;
   padding: 4px 6px;
@@ -278,7 +341,7 @@ button {
 }
 
 .actions span:hover {
-  background: #f0f2f5;
+  background: #555;
   color: #1877f2;
 }
 .comment-input button {
@@ -304,16 +367,19 @@ button {
 /* COMMENT */
 .commentBox{
   margin-bottom: 15px;
+  background: #444654;
+   color: #ECECF1;
 }
-.comment { display:flex; margin-top:8px; }
-.bubble { background:#f0f2f5; border-radius:18px; padding:8px 12px;font-size: 12px; }
-.comment-input { display:flex; margin-top:8px; }
-.comment-input input { flex:1; border-radius:20px; border:none; padding:8px; background:#f0f2f5; }
+.comment { display:flex; margin-top:8px;background: #444;border-radius:5px ;color: #ddd;border:1px solid #565869; }
+.bubble { background:  #555; border-radius:5px; padding:8px 12px;font-size: 12px;border:1px solid #333; }
+.comment-input { display:flex; margin-top:8px;color:  #ddd; }
+.comment-input input { flex:1; border-radius:20px; border:none; padding:8px; background:#202123;color: #ddd;outline: none; }
 #file {
   display: none;
 }
 .file-label{
   transition: all 0.3s ease;
+
 }
 
 .file-label:hover {
@@ -324,35 +390,31 @@ button {
   gap: 10px;
   align-items: flex-start;
    margin-top: 10px;
+
 }
 .post-top button {
   flex-shrink: 0;
 }
-label{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 
 #loginBox{
   position: fixed;
   top: 50%;
   left: 50%;
+  max-width: 400px;
+
   transform: translate(-50%,-50%);
   background: white;
   z-index: 99999;
+  color: #222;
 }
 
-.post-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+
+
 .username {
   font-weight: 700;
   font-size: 14px;
-  color: #222;
+  color: #ddd;
 }
 
 .post-tools {
@@ -376,16 +438,15 @@ label{
   bottom: 0;
   left: 0;
   width: 100%;
-
-  display: flex;              /* 🔥 bikin sejajar */
+  display:flex;
+          /* 🔥 bikin sejajar */
   justify-content: space-around; /* 🔥 jarak rata */
   align-items: center;
 
-  background: #fff;
+  background: #555;
   border-top: 1px solid #ddd;
 
-  padding: 5px 0;
-  z-index: 9999;
+  padding: 0;
 }
 
 #bottomNav button {
@@ -426,12 +487,31 @@ display: none;
 
   overflow-y: auto;
 }
+.live-box {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: black;
+  overflow: hidden;
+  z-index: 1;
+
+}
+
+.live-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none; /* 🔥 biar nggak blok klik */
+}
+#localVideo{
+  pointer-events: none;
+}
 
 @media (max-width: 600px) {
 
   #feed {
     position: absolute;
-    bottom: 50px;
+    bottom: 20px;
     padding: 10px;
   }
   
@@ -458,6 +538,9 @@ display: none;
     
     width: 50%;
   }
+  .file-label{
+    margin-right: 40px;
+  }
 
   #fileInfo {
     font-size: 11px;
@@ -469,14 +552,7 @@ display: none;
   border-radius: 12px;
 }
 
-.file-label{
-  right: 70px;
-  padding: 0 2px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  
-}
+
 .post-box {
     left: 0;
     transform: none;
@@ -492,15 +568,14 @@ display: none;
     gap: 8px;
   }
 
-  textarea {
-    width: 100%;
-    min-height: 60px;
+  #content {
+    width: 70%;
     z-index: 1;
   }
 
   #gear {
     position: absolute;
-    right: 30px;
+    right: 18px;
     top: 85px;
     z-index: 2000;
   }
@@ -510,6 +585,10 @@ display: none;
   .post-actions{
     margin-bottom: 15px;
   }
+  #loginBox{
+    width: 200px;
+  }
+  
  
 }
 
@@ -518,42 +597,33 @@ display: none;
 
 <body>
 
-  <div id="loginBox" style="padding:20px; border:1px solid #ddd; width:300px;">
-  <h3>Isi identitas</h3>
-  <input id="email" placeholder="Email" style="width:100%; margin-bottom:10px;">
-  <input id="password" type="password" placeholder="Password" style="width:100%; margin-bottom:10px;">
-
-  <button onclick="login(email.value, password.value)">Login</button>
-  <button onclick="registerEmail()">Daftar</button>
-</div>
-
 <div class="post-box">
   <div class="logo">
   <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="foto avatar">
   <h1>Makcek Ngobrol</h1>
-</div>
+  </div>
 
-  <div class="caption" style="font-size:13px;text-align: center; color:#444; margin-bottom:8px;">
-  ⚠️ Isi nama & foto Di Pengaturan ⚙️ 
-</div>
+  <div class="caption" style="font-size:13px;text-align: center; color:#777; margin-bottom:8px;">
+  ⚠️ Isi nama & foto Di Pengaturan 
+  </div>
   <button title="buat ID mu..." id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
 
   <div class="post-top">
-  <div class="avatar"></div>
-   <div class="username"></div>  
+    <div class="brand">
+      <div class="avatar"></div>
+      <div class="username"></div> 
+    </div> 
   <div class="post-body">
 
-    <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
-    <label class="file-label" title="pilih file...">
+      <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
+      <label class="file-label" title="pilih file...">
         📷
         <input type="file" id="file" accept="image/*,video/*">
       </label>
     <div class="post-tools">
       <div id="fileInfo"></div>
     </div>
-
   </div>
-
 </div>
       
 <div id="previewBox" style="margin-top:10px;"></div>
@@ -571,7 +641,14 @@ display: none;
     <button onclick="removeAvatar()">Hapus Avatar</button>
   </div>
 </div>
+<div id="loginBox" style="padding:20px; border:1px solid #ddd; width:300px;">
+  <h2>Isi identitas</h2>
+  <input id="email" placeholder="Email" style="width:100%; margin-bottom:10px;">
+  <input id="password" type="password" placeholder="Password" style="width:100%; margin-bottom:10px;">
 
+  <button onclick="login(email.value, password.value)">Login</button>
+  <button onclick="registerEmail()">Daftar</button>
+</div>
 <div id="movieSection">
   <input style="position: fixed;z-index: 9999;width: 100%;background: wheat;color: #444; " id="search" placeholder="Cari film...">
   <div id="movieList"></div>
@@ -581,15 +658,16 @@ display: none;
   <h3>🔥 Produk Rekomendasi</h3>
   <div id="affiliateList" style="z-index: 9999;" ></div>
   <button onclick="closeAffiliate()" 
-  style="position:absolute;top:10px;right:10px;">❌</button>
+  style="position:absolute;top:10px;right:50px;">❌</button>
 </div>
 <div id="feed"></div>
-
+<video id="localVideo" autoplay muted playsinline style="width:150px; position:fixed; bottom:80px; right:10px; z-index:2;"></video>
 <script>
   let lastPostId = null;
 let isFirstLoad = true;
 let currentPlaying = null;
 let replyListeners = {};
+
 let products = [];
 let adsReady = false;
   const YT_API_KEY = "AIzaSyDiVHmHgrD9Po6SK_WHb5Ni58qTkaBGZsU";
@@ -1012,6 +1090,8 @@ const observer = new IntersectionObserver(entries => {
         el.appendChild(video);
       }
 
+      
+
     }
 
     else {
@@ -1051,13 +1131,39 @@ function addPost(id, p){
     // 🔥 masukin ke ATAS (biar realtime terasa)
     feed.prepend(div);
   }
+if (p.isLive && p.roomId) {
+  setTimeout(() => {
+    waitVideoAndPlay(p.roomId, "live-" + id);
+  }, 300);
+}
+  
 
   const time = p.timestamp?.toDate?.().toLocaleString?.() 
             || (p.timestamp instanceof Date ? p.timestamp.toLocaleString() : "...");
 
   div.innerHTML = `
     <div class="post-header">
-      <div class="avatar" style="background-image:url('${p.avatar || ""}')"></div>
+      <div class="avatar" 
+      onclick="openChat('${p.uid}','${p.user}')"
+      style="background-image:url('${p.avatar || ""}');position:relative;">
+       <span id="badge-${p.uid}" 
+    style="
+      position:absolute;
+      top:-5px;
+      right:-5px;
+      background:red;
+      color:white;
+      font-size:10px;
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      display:none;
+      align-items:center;
+      justify-content:center;
+    ">
+    1
+  </span>
+      </div>
       <div style="margin-left:8px;">
         <div class="post-user">${p.user}</div>
         <div class="post-time">${time}</div>
@@ -1066,9 +1172,17 @@ function addPost(id, p){
 
     <div class="content">${renderContent(p.content)}</div>
     ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;">` : ""}
-
-    <div>👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
-
+    
+    ${p.isLive ? `
+  <div class="live-box">
+    <div style="position:absolute;top:5px;left:5px;color:red;font-weight:bold;">
+      🔴 LIVE
+    </div>
+    <video id="live-${id}" autoplay playsinline></video>
+  </div>
+` : ""}
+    <div style="font-size:11px;">👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
+     
     <div class="post-actions">
       <button onclick="toggleLike('${id}')">👍 Suka</button>
       <button onclick="toggleComment('${id}')">💬 Komentar</button>
@@ -1100,7 +1214,7 @@ let postCache = {};
 db.collection('posts')
   .orderBy('timestamp', 'desc')
   .onSnapshot(snap => {
-
+ console.log("👀 SNAPSHOT USER LAIN:", snap.size);
     snap.docChanges().forEach(change => {
       const id = change.doc.id;
       const data = change.doc.data();
@@ -1128,22 +1242,27 @@ async function createPost(e){
   const btn = e.target;
   btn.disabled = true;
   btn.innerText = "Posting...";
+  console.log("🔥 createPost dipanggil");
+  
   const user = auth.currentUser;
-if (!user) {
-  alert("Login dulu!");
-  btn.disabled = false;
-  btn.innerText = "Posting";
-  return;
-}
+  if (!user) {
+    console.log("🔥 createPost dipanggil");
+    alert("Login dulu!");
+    btn.disabled = false;
+    btn.innerText = "Posting";
+    return;
+  }
 
-const username = user.displayName || user.email;
-const avatar = user.photoURL || '';
+  const username = user.displayName || user.email;
+  const avatar = user.photoURL || '';
   const content = document.getElementById('content').value;
+   console.log("📝 content:", content); 
 
   const fileInput = document.getElementById('file');
   const file = fileInput.files[0];
 
   if(!content && !file){
+    console.log("⚠️ kosong semua");
     btn.disabled = false;
     return;
   }
@@ -1151,26 +1270,40 @@ const avatar = user.photoURL || '';
   let fileUrl = null;
 
   if(file){
+    console.log("📁 upload file...");
     fileUrl = await uploadToCloudinary(file);
+    console.log("✅ file URL:", fileUrl);
   }
 
- await db.collection('posts').add({
+  // 🔥 INI YANG BENAR: cek LIVE dari real system kamu
+  const isLive = window.isLiveActive === true;
+  console.log("🔴 isLive:", isLive);
+
+  const docRef = await db.collection('posts').add({
   user: username,
   uid: user.uid,
   avatar: avatar,
-  content: content,
-  fileUrl: fileUrl,
+  content: isLive ? "sekarang" : content || "",
+  fileUrl: fileUrl || null,
   likes: [],
-  timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+  isLive: isLive,
+  roomId: window.currentLiveRoomId // 🔥 INI YANG KURANG
 });
-
+if (isLive) {
+  window.isLiveActive = false; // 🔥 reset biar post berikutnya normal
+}
+console.log("🚀 POST SUKSES ID:", docRef.id);
+  // reset UI
   document.getElementById('content').value = '';
-  document.getElementById("fileInfo").innerText = "";
-  fileInput.value = ''; // reset file
+  document.getElementById("fileInfo").innerText = '';
+  fileInput.value = '';
+  document.getElementById("previewBox").innerHTML = '';
+
   btn.disabled = false;
   btn.innerText = "Posting";
-  document.getElementById("previewBox").innerHTML=""
 }
+
 // LIKE
 async function toggleLike(id){
   const user = auth.currentUser;
@@ -1462,9 +1595,9 @@ function showRandomAd(){
   const ad = document.createElement("div");
 
   ad.innerHTML = `
-    <div style="display:flex;gap:10px;padding:10px;background:transparent;border-radius:10px;">
+    <div style="display:flex;gap:10px;padding:10px;background:rgba(255,255,255,0.96);border-radius:10px;box-shadow:0 1px 12px rgba(0,0,0,0.2);width:300px;margin-bottom:10px;">
       <img src="${item.img}" style="width:70px;height:70px;" alt="gambar iklan">
-      <div>
+      <div style="color:#222;">
         <b>${item.name || "Produk"}</b>
         <button onclick="window.open('${item.link}','_blank')"style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">>Beli</button>
       </div>
@@ -1698,7 +1831,7 @@ function playMovie(id){
       </button>
 
       <button onclick="closePlayer()"
-        style="position:absolute;top:5px;right:10px;background:red;color:white;border:none;border-radius:50%;width:30px;height:30px;">
+        style="position:absolute;top:5px;right:25px;background:red;color:white;border:none;border-radius:50%;width:30px;height:30px;">
         ✕
       </button>
     </div>
@@ -1785,12 +1918,283 @@ window.addEventListener("load", async () => {
   await loadAdsFromFirebase();
 });
 
-</script>
+// LIVE VIDEO
+let pc;
+let localStream;
+window.currentLiveRoomId = null;
+window.isLiveActive = false;
+let liveConnections = {};
+let pendingCandidates = [];
+let liveUnsubscribes = [];
+function waitVideoAndPlay(roomId, videoId, retry = 0) {
+  const video = document.getElementById(videoId);
 
+  if (video) {
+    console.log("✅ VIDEO SIAP");
+    autoWatchLive(roomId, videoId);
+    return;
+  }
+
+  if (retry > 50) {
+    console.log("❌ VIDEO GAGAL DITEMUKAN");
+    return;
+  }
+
+  setTimeout(() => {
+    waitVideoAndPlay(roomId, videoId, retry + 1);
+  }, 200);
+}
+
+function waitIceGathering(pc) {
+  return new Promise(resolve => {
+    if (pc.iceGatheringState === "complete") {
+      resolve();
+      return;
+    }
+
+    const check = () => {
+      if (pc.iceGatheringState === "complete") {
+        pc.removeEventListener("icegatheringstatechange", check);
+        resolve();
+      }
+    };
+
+    pc.addEventListener("icegatheringstatechange", check);
+  });
+}
+async function startLiveLow() {
+  const user = auth.currentUser;
+  if (!user) return alert("Login dulu");
+
+  const roomId = "room_" + user.uid;
+  window.currentLiveRoomId = roomId;
+  window.isLiveActive = true;
+
+  const roomRef = db.collection("liveRooms").doc(roomId);
+
+  await roomRef.set({
+    host: user.uid,
+    active: true,
+    createdAt: Date.now()
+  });
+
+  // camera
+  localStream = await navigator.mediaDevices.getUserMedia({
+    video: { width: 320, height: 240, frameRate: 10 },
+    audio: true
+  });
+  const localVideo = document.getElementById("localVideo");
+  localVideo.srcObject = localStream;
+localVideo.style.display = "block";
+  pc = new RTCPeerConnection({
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+  });
+
+  localStream.getTracks().forEach(track => {
+    pc.addTrack(track, localStream);
+  });
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      roomRef.collection("callerCandidates").add(e.candidate.toJSON());
+    }
+  };
+
+  // 🔥 FIX: OFFER HARUS SET LOCAL DULU
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  await waitIceGathering(pc);
+
+  await roomRef.update({
+    offer: pc.localDescription.toJSON()
+  });
+
+  console.log("📤 OFFER SENT");
+
+  // 🔥 FIX ANSWER LISTENER (ANTI LOOP)
+  let answered = false;
+
+  roomRef.onSnapshot(async snap => {
+    const data = snap.data();
+    if (!data?.answer || answered) return;
+
+    answered = true;
+
+    await pc.setRemoteDescription(
+      new RTCSessionDescription(data.answer)
+    );
+
+    console.log("✅ ANSWER SET");
+  });
+
+  // 🔥 FIX ICE
+  roomRef.collection("calleeCandidates").onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        const c = new RTCIceCandidate(change.doc.data());
+
+        if (pc.remoteDescription) {
+          pc.addIceCandidate(c);
+        } else {
+          pendingCandidates.push(c);
+        }
+      }
+    });
+  });
+}
+async function autoWatchLive(roomId, videoId) {
+
+  if (liveConnections[videoId]) {
+    console.log("⛔ SUDAH CONNECT:", videoId);
+    return;
+  }
+
+  liveConnections[videoId] = true;
+
+  console.log("👀 CONNECT LIVE:", videoId);
+
+  const video = document.getElementById(videoId);
+  if (!video) return;
+
+  const pc = new RTCPeerConnection({
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+  });
+
+  pc.ontrack = (event) => {
+
+  if (event.track.kind !== "video") return;
+
+  console.log("🎥 VIDEO MASUK (FINAL)");
+
+  const stream = event.streams[0];
+
+  if (!video.srcObject) {
+    video.srcObject = stream;
+  } else {
+    // 🔥 pastikan track masuk semua
+    video.srcObject.addTrack(event.track);
+  }
+
+  video.onloadedmetadata = () => {
+    video.play().catch(e => console.log("PLAY ERROR", e));
+  };
+};
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      db.collection("liveRooms")
+        .doc(roomId)
+        .collection("calleeCandidates")
+        .add(e.candidate.toJSON());
+    }
+  };
+
+  const roomRef = db.collection("liveRooms").doc(roomId);
+
+  let answered = false;
+
+  const unsub = roomRef.onSnapshot(async snap => {
+    const data = snap.data();
+
+    if (!data?.offer || answered) return;
+
+    answered = true;
+
+    await pc.setRemoteDescription(
+      new RTCSessionDescription(data.offer)
+    );
+
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    await roomRef.update({
+      answer: pc.localDescription.toJSON()
+    });
+
+    console.log("📤 ANSWER SENT");
+
+    unsub();
+  });
+
+  roomRef.collection("callerCandidates").onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        pc.addIceCandidate(
+          new RTCIceCandidate(change.doc.data())
+        );
+      }
+    });
+  });
+}
+
+async function stopLive() {
+  console.log("🛑 STOP LIVE DIPANGGIL");
+
+  window.isLiveActive = false;
+
+  // 🔥 MATIKAN ROOM
+  if (window.currentLiveRoomId) {
+    await db.collection("liveRooms")
+      .doc(window.currentLiveRoomId)
+      .update({ active: false });
+
+    // 🔥 matikan status live di post
+    const snap = await db.collection("posts")
+      .where("roomId", "==", window.currentLiveRoomId)
+      .get();
+
+    snap.forEach(doc => {
+      doc.ref.update({ isLive: false });
+    });
+  }
+
+  // 🔥 STOP SEMUA TRACK (INI PALING PENTING)
+  if (localStream) {
+    localStream.getTracks().forEach(track => {
+      track.stop();               // ⛔ stop kamera & mic
+    });
+    localStream = null;
+  }
+
+  // 🔥 MATIKAN VIDEO LOCAL
+  const localVideo = document.getElementById("localVideo");
+  if (localVideo) {
+    localVideo.pause();
+    localVideo.srcObject = null;
+    localVideo.removeAttribute("src");
+    localVideo.load();
+    localVideo.style.display = "none";
+  }
+
+  // 🔥 CLOSE PEER CONNECTION (WAJIB)
+  if (pc) {
+    pc.getSenders().forEach(sender => {
+      if (sender.track) sender.track.stop(); // extra safety
+    });
+
+    pc.ontrack = null;
+    pc.onicecandidate = null;
+
+    pc.close();
+    pc = null;
+  }
+
+  // 🔥 RESET ROOM ID
+  window.currentLiveRoomId = null;
+
+  console.log("✅ KAMERA BENAR2 MATI");
+}
+
+</script>
+<script src="chat.js"></script>
 <div id="bottomNav">
   <button onclick="openLink()">🌐</button>
   <button onclick="openMovies()">🎬</button>
   <button onclick="openAffiliate()">💰</button>
+  <button onclick="startLiveLow()">🔴 Live</button>
+  
+  <button onclick="stopLive()">🔴 Stop </button>
+  
 </div>
 </div>
 </body>
