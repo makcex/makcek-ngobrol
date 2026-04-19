@@ -66,7 +66,7 @@ body {
    font-family: Arial, sans-serif;
    color: #ECECF1;
    background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
-
+  overflow: auto;
    }
 .post{
    background:  #333;
@@ -121,10 +121,16 @@ body {
   pointer-events: none;
   opacity: 0.8;
 }
+
+.logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .logo img {
   width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  height: 45px;
+  border-radius: 5px;
   display: block;
   
 }
@@ -195,13 +201,13 @@ body {
 #feed {
   position: fixed;
   top: 180px;
-  height: 60vh;
-  bottom: 20px;
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255,255,255,0.25);
   box-shadow: 0 -5px 16px rgba(0,0,0,0.2);
   width: 100%;
+  height: 100%;
   max-width: 600px;
 
   overflow-y: auto;
@@ -209,7 +215,7 @@ body {
    /* mirip ChatGPT dark */
   color: #e6e6e6;
   padding: 10px;
-  padding-bottom: 10px;
+  padding-bottom: 80px;
   padding-top: 50px;
 }
 
@@ -445,8 +451,7 @@ button {
 
   background: #555;
   border-top: 1px solid #ddd;
-
-  padding: 0;
+  padding: 5px;
 }
 
 #bottomNav button {
@@ -512,7 +517,8 @@ display: none;
   #feed {
     position: absolute;
     bottom: 20px;
-    padding: 10px;
+   
+    padding-bottom: 80px;
   }
   
   .post-box h1 {
@@ -539,7 +545,7 @@ display: none;
     width: 50%;
   }
   .file-label{
-    margin-right: 40px;
+    margin-right: 20px;
   }
 
   #fileInfo {
@@ -588,7 +594,24 @@ display: none;
   #loginBox{
     width: 200px;
   }
+ #bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%); /* 🔥 biar center */
+  width: 100%;
+  max-width: 600px;
+
+  z-index: 99999; /* 🔥 HARUS tinggi */
   
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  background: #555;
+  border-top: 1px solid #ddd;
+  padding-bottom: 15px;
+}
  
 }
 
@@ -599,12 +622,12 @@ display: none;
 
 <div class="post-box">
   <div class="logo">
-  <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="foto avatar">
+  <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="gambar logo">
   <h1>Makcek Ngobrol</h1>
   </div>
 
   <div class="caption" style="font-size:13px;text-align: center; color:#777; margin-bottom:8px;">
-  ⚠️ Isi nama & foto Di Pengaturan 
+   Isi nama & foto Di Pengaturan 
   </div>
   <button title="buat ID mu..." id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
 
@@ -661,6 +684,13 @@ display: none;
   style="position:absolute;top:10px;right:50px;">❌</button>
 </div>
 <div id="feed"></div>
+<div id="bottomNav">
+  <button onclick="openLink()">🌐</button>
+  <button onclick="openMovies()">🎬</button>
+  <button onclick="openAffiliate()">💰</button>
+  <button onclick="startLiveLow()">🔴 Live</button>
+  <button onclick="stopLive()">🔴 Stop </button>
+</div>
 <video id="localVideo" autoplay muted playsinline style="width:150px; position:fixed; bottom:80px; right:10px; z-index:2;"></video>
 <script>
   let lastPostId = null;
@@ -1130,6 +1160,7 @@ function addPost(id, p){
 
     // 🔥 masukin ke ATAS (biar realtime terasa)
     feed.prepend(div);
+    feed.scrollTop = 0;
   }
 if (p.isLive && p.roomId) {
   setTimeout(() => {
@@ -1205,6 +1236,7 @@ if (p.isLive && p.roomId) {
   // 🔥 init komentar hanya sekali
   initComments(id);
   
+  
 }
 initVideoObserver()
 
@@ -1214,6 +1246,7 @@ let postCache = {};
 db.collection('posts')
   .orderBy('timestamp', 'desc')
   .onSnapshot(snap => {
+    console.log("🔥 LISTENER POSTS AKTIF");
  console.log("👀 SNAPSHOT USER LAIN:", snap.size);
     snap.docChanges().forEach(change => {
       const id = change.doc.id;
@@ -1221,6 +1254,23 @@ db.collection('posts')
 
       if (change.type === "added") {
         addPost(id, data);
+         if(!firstLoad){
+
+          const user = auth.currentUser;
+
+          // ❗ jangan notif postingan sendiri
+          if(user && data.uid !== user.uid){
+
+            console.log("🔔 POST BARU MASUK");
+
+            showNotification(
+              data.name || "User",
+              data.text || ""
+            );
+
+          }
+        }
+        
       }
        setTimeout(() => {
     initVideoObserver();
@@ -1229,6 +1279,7 @@ db.collection('posts')
 
       if (change.type === "modified") {
         updatePost(id, data);
+       
       }
 
       if (change.type === "removed") {
@@ -1577,7 +1628,7 @@ async function removeAvatar(){
 
 // pop up iklan
 
-
+let adIndex = 0;
 let lastStep = 0;
 let currentAd = null;
 
@@ -1588,7 +1639,13 @@ function showRandomAd(){
     return;
   }
 
-  const item = products[Math.floor(Math.random() * products.length)];
+  const item = products[adIndex];
+
+adIndex++;
+
+if(adIndex >= products.length){
+  adIndex = 0; // balik ke awal
+}
 
   if(!item || !item.img) return;
 
@@ -1604,16 +1661,37 @@ function showRandomAd(){
     </div>
   `;
 
-  document.getElementById("feed").appendChild(ad);
+ const feed = document.getElementById("feed");
+const posts = feed.children;
 
-  setTimeout(() => ad.remove(), 10000);
+// posisi layar user sekarang
+const viewPoint = feed.scrollTop + feed.clientHeight * 0.6;
+
+let inserted = false;
+
+for(let i = 0; i < posts.length; i++){
+  const el = posts[i];
+
+  if(el.offsetTop > viewPoint){
+    feed.insertBefore(ad, el);
+    inserted = true;
+    break;
+  }
+}
+
+// fallback kalau nggak ketemu
+if(!inserted){
+  feed.appendChild(ad);
+}
+
+  setTimeout(() => ad.remove(), 5000);
 }
 
 const feed = document.getElementById("feed");
 
 feed.addEventListener("scroll", function(){
 
-  const step = Math.floor(feed.scrollTop / 600);
+  const step = Math.floor(feed.scrollTop / 800);
 
   if(step > lastStep){
     showRandomAd();
@@ -1621,7 +1699,7 @@ feed.addEventListener("scroll", function(){
   }
 
 });
-//  tombol afiliate
+
 function openAffiliate(){
 
   // hide section lain
@@ -1637,6 +1715,8 @@ function openAffiliate(){
     loadAffiliate(); // 🔥 load produk
   }
 }
+
+
 let affiliateProducts = [];
 
 async function loadAffiliate(){
@@ -1884,6 +1964,44 @@ function showNotification(user, text){
     notif.remove();
   }, 4000);
 }
+
+let firstLoad = true;
+
+function listenPostsNotif(){
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  db.collection("posts")
+    .orderBy("time", "desc")
+    .limit(10)
+    .onSnapshot(snap => {
+
+      snap.docChanges().forEach(change => {
+
+        if(change.type !== "added") return;
+
+        const post = change.doc.data();
+
+        // ❌ skip notif diri sendiri
+        if(post.uid === user.uid) return;
+
+        // ❌ skip load pertama (biar nggak spam)
+        if(firstLoad) return;
+
+        showNotification(
+          post.name || "User",
+          post.text || ""
+        );
+
+      });
+
+      firstLoad = false;
+
+    });
+
+}
+
 window.addEventListener("load", () => {
   const movieList = document.getElementById("movieList");
   let movieLastStep = 0;
@@ -2187,15 +2305,7 @@ async function stopLive() {
 
 </script>
 <script src="chat.js"></script>
-<div id="bottomNav">
-  <button onclick="openLink()">🌐</button>
-  <button onclick="openMovies()">🎬</button>
-  <button onclick="openAffiliate()">💰</button>
-  <button onclick="startLiveLow()">🔴 Live</button>
-  
-  <button onclick="stopLive()">🔴 Stop </button>
-  
-</div>
+
 </div>
 </body>
 </html>

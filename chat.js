@@ -231,7 +231,7 @@ console.log("📩 SNAPSHOT MASUK");
         if(change.type !== "added") return;
 
         const m = change.doc.data();
-
+        if (!m.uid || m.uid === user.uid) return;
         const roomId = change.doc.ref.parent.parent.id;
         
         const parts = roomId.split("_");
