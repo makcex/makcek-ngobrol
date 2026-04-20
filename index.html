@@ -65,24 +65,20 @@ body {
   margin: 0;
    font-family: Arial, sans-serif;
    color: #ECECF1;
-   background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
+   
   overflow-y: auto;
    }
 .post{
    background:  #333;
   margin-bottom: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  border: 1px solid black;
+  padding: 2px;
+  border-radius: 5px;
+  box-shadow: 
+    0 2px 8px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.04);
+  width: 100%;
 }
-.logo {
-  top: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
- 
-}
+
 /* POST FILM */
 .post-video{
   width: 100%;
@@ -94,8 +90,11 @@ body {
   cursor: pointer;
   
 }
+
 .brand{
-  display: inline-block;
+   display: inline-block;
+  align-items: center;
+  gap: 8px;
  
   
 }
@@ -126,10 +125,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap:5px;
 }
 .logo img {
   width: 36px;
-  height: 45px;
+  height: 40px;
   border-radius: 5px;
   display: block;
   
@@ -143,12 +143,15 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  box-shadow: 
+    0 10px 25px rgba(0,0,0,0.7),
+    0 2px 6px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.06);
 
   background: #202123;
 
-  border-radius: 16px; /* 🔥 bikin card */
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12); /* 🔥 efek ngambang */
+  border-radius: 5px; /* 🔥 bikin card */
+ 
   backdrop-filter: blur(8px); /* optional glass effect */
 
   transition: 0.2s ease;
@@ -204,19 +207,17 @@ body {
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255,255,255,0.25);
+  background: #f5f5f5;
   box-shadow: 0 -5px 16px rgba(0,0,0,0.2);
   width: 100%;
-  height: 100%;
+  -webkit-overflow-scrolling: touch; /* 🔥 iOS smooth */
   max-width: 600px;
-
+   will-change: scroll-position;
   overflow-y: auto;
   scroll-behavior: smooth;
    /* mirip ChatGPT dark */
   color: #e6e6e6;
-  padding: 10px;
-  padding-bottom: 80px;
-  padding-top: 50px;
+  
 }
 
 /* SETTINGS */
@@ -274,6 +275,13 @@ button {
   border: none;
   outline: none;
   font-family: inherit;
+  
+}
+.box-kirim button:active {
+  transform: scale(0.96);
+}
+.box-kirim button:hover {
+  transform: scale(0.96);
 }
 /* INPUT */
 .post-input {
@@ -288,6 +296,7 @@ button {
 .post-header{
   display: flex;
   margin-bottom: 10px;
+  align-items: center;
   background: #222;
   border-radius: 5px;
 }
@@ -303,20 +312,20 @@ button {
 }
 
 .content{
+  width: 100%;
   color: #ddd;
   font-size: clamp(0.5rem, 0.8rem, 1rem) ;
-  margin-left: 20px;
-  text-indent: 10px;
+  height: 100%;
   text-align: justify;
+  padding: 0;
+  margin: 0;
 }
 
 /* ACTION */
 .post-actions {
   display:flex;
   justify-content:space-around;
-  border-top:1px solid #ddd;
-  border-bottom:1px solid #ddd;
-  padding:6px 0;
+  padding:4px 0;
   margin-top:2px;
   margin-bottom: 15px;
 }
@@ -336,6 +345,9 @@ button {
   color: #1877f2;
 }
 
+.post-actions button:active {
+  transform: scale(0.96);
+}
 .actions span {
   font-size: 13px;
   color: #ddd;
@@ -349,6 +361,9 @@ button {
 .actions span:hover {
   background: #555;
   color: #1877f2;
+}
+.actions span:active {
+ transform: scale(0.96);
 }
 .comment-input button {
   box-shadow:0 1-5px 10px rgba(0,0,0,0.2);
@@ -368,7 +383,7 @@ button {
 }
 
 .comment-input button:active {
-  transform: scale(0.9);
+  transform: scale(0.96);
 }
 /* COMMENT */
 .commentBox{
@@ -448,7 +463,7 @@ button {
           /* 🔥 bikin sejajar */
   justify-content: space-around; /* 🔥 jarak rata */
   align-items: center;
-
+z-index: 99999;
   background: #555;
   border-top: 1px solid #ddd;
   padding: 5px;
@@ -519,7 +534,7 @@ display: none;
   top: 120px;
   bottom: 60px;
   width: 100%;
-  height: 100%;
+ 
  }
   
   .post-box h1 {
@@ -634,7 +649,7 @@ display: none;
 
   <div class="post-top">
     <div class="brand">
-      <div class="avatar"></div>
+      <div class="avatar" id="myAvatar"></div>
       <div class="username"></div> 
     </div> 
   <div class="post-body">
@@ -765,11 +780,9 @@ console.log("IS ADMIN:", window.isAdmin);
       el.innerText = user.displayName || user.email;
     });
 
-    if (user.photoURL) {
-      document.querySelectorAll(".avatar").forEach(el => {
-        el.style.backgroundImage = `url(${user.photoURL})`;
-      });
-    }
+   const avatarUrl = user.photoURL || "https://ui-avatars.com/api/?name=User";
+
+document.getElementById("myAvatar").style.backgroundImage = `url(${avatarUrl})`;
 
   } catch (err) {
     console.log("AUTH ERROR:", err);
@@ -864,6 +877,7 @@ async function login(email, password){
   }
 }
 
+let commentFirstLoad = {};
 let commentListeners = {};
 // RENDER
 function initComments(postId){
@@ -882,9 +896,13 @@ function initComments(postId){
       .orderBy("timestamp","asc")
       .onSnapshot(snap => {
 
+        if(!commentFirstLoad[postId]){
+    commentFirstLoad[postId] = true;
+    return; // skip load pertama
+  }
         box.innerHTML = "";
         snap.docChanges().forEach(change => {
-
+           
   if(change.type === "added"){
 
     const c = change.doc.data();
@@ -1213,7 +1231,7 @@ if (p.isLive && p.roomId) {
     <video id="live-${id}" autoplay playsinline></video>
   </div>
 ` : ""}
-    <div style="font-size:11px;">👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
+    <div style="font-size:11px;margin-top:3px;">👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
      
     <div class="post-actions">
       <button onclick="toggleLike('${id}')">👍 Suka</button>
@@ -1249,6 +1267,8 @@ db.collection('posts')
   .onSnapshot(snap => {
     console.log("🔥 LISTENER POSTS AKTIF");
  console.log("👀 SNAPSHOT USER LAIN:", snap.size);
+  const isFirst = firstLoad; // 🔥 simpan dulu
+
     snap.docChanges().forEach(change => {
       const id = change.doc.id;
       const data = change.doc.data();
@@ -1960,7 +1980,7 @@ function showNotification(user, text){
 
   setTimeout(() => {
     notif.remove();
-  }, 4000);
+  }, 5000);
 }
 
 
@@ -2142,24 +2162,30 @@ async function autoWatchLive(roomId, videoId) {
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
   });
 
-  pc.ontrack = (event) => {
+  let remoteStream = new MediaStream();
+let started = false;
 
-  if (event.track.kind !== "video") return;
+pc.ontrack = (event) => {
+  console.log("🎥 TRACK MASUK:", event.track.kind);
 
-  console.log("🎥 VIDEO MASUK (FINAL)");
+  remoteStream.addTrack(event.track);
 
-  const stream = event.streams[0];
+  // 🔥 HANYA SET SEKALI
+  if (!started) {
+    started = true;
 
-  if (!video.srcObject) {
-    video.srcObject = stream;
-  } else {
-    // 🔥 pastikan track masuk semua
-    video.srcObject.addTrack(event.track);
+    video.srcObject = remoteStream;
+
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+
+    video.onloadedmetadata = () => {
+      video.play()
+        .then(() => console.log("▶️ PLAY OK"))
+        .catch(e => console.log("PLAY ERROR", e));
+    };
   }
-
-  video.onloadedmetadata = () => {
-    video.play().catch(e => console.log("PLAY ERROR", e));
-  };
 };
   pc.onicecandidate = (e) => {
     if (e.candidate) {

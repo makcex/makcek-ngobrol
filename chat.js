@@ -23,30 +23,51 @@ window.openChat = function(targetUid, targetName){
     box.id = "chatBox";
     box.style = `
       position:fixed;
-      bottom:0;
-      right:0;
-      width:300px;
-      height:400px;
-      background:#222;
+      width:60%;
+      transform: translateX(30%);
+      padding: 20px;
+      height:500px;
+      bottom:30px;
+      background:#f5f5f5;
       z-index:999999;
       display:flex;
-      flex-direction:column;
+      gap:10px;
+       flex-direction:column;
+      justify-content:center;
+      aligne-items:center;
     `;
     document.body.appendChild(box);
   }
 
   box.innerHTML = `
-    <div style="padding:10px;background:#333;color:white;">
-      Chat: ${targetName}
-      <button style="float:right;" onclick="closeChat()">X</button>
+  
+    <div style="padding:10px;
+    background:rgba(255,255,255,0.96);
+    box-shadow:rgba(0,0,0,0.2);
+    color:#222;
+    border-radius:10px;">
+      Dari: ${targetName}
+      <button style="float:right;color:white;width:30px;background:red" onclick="closeChat()">X</button>
     </div>
 
-    <div id="chatMessages" style="flex:1;overflow:auto;color:white;"></div>
+    <div id="chatMessages" style="flex:1;overflow:auto;
+    color:#222;
+    background:rgba(255,255,255,0.96);
+    box-shadow:rgba(0,0,0,0.2);
+    border-radius:10px;"></div>
 
-    <div style="display:flex;height:100px;">
-      <input id="chatInput" style="flex:1;">
-      <button style="width:65px;" onclick="sendChat('${roomId}')">➤</button>
+    <div class="box-kirim" style="display:flex;height:50px;padding:5px">
+      <input id="chatInput" style="flex:1;
+      background:rgba(255,255,255,0.96);
+      color:#222;
+      border:none;
+    box-shadow:rgba(0,0,0,0.2);
+    outline:none;
+      border-radius:5px;
+      height:30px;">
+      <button style="width:65px;border-radius:10px;height:30px;background:#1877f2;" onclick="sendChat('${roomId}')">➤</button>
     </div>
+  
   `;
 
   // reset badge
@@ -100,8 +121,9 @@ function listenChat(roomId, targetUid){
               max-width:70%;
               padding:8px 10px;
               border-radius:12px;
-              background:${isMe ? '#4caf50' : '#333'};
-              color:white;
+              background:${isMe ? '#4caf50' : '#eef2f4'};
+              box-shadow:rgba(0,0,0,0.25)
+              color:#222;
               position:relative;
               word-wrap:break-word;
             ">
@@ -218,6 +240,8 @@ function showBadge(otherUid){
   badge.style.display = "flex";
   badge.innerText = "1";
 }
+
+let chatFirstLoad = true;
 function listenAllChats(){
 
   const user = auth.currentUser;
@@ -226,6 +250,10 @@ function listenAllChats(){
   db.collectionGroup("messages")
     .onSnapshot(snap => {
 console.log("📩 SNAPSHOT MASUK");
+ if(chatFirstLoad){
+        chatFirstLoad = false;
+        return;
+      }
       snap.docChanges().forEach(change => {
 
         if(change.type !== "added") return;
@@ -240,7 +268,10 @@ console.log("📩 SNAPSHOT MASUK");
         if(!otherUid) return;
         console.log("💬 ROOM ID:", roomId);
         // ❗ jangan notif kalau lagi chat itu
-        if(window.currentChatRoom === roomId) return;
+         const isChatOpen = document.getElementById("chatBox");
+       if(window.currentChatRoom === roomId && isChatOpen){
+          return;
+        }
 
       showBadge(otherUid);
 
