@@ -66,7 +66,7 @@ body {
    font-family: Arial, sans-serif;
    color: #ECECF1;
    background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
-  overflow: auto;
+  overflow-y: auto;
    }
 .post{
    background:  #333;
@@ -174,8 +174,8 @@ body {
   padding-bottom: 0;
 }
 #content{
-  border: 1px solid black;
- background: #333;
+ 
+ background: #222;
 }
 #gear{
   position: relative;
@@ -200,7 +200,7 @@ body {
 /* FEED */
 #feed {
   position: fixed;
-  top: 180px;
+  top: 170px;
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
@@ -470,7 +470,7 @@ button {
   position: relative;
   z-index: 5000;
   background: #444;
-  max-height: 90vh;
+  max-height: 100vh;
   overflow-y: auto;
 }
 #movieSection{
@@ -514,12 +514,13 @@ display: none;
 
 @media (max-width: 600px) {
 
-  #feed {
-    position: absolute;
-    bottom: 20px;
-   
-    padding-bottom: 80px;
-  }
+ #feed{
+  position: fixed;
+  top: 120px;
+  bottom: 60px;
+  width: 100%;
+  height: 100%;
+ }
   
   .post-box h1 {
     font-size: 18px;
@@ -673,7 +674,7 @@ display: none;
   <button onclick="registerEmail()">Daftar</button>
 </div>
 <div id="movieSection">
-  <input style="position: fixed;z-index: 9999;width: 100%;background: wheat;color: #444; " id="search" placeholder="Cari film...">
+  <input style="position: fixed;z-index: 9999;width: 100%;background: wheat;color: #444;height: 50px; " id="search" placeholder="Cari film...">
   <div id="movieList"></div>
   <div id="playerBox"></div> <!-- WAJIB DI SINI -->
 </div>
@@ -694,9 +695,9 @@ display: none;
 <video id="localVideo" autoplay muted playsinline style="width:150px; position:fixed; bottom:80px; right:10px; z-index:2;"></video>
 <script>
   let lastPostId = null;
-let isFirstLoad = true;
 let currentPlaying = null;
 let replyListeners = {};
+let firstLoad = true;
 
 let products = [];
 let adsReady = false;
@@ -1264,8 +1265,8 @@ db.collection('posts')
             console.log("🔔 POST BARU MASUK");
 
             showNotification(
-              data.name || "User",
-              data.text || ""
+              data.user || "User",
+              data.content || ""
             );
 
           }
@@ -1286,7 +1287,7 @@ db.collection('posts')
         removePost(id);
       }
     });
-
+      firstLoad = false;
   });
 // POST
 async function createPost(e){
@@ -1933,9 +1934,6 @@ function openMovies(){
 // NOTIFIKASI
 function showNotification(user, text){
 
-  // suara (optional)
-  // playNotifSound();
-
   const notif = document.createElement("div");
 
   notif.innerHTML = `
@@ -1965,42 +1963,7 @@ function showNotification(user, text){
   }, 4000);
 }
 
-let firstLoad = true;
 
-function listenPostsNotif(){
-
-  const user = auth.currentUser;
-  if(!user) return;
-
-  db.collection("posts")
-    .orderBy("time", "desc")
-    .limit(10)
-    .onSnapshot(snap => {
-
-      snap.docChanges().forEach(change => {
-
-        if(change.type !== "added") return;
-
-        const post = change.doc.data();
-
-        // ❌ skip notif diri sendiri
-        if(post.uid === user.uid) return;
-
-        // ❌ skip load pertama (biar nggak spam)
-        if(firstLoad) return;
-
-        showNotification(
-          post.name || "User",
-          post.text || ""
-        );
-
-      });
-
-      firstLoad = false;
-
-    });
-
-}
 
 window.addEventListener("load", () => {
   const movieList = document.getElementById("movieList");
