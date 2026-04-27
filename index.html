@@ -92,13 +92,33 @@ body {
 }
 
 .brand{
-   display: inline-block;
+  position: relative;
+ 
+   display: flex;
+   justify-content: center;
   align-items: center;
   gap: 8px;
- 
+ background: linear-gradient(145deg, #24262f, #1b1c22);
+  padding: 4px 8px;
+  border-radius: 8px;
   
 }
+.username {
+  font-weight: 700;
+  font-size: 14px;
+  color: #ddd;
 
+  transform: translateZ(2px);
+
+  /* 🔥 3D tapi halus (nggak setebal h1) */
+ text-shadow:
+    0 1px 1px rgba(0,0,0,0.9),     /* shadow bawah */
+    0 3px 6px rgba(0,0,0,0.7),     /* depth */
+    0 -1px 2px rgba(255,255,255,0.25); /* 🔥 highlight diperkuat */
+  letter-spacing: 0.3px; /* biar lebih clean */
+
+  transition: all 0.25s ease;
+}
 .post-video img{
   width: 100%;
   height: 100%;
@@ -123,23 +143,82 @@ body {
 
 .logo{
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap:5px;
+  padding: 0;
+  height: 50px;
 }
-.logo img {
-  width: 36px;
-  height: 40px;
-  border-radius: 5px;
-  display: block;
-  
+.logo-content{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap:5px;
+  padding: 6px 10px;
+  height: 50px;
+ background: linear-gradient(145deg, #24262f, #1b1c22);
+  padding: 4px 8px;
+  border-radius: 8px;
+ 
+}
+.logo-content img{
+  width: 25px;
+  height: 30px;
+  border-radius: 6px;
+
+  /* 🔥 efek ngambang + glow biru */
+  background: linear-gradient(145deg, #2a2c36, #1c1e26);
+
+  /* 🔥 efek ngambang */
+  box-shadow:
+    6px 6px 12px rgba(0,0,0,0.7),     /* bayangan bawah */
+    -3px -3px 8px rgba(255,255,255,0.06), /* highlight atas */
+    inset 0 1px 1px rgba(255,255,255,0.08); /* glow dalam */
+
+  transition: all 0.25s ease;
+}
+.logo-content h1{
+  margin: 0;
+  font-size: 20px;
+  color: #ddd;
+
+  transform: perspective(500px) translateZ(4px);
+
+  /* 🔥 ini kunci 3D text */
+  text-shadow:
+    0 1px 0 #aaa,
+    0 2px 0 #999,
+    0 3px 0 #888,
+    0 4px 4px rgba(0,0,0,0.8),  /* depth */
+    0 0 6px rgba(0,150,255,0.15); /* glow tipis */
+
+  transition: all 0.3s ease;
+}
+.avatar {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background-size:cover;
+  background-position:center;
+
+  transform: perspective(500px) translateZ(6px);
+
+  /* 🔥 efek 3D utama */
+  box-shadow:
+    6px 6px 12px rgba(0,0,0,0.8),     /* bayangan bawah */
+    -3px -3px 6px rgba(255,255,255,0.12), /* highlight atas */
+    inset 0 1px 2px rgba(255,255,255,0.15), /* cahaya dalam */
+    inset 0 -2px 4px rgba(0,0,0,0.4); /* depth dalam */
+
+  transition: all 0.3s ease;
 }
 /* POST BOX */
 .post-box {
- position: fixed;
+ position: relative;
   top: 0;
   width: 100%;
   max-width: 600px;
+  height: 120px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -150,24 +229,49 @@ body {
 
   background: #202123;
 
-  border-radius: 5px; /* 🔥 bikin card */
+  border-radius: 8px; /* 🔥 bikin card */
  
   backdrop-filter: blur(8px); /* optional glass effect */
 
   transition: 0.2s ease;
   
-  padding:10px;
+  padding:5px;
 }
+/* 🔥 semua tombol dalam post-box jadi 3D */
 .post-box button {
-  background: #222;
+  position: relative;
+  float: right;
   border: none;
   color:#ddd;
   padding: 6px 15px;
   border-radius: 999px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(24,119,242,0.3);
+
+  background: linear-gradient(145deg, #2a2c36, #1c1e26);
+
+  /* 🔥 efek ngambang */
+  box-shadow:
+    6px 6px 12px rgba(0,0,0,0.7),     /* bayangan bawah */
+    -3px -3px 8px rgba(255,255,255,0.06), /* highlight atas */
+    inset 0 1px 1px rgba(255,255,255,0.08); /* glow dalam */
+
+  transition: all 0.25s ease;
+}
+.post-box button:hover {
+  transform: translateY(-4px) scale(1.02);
+
+  box-shadow:
+    10px 10px 20px rgba(0,0,0,0.8),
+    -4px -4px 10px rgba(255,255,255,0.08),
+    inset 0 1px 2px rgba(255,255,255,0.12);
+}
+.post-box button:active {
+  transform: translateY(1px) scale(0.97);
+
+  box-shadow:
+    inset 4px 4px 8px rgba(0,0,0,0.7),
+    inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 .post-body{
   font-size: clamp(0.5rem,1rem,1.5rem);
@@ -176,25 +280,50 @@ body {
   width: 80%;
   padding-bottom: 0;
 }
-#content{
- 
- background: #222;
-}
+
 #gear{
   position: relative;
   z-index: 2000;
+  right: 45px;
 }
 .file-label{
-  width: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #2a2c36, #1c1e26);
+  color: #ddd;
+
+  /* 🔥 efek ngambang */
+  box-shadow:
+    5px 5px 10px rgba(0,0,0,0.7),
+    -3px -3px 8px rgba(255,255,255,0.05),
+    inset 0 1px 1px rgba(255,255,255,0.08);
+
+  transition: all 0.25s ease;
+}
+.file-label:hover {
+  transform: translateY(-4px) scale(1.05);
+
+  box-shadow:
+    8px 8px 16px rgba(0,0,0,0.8),
+    -4px -4px 10px rgba(255,255,255,0.06),
+    inset 0 1px 2px rgba(255,255,255,0.12);
+
+  color: #fff;
+}
+.file-label:active {
+  transform: translateY(1px) scale(0.95);
+
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.7),
+    inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 
-.post-box button:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 10px rgba(24,119,242,0.4);
-}
-.post-box button:active {
-  transform: scale(0.96);
-}
 #affiliateSection{
   color: #222;
   background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #1e1e1e);
@@ -203,7 +332,7 @@ body {
 /* FEED */
 #feed {
   position: fixed;
-  top: 170px;
+  top: 135px;
   bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
@@ -267,9 +396,22 @@ body {
   transition: 0.3s;
 }
 /* AVATAR */
-.avatar { width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center; }
-.comment .avatar { width:28px; height:28px; }
 
+.avatar-comment{
+   width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+}
+.avatar-reply {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.9; /* optional biar beda feel */
+}
 
 button {
   border: none;
@@ -285,13 +427,38 @@ button {
 }
 /* INPUT */
 .post-input {
-  width:80%;
+  width:60%;
   border:none;
-  background: #444654;
-  border-radius:8px;
-  padding:6px;
   outline:none;
+  padding:8px 10px;
+  border-radius:12px;
+
+  background: linear-gradient(145deg, #3f414f, #2c2e3a);
   color: #ECECF1;
+
+  /* 🔥 efek 3D ngambang */
+  box-shadow: 
+    6px 6px 12px rgba(0,0,0,0.6),     /* bayangan bawah */
+    -4px -4px 10px rgba(255,255,255,0.05), /* highlight atas */
+    inset 0 1px 2px rgba(255,255,255,0.08); /* glow dalam */
+
+  transition: all 0.25s ease;
+}
+.post-input:focus {
+  transform: translateY(-3px); /* naik dikit */
+  box-shadow: 
+    10px 10px 20px rgba(0,0,0,0.7),
+    -5px -5px 12px rgba(255,255,255,0.06),
+    inset 0 1px 2px rgba(255,255,255,0.1);
+
+  background: linear-gradient(145deg, #4a4d5f, #2f3140);
+
+}
+.post-input:active {
+  transform: translateY(1px);
+  box-shadow: 
+    inset 3px 3px 6px rgba(0,0,0,0.6),
+    inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 .post-header{
   display: flex;
@@ -324,7 +491,7 @@ button {
 /* ACTION */
 .post-actions {
   display:flex;
-  justify-content:space-around;
+  
   padding:4px 0;
   margin-top:2px;
   margin-bottom: 15px;
@@ -337,16 +504,27 @@ button {
   cursor: pointer;
   font-size: 14px;
   color: #65676b;
-  transition: all 0.2s ease;
+ 
+ 
+
+  transition: all 0.25s ease;
 }
 
 .post-actions button:hover {
-  background: #444;
-  color: #1877f2;
+  transform: translateY(-4px) scale(1.02);
+
+  box-shadow:
+    10px 10px 20px rgba(0,0,0,0.8),
+    -4px -4px 10px rgba(255,255,255,0.08),
+    inset 0 1px 2px rgba(255,255,255,0.12);
 }
 
 .post-actions button:active {
-  transform: scale(0.96);
+   transform: translateY(1px) scale(0.97);
+
+  box-shadow:
+    inset 4px 4px 8px rgba(0,0,0,0.7),
+    inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 .actions span {
   font-size: 13px;
@@ -356,18 +534,29 @@ button {
   padding: 4px 6px;
   border-radius: 6px;
   transition: 0.2s;
+   
 }
 
 .actions span:hover {
-  background: #555;
-  color: #1877f2;
+  transform: perspective(500px) translateZ(6px);
+
+  text-shadow:
+    0 1px 0 #ccc,
+    0 3px 0 #aaa,
+    0 5px 0 #888,
+    0 8px 10px rgba(0,0,0,0.9),
+    0 0 6px rgba(0,150,255,0.2); /* glow tipis */
 }
 .actions span:active {
- transform: scale(0.96);
+  transform: translateY(1px);
+
+  text-shadow:
+    0 1px 0 #999,
+    0 2px 2px rgba(0,0,0,0.6);
 }
 .comment-input button {
   box-shadow:0 1-5px 10px rgba(0,0,0,0.2);
-  color: #222;
+  color: #ddd;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -375,15 +564,32 @@ button {
   margin-left: 6px;
   cursor: pointer;
   transition: 0.2s ease;
+   background: linear-gradient(145deg, #2a2c36, #1c1e26);
+
+  /* 🔥 efek ngambang */
+  box-shadow:
+    6px 6px 12px rgba(0,0,0,0.7),     /* bayangan bawah */
+    -3px -3px 8px rgba(255,255,255,0.06), /* highlight atas */
+    inset 0 1px 1px rgba(255,255,255,0.08); /* glow dalam */
+
+  
 }
 
 .comment-input button:hover {
-  background: #f5f5f5;
-  transform: translateY(-5px);
+ transform: translateY(-4px) scale(1.02);
+
+  box-shadow:
+    10px 10px 20px rgba(0,0,0,0.8),
+    -4px -4px 10px rgba(255,255,255,0.08),
+    inset 0 1px 2px rgba(255,255,255,0.12);
 }
 
 .comment-input button:active {
-  transform: scale(0.96);
+  transform: translateY(1px) scale(0.97);
+
+  box-shadow:
+    inset 4px 4px 8px rgba(0,0,0,0.7),
+    inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 /* COMMENT */
 .commentBox{
@@ -392,9 +598,33 @@ button {
    color: #ECECF1;
 }
 .comment { display:flex; margin-top:8px;background: #444;border-radius:5px ;color: #ddd;border:1px solid #565869; }
-.bubble { background:  #555; border-radius:5px; padding:8px 12px;font-size: 12px;border:1px solid #333; }
+.bubble { border-radius:5px; padding:8px 12px;font-size: 12px; }
 .comment-input { display:flex; margin-top:8px;color:  #ddd; }
-.comment-input input { flex:1; border-radius:20px; border:none; padding:8px; background:#202123;color: #ddd;outline: none; }
+.comment-input input { flex:1; border-radius:20px; border:none; padding:8px; background:#202123;color: #ddd;outline: none; background: linear-gradient(145deg, #3f414f, #2c2e3a);
+  color: #ECECF1;
+
+  /* 🔥 efek 3D ngambang */
+  box-shadow: 
+    6px 6px 12px rgba(0,0,0,0.6),     /* bayangan bawah */
+    -4px -4px 10px rgba(255,255,255,0.05), /* highlight atas */
+    inset 0 1px 2px rgba(255,255,255,0.08); /* glow dalam */
+
+  transition: all 0.25s ease; }
+  .comment-input input{
+  transform: translateY(-3px); /* naik dikit */
+  box-shadow: 
+    10px 10px 20px rgba(0,0,0,0.7),
+    -5px -5px 12px rgba(255,255,255,0.06),
+    inset 0 1px 2px rgba(255,255,255,0.1);
+
+  background: linear-gradient(145deg, #4a4d5f, #2f3140);
+  }
+  .comment-input input{
+     transform: translateY(1px);
+  box-shadow: 
+    inset 3px 3px 6px rgba(0,0,0,0.6),
+    inset -2px -2px 5px rgba(255,255,255,0.05);
+  }
 #file {
   display: none;
 }
@@ -432,11 +662,7 @@ button {
 
 
 
-.username {
-  font-weight: 700;
-  font-size: 14px;
-  color: #ddd;
-}
+
 
 .post-tools {
   
@@ -531,28 +757,21 @@ display: none;
 
  #feed{
   position: fixed;
-  top: 120px;
+  top: 135px;
   bottom: 60px;
   width: 100%;
  
  }
   
-  .post-box h1 {
-    font-size: 18px;
+  #gear{
+   right: 20px;
   }
-  .post-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+ 
 
 .post-top .avatar {
   flex-shrink: 0;
 }
- .post-top {
-    flex-direction: row;
-    align-items: flex-start;
-  }
+ 
 
   .post-input {
     font-size: 14px;
@@ -561,9 +780,9 @@ display: none;
     width: 50%;
   }
   .file-label{
+    margin-left: 10px;
     margin-right: 20px;
   }
-
   #fileInfo {
     font-size: 11px;
     word-break: break-word;
@@ -595,12 +814,7 @@ display: none;
     z-index: 1;
   }
 
-  #gear {
-    position: absolute;
-    right: 18px;
-    top: 85px;
-    z-index: 2000;
-  }
+ 
   .actions{
     margin-bottom: 20px;
   }
@@ -638,35 +852,34 @@ display: none;
 
 <div class="post-box">
   <div class="logo">
-  <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="gambar logo">
-  <h1>Makcek Ngobrol</h1>
-  </div>
+    <div class="logo-content">
+      <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="gambar logo">
+      <h1>Makcek Ngobrol</h1>
+    </div>
+    <button title="buat ID mu..." id="gear" onclick="openSettings()">⚙️</button>
 
-  <div class="caption" style="font-size:13px;text-align: center; color:#777; margin-bottom:8px;">
-   Isi nama & foto Di Pengaturan 
   </div>
-  <button title="buat ID mu..." id="gear" onclick="openSettings()" style="float:right;">⚙️</button>
-
+ 
   <div class="post-top">
     <div class="brand">
-      <div class="avatar" id="myAvatar"></div>
-      <div class="username"></div> 
+          <div class="avatar" id="myAvatar"></div>
+          <div class="username"></div> 
     </div> 
-  <div class="post-body">
-
-      <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
-      <label class="file-label" title="pilih file...">
-        📷
-        <input type="file" id="file" accept="image/*,video/*">
-      </label>
-    <div class="post-tools">
-      <div id="fileInfo"></div>
+    <div class="post-body">
+        <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
+         <label class="file-label" title="pilih file...">
+          📷
+          <input type="file" id="file" accept="image/*,video/*">
+        </label>
+        <button onclick="createPost(event)">Posting</button>
+        <div class="post-tools">
+            <div id="fileInfo"></div>
+        </div>
     </div>
   </div>
-</div>
       
-<div id="previewBox" style="margin-top:10px;"></div>
-<button onclick="createPost(event)">Posting</button>
+  <div id="previewBox" style="margin-top:10px;"></div>
+  
 </div>
 
 <div id="settingsBox" class="settings-box">
@@ -713,6 +926,8 @@ display: none;
 let currentPlaying = null;
 let replyListeners = {};
 let firstLoad = true;
+const unsubscribeMap = {};
+const commentState = {};
 
 let products = [];
 let adsReady = false;
@@ -877,92 +1092,154 @@ async function login(email, password){
   }
 }
 
-let commentFirstLoad = {};
-let commentListeners = {};
-// RENDER
 function initComments(postId){
-
-  if(commentListeners[postId]) return;
 
   const box = document.getElementById("comments-" + postId);
   if(!box) return;
 
   const user = auth.currentUser;
 
-  commentListeners[postId] =
-    db.collection("posts")
-      .doc(postId)
-      .collection("comments")
-      .orderBy("timestamp","asc")
-      .onSnapshot(snap => {
-
-        if(!commentFirstLoad[postId]){
-    commentFirstLoad[postId] = true;
-    return; // skip load pertama
-  }
-        box.innerHTML = "";
-        snap.docChanges().forEach(change => {
-           
-  if(change.type === "added"){
-
-    const c = change.doc.data();
-
-    // ❗ jangan notif kalau komentar sendiri
-    if(auth.currentUser && c.uid === auth.currentUser.uid) return;
-
-    showNotification(c.user, c.text);
+  if(unsubscribeMap[postId]){
+    unsubscribeMap[postId]();
   }
 
-});
+  commentState[postId] = {
+    lastDoc: null,
+    loading: false,
+    hasMore: true,
+    limit: 5
+  };
 
-        snap.forEach(doc => {
-          
-          const c = doc.data();
-          const commentId = doc.id;
+ loadCommentsPage(postId, box, user);
+}
+async function loadCommentsPage(postId, box, user){
 
-          const isOwner = user && c.uid === user.uid;
-          const isAdmin = window.isAdmin === true;
+  const state = commentState[postId];
+  if(!state || state.loading || !state.hasMore) return;
 
-          box.innerHTML += `
-            <div class="comment">
+  state.loading = true;
 
-              <div class="avatar" style="background-image:url('${c.avatar || ""}')"></div>
+  let query = db.collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .orderBy("timestamp", "desc")
+    .limit(state.limit);
 
-              <div style="flex:1">
+  if(state.lastDoc){
+    query = query.startAfter(state.lastDoc);
+  }
 
-                <div class="bubble">
-                  <b>${escapeHTML(c.user)}</b><br>
-                  ${escapeHTML(c.text)}
-                </div>
+  const snap = await query.get();
 
-                <!-- 🔥 INI YANG HILANG SEBELUMNYA -->
-                <div class="actions">
-                  <span onclick="showReplyInput('${postId}','${commentId}')">💬 Balas</span>
+  if(snap.empty){
+    state.hasMore = false;
+    state.loading = false;
+    
+    return;
+  }
 
-                  ${(isOwner || isAdmin)
-                    ? `<span onclick="deleteCommentNew('${postId}','${commentId}')">🗑 Hapus</span>`
-                    : ""}
-                </div>
+  state.lastDoc = snap.docs[snap.docs.length - 1];
 
-                <!-- reply input -->
-                <div id="reply-${postId}-${commentId}" style="display:none;">
-                  <input id="r-${postId}-${commentId}" placeholder="Balas komentar...">
-                  <button onclick="addReply('${postId}','${commentId}')">➤</button>
-                </div>
+  // 🔥 INI KUNCI
+  state.hasMore = snap.docs.length === state.limit;
 
-                <!-- replies -->
-                <div id="replies-${postId}-${commentId}" style="margin-left:30px;font-size:12px;color:#222"></div>
+  snap.forEach(doc => {
+    const c = doc.data();
+    const commentId = doc.id;
 
-              </div>
-            </div>
-          `;
+    const el = document.createElement("div");
+    el.className = "comment";
+    el.id = `comment-${commentId}`;
 
-          loadReplies(postId, commentId);
-        });
+    const avatar = document.createElement("div");
+    avatar.className = "avatar-comment";
+    avatar.style.backgroundImage = `url('${c.avatar || ""}')`;
 
-      });
+    const wrap = document.createElement("div");
+    wrap.style.flex = "1";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.innerHTML = `<b>${escapeHTML(c.user)}</b><br>${escapeHTML(c.text)}`;
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const reply = document.createElement("span");
+    reply.innerText = "💬";
+    reply.onclick = () => showReplyInput(postId, commentId);
+
+    actions.appendChild(reply);
+
+    const isOwner = user && c.uid === user.uid;
+    const isAdmin = window.isAdmin === true;
+
+    if(isOwner || isAdmin){
+      const del = document.createElement("span");
+      del.innerText = "🗑";
+      del.onclick = () => deleteCommentNew(postId, commentId);
+      actions.appendChild(del);
+    }
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(actions);
+  // 🔥 container reply input
+const replyBox = document.createElement("div");
+replyBox.id = `reply-${postId}-${commentId}`;
+replyBox.style.display = "none";
+replyBox.style.marginTop = "5px";
+
+replyBox.innerHTML = `
+  <div class="comment-input">
+    <input id="r-${postId}-${commentId}" placeholder="Balas...">
+    <button onclick="addReply('${postId}','${commentId}')">➤</button>
+  </div>
+`;
+
+// 🔥 container list reply
+const repliesBox = document.createElement("div");
+repliesBox.id = `replies-${postId}-${commentId}`;
+repliesBox.style.marginLeft = "40px";
+
+// 🔥 append ke wrap
+wrap.appendChild(replyBox);
+wrap.appendChild(repliesBox);
+
+    el.appendChild(avatar);
+    el.appendChild(wrap);
+
+    box.appendChild(el);
+    loadReplies(postId, commentId);
+  });
+
+  state.loading = false;
+
+  updateLoadMore(postId, box, user);
 }
 
+function updateLoadMore(postId, box, user) {
+  const state = commentState[postId];
+  const btnId = "loadMore-" + postId;
+
+  let btn = document.getElementById(btnId);
+
+  // 🔥 kalau sudah habis
+  if(!state.hasMore){
+    if(btn) btn.remove();
+    return;
+  }
+
+  // 🔥 kalau masih ada data
+  if(!btn){
+    btn = document.createElement("button");
+    btn.id = btnId;
+    btn.innerText = "Muat lebih banyak";
+    btn.style.width = "100%";
+    btn.style.margin = "10px 0";
+    btn.onclick = () => loadCommentsPage(postId, box, user);
+    box.appendChild(btn);
+  }
+}
 function loadReplies(postId, commentId){
 
   const key = `${postId}_${commentId}`;
@@ -990,7 +1267,7 @@ function loadReplies(postId, commentId){
 
       box.innerHTML += `
         <div class="comment">
-          <div class="avatar" style="background-image:url('${r.avatar || ""}')"></div>
+          <div class="avatar-reply" style="background-image:url('${r.avatar || ""}')"></div>
           <div>
             <div class="bubble">
               <b>${escapeHTML(r.user)}</b><br>
@@ -1234,11 +1511,11 @@ if (p.isLive && p.roomId) {
     <div style="font-size:11px;margin-top:3px;">👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
      
     <div class="post-actions">
-      <button onclick="toggleLike('${id}')">👍 Suka</button>
-      <button onclick="toggleComment('${id}')">💬 Komentar</button>
+      <button onclick="toggleLike('${id}')">👍</button>
+      <button onclick="toggleComment('${id}')">💬</button>
 
       ${(p.uid === auth.currentUser?.uid || window.isAdmin)
-        ? `<button onclick="deletePost('${id}')">🗑 Hapus</button>`
+        ? `<button onclick="deletePost('${id}')">🗑</button>`
         : ""}
     </div>
 
@@ -1455,6 +1732,18 @@ async function addComment(postId){
     });
 
   input.value = '';
+  const box = document.getElementById("comments-" + postId);
+
+if(commentState[postId]){
+    commentState[postId].lastDoc = null;
+    commentState[postId].hasMore = true;
+    commentState[postId].loading = false;
+  }
+
+  if(box){
+    box.innerHTML = "";
+    loadCommentsPage(postId, box, user);
+  }
 }
 // DELETE COMMENT
 
@@ -1463,13 +1752,24 @@ async function deleteCommentNew(postId, commentId){
   const user = auth.currentUser;
   const isAdmin = window.isAdmin === true;
 
-  const snap = await db.collection("posts")
+  const ref = db.collection("posts")
     .doc(postId)
     .collection("comments")
-    .doc(commentId)
-    .get();
+    .doc(commentId);
+
+  const snap = await ref.get();
+
+  if(!snap.exists){
+    alert("Komentar sudah tidak ada (sync issue)");
+    return;
+  }
 
   const data = snap.data();
+
+  if(!data || !data.uid){
+    alert("Data komentar rusak");
+    return;
+  }
 
   const isOwner = user && data.uid === user.uid;
 
@@ -1478,12 +1778,19 @@ async function deleteCommentNew(postId, commentId){
     return;
   }
 
-  await db.collection("posts")
-    .doc(postId)
-    .collection("comments")
-    .doc(commentId)
-    .delete();
+   await ref.delete();
+
+  // 🔥 HAPUS 1 ELEMENT SAJA (INI KUNCI)
+  const el = document.getElementById(`comment-${commentId}`);
+  if(el){
+    el.remove();
+  }
+
 }
+
+
+// refresh UI
+
 // SHOW REPLY INPUT
 function showReplyInput(postId, i){
   const el = document.getElementById(`reply-${postId}-${i}`);
