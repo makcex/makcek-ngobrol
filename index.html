@@ -868,7 +868,7 @@ display: none;
     <div class="post-body">
         <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
          <label class="file-label" title="pilih file...">
-          📷
+          +
           <input type="file" id="file" accept="image/*,video/*">
         </label>
         <button onclick="createPost(event)">Posting</button>
@@ -1508,10 +1508,10 @@ if (p.isLive && p.roomId) {
     <video id="live-${id}" autoplay playsinline></video>
   </div>
 ` : ""}
-    <div style="font-size:11px;margin-top:3px;">👍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
+    <div style="font-size:11px;margin-top:3px;">🤍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
      
     <div class="post-actions">
-      <button onclick="toggleLike('${id}')">👍</button>
+      <button onclick="toggleLike('${id}')">🤍</button>
       <button onclick="toggleComment('${id}')">💬</button>
 
       ${(p.uid === auth.currentUser?.uid || window.isAdmin)
