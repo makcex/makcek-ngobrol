@@ -68,6 +68,26 @@ body {
    
   overflow-y: auto;
    }
+
+.reply-line {
+  border-left: 2px solid #e4e6eb;
+  margin-left: 20px;
+  padding-left: 10px;
+  position: relative;
+}
+.reply-line .comment {
+  position: relative;
+}
+
+.reply-line .comment::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 10px;
+  width: 10px;
+  height: 2px;
+  background: #e4e6eb;
+}
 .post{
    background:  #333;
   margin-bottom: 12px;
@@ -610,21 +630,7 @@ button {
     inset 0 1px 2px rgba(255,255,255,0.08); /* glow dalam */
 
   transition: all 0.25s ease; }
-  .comment-input input{
-  transform: translateY(-3px); /* naik dikit */
-  box-shadow: 
-    10px 10px 20px rgba(0,0,0,0.7),
-    -5px -5px 12px rgba(255,255,255,0.06),
-    inset 0 1px 2px rgba(255,255,255,0.1);
-
-  background: linear-gradient(145deg, #4a4d5f, #2f3140);
-  }
-  .comment-input input{
-     transform: translateY(1px);
-  box-shadow: 
-    inset 3px 3px 6px rgba(0,0,0,0.6),
-    inset -2px -2px 5px rgba(255,255,255,0.05);
-  }
+  
 #file {
   display: none;
 }
@@ -928,6 +934,8 @@ let replyListeners = {};
 let firstLoad = true;
 const unsubscribeMap = {};
 const commentState = {};
+const replyState = {}; // key: postId_commentId
+const MAX_DEPTH = 5;
 
 let products = [];
 let adsReady = false;
@@ -1112,7 +1120,8 @@ function initComments(postId){
 
  loadCommentsPage(postId, box, user);
 }
-async function loadCommentsPage(postId, box, user){
+
+function loadCommentsPage(postId, box, user){
 
   const state = commentState[postId];
   if(!state || state.loading || !state.hasMore) return;
@@ -1129,94 +1138,88 @@ async function loadCommentsPage(postId, box, user){
     query = query.startAfter(state.lastDoc);
   }
 
-  const snap = await query.get();
+  query.get().then(snap => {
 
-  if(snap.empty){
-    state.hasMore = false;
-    state.loading = false;
-    
-    return;
-  }
-
-  state.lastDoc = snap.docs[snap.docs.length - 1];
-
-  // 🔥 INI KUNCI
-  state.hasMore = snap.docs.length === state.limit;
-
-  snap.forEach(doc => {
-    const c = doc.data();
-    const commentId = doc.id;
-
-    const el = document.createElement("div");
-    el.className = "comment";
-    el.id = `comment-${commentId}`;
-
-    const avatar = document.createElement("div");
-    avatar.className = "avatar-comment";
-    avatar.style.backgroundImage = `url('${c.avatar || ""}')`;
-
-    const wrap = document.createElement("div");
-    wrap.style.flex = "1";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.innerHTML = `<b>${escapeHTML(c.user)}</b><br>${escapeHTML(c.text)}`;
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    const reply = document.createElement("span");
-    reply.innerText = "💬";
-    reply.onclick = () => showReplyInput(postId, commentId);
-
-    actions.appendChild(reply);
-
-    const isOwner = user && c.uid === user.uid;
-    const isAdmin = window.isAdmin === true;
-
-    if(isOwner || isAdmin){
-      const del = document.createElement("span");
-      del.innerText = "🗑";
-      del.onclick = () => deleteCommentNew(postId, commentId);
-      actions.appendChild(del);
+    if(snap.empty){
+      state.hasMore = false;
+      state.loading = false;
+      return;
     }
 
-    wrap.appendChild(bubble);
-    wrap.appendChild(actions);
-  // 🔥 container reply input
-const replyBox = document.createElement("div");
-replyBox.id = `reply-${postId}-${commentId}`;
-replyBox.style.display = "none";
-replyBox.style.marginTop = "5px";
+    state.lastDoc = snap.docs[snap.docs.length - 1];
+    state.hasMore = snap.docs.length === state.limit;
 
-replyBox.innerHTML = `
-  <div class="comment-input">
-    <input id="r-${postId}-${commentId}" placeholder="Balas...">
-    <button onclick="addReply('${postId}','${commentId}')">➤</button>
-  </div>
-`;
+    snap.forEach(doc => {
 
-// 🔥 container list reply
-const repliesBox = document.createElement("div");
-repliesBox.id = `replies-${postId}-${commentId}`;
-repliesBox.style.marginLeft = "40px";
+      const c = doc.data();
+      const commentId = doc.id;
 
-// 🔥 append ke wrap
-wrap.appendChild(replyBox);
-wrap.appendChild(repliesBox);
+      if(document.getElementById(`comment-${commentId}`)) return;
 
-    el.appendChild(avatar);
-    el.appendChild(wrap);
+      const el = document.createElement("div");
+      el.className = "comment";
+      el.id = `comment-${commentId}`;
 
-    box.appendChild(el);
-    loadReplies(postId, commentId);
+      el.innerHTML = `
+        <div style="display:flex;gap:8px;">
+
+          <div style="width:30px;height:30px;border-radius:50%;
+            background-image:url('${c.avatar || ""}');
+            background-size:cover;">
+          </div>
+
+          <div style="flex:1">
+
+            <div class="bubble">
+              <b>${escapeHTML(c.user)}</b><br>
+              ${escapeHTML(c.text)}
+            </div>
+
+            <div class="actions">
+
+              <span class="btn-reply"
+                data-post="${postId}"
+                data-comment="${commentId}"
+                data-parent="${commentId}">
+                💬 balas
+              </span>
+
+              <span class="btn-delete-comment"
+                data-post="${postId}"
+                data-id="${commentId}">
+                🗑 hapus
+              </span>
+
+            </div>
+
+            <!-- 🔥 FIX: SELALU ADA (NO DISPLAY NONE TOTAL) -->
+            <div class="reply-box" id="reply-${postId}-${commentId}" style="display:none;">
+  <input id="r-${postId}-${commentId}"
+         placeholder="Tulis balasan..."
+         style="width:70%;margin-top:5px;">
+  <button onclick="addReply('${postId}','${commentId}')">
+    ➤
+  </button>
+</div>
+
+            <div class="replies" id="replies-${postId}-${commentId}"></div>
+
+          </div>
+        </div>
+      `;
+
+      box.appendChild(el);
+
+      setTimeout(() => {
+        loadReplies(postId, commentId);
+      }, 0);
+
+    });
+
+    state.loading = false;
+    updateLoadMore(postId, box, user);
   });
-
-  state.loading = false;
-
-  updateLoadMore(postId, box, user);
 }
-
 function updateLoadMore(postId, box, user) {
   const state = commentState[postId];
   const btnId = "loadMore-" + postId;
@@ -1233,13 +1236,18 @@ function updateLoadMore(postId, box, user) {
   if(!btn){
     btn = document.createElement("button");
     btn.id = btnId;
-    btn.innerText = "Muat lebih banyak";
-    btn.style.width = "100%";
-    btn.style.margin = "10px 0";
+    btn.innerText = "Lihat Komentar Lainnya";
+     btn.style.cursor = "pointer";
+    btn.style.color = "#65676b";
+    btn.style.fontSize = "14px";
+    btn.style.margin = "5px 0";
+
     btn.onclick = () => loadCommentsPage(postId, box, user);
     box.appendChild(btn);
   }
+  
 }
+
 function loadReplies(postId, commentId){
 
   const key = `${postId}_${commentId}`;
@@ -1279,6 +1287,8 @@ function loadReplies(postId, commentId){
     });
   });
 }
+
+
 
 // CARD FILM
 function getVideoData(text) {
@@ -1407,15 +1417,76 @@ const observer = new IntersectionObserver(entries => {
       }
 
       // 🟢 MP4 / LOCAL VIDEO
-      if (type === "video") {
-        const video = document.createElement("video");
-        video.src = src;
-        video.autoplay = true;
-        video.muted = true;
-        video.controls = true;
-        el.appendChild(video);
-      }
+//      if (type === "video") {
 
+//   if (el.dataset.playing === "1") return;
+//   el.dataset.playing = "1";
+
+//   const wrap = document.createElement("div");
+//   wrap.style.position = "relative";
+
+//   const video = document.createElement("video");
+
+//   video.src = src;
+//   video.muted = true;
+//   video.controls = true;
+//   video.playsInline = true;
+//   video.preload = "auto";
+
+//   wrap.appendChild(video);
+//   el.innerHTML = "";
+//   el.appendChild(wrap);
+
+//   console.log("🎬 MP4 LOADED:", src);
+
+//   video.load();
+
+//   // 🔥 INI KUNCI UTAMA (delay sedikit)
+//   setTimeout(() => {
+//     const playPromise = video.play();
+
+//     if (playPromise !== undefined) {
+//       playPromise
+//         .then(() => {
+//           console.log("✅ MP4 AUTOPLAY SUCCESS");
+//         })
+//         .catch(err => {
+//           console.log("❌ BLOCKED:", err);
+
+//           wrap.onclick = () => video.play(); // fallback manual
+//         });
+//     }
+//   }, 200);
+// }
+
+if (type === "video") {
+  if (el._videoController) {
+    el._videoController.abort();
+  }
+
+  const controller = new AbortController();
+  el._videoController = controller;
+
+  const video = document.createElement("video");
+
+  video.src = src;
+  video.muted = true;
+  video.playsInline = true;
+  video.controls = true;
+  video.preload = "auto";
+
+  el.replaceChildren(video);
+
+  video.load();
+
+  requestAnimationFrame(() => {
+    if (controller.signal.aborted) return;
+
+    video.play().catch(err => {
+      console.log("PLAY ERROR:", err);
+    });
+  });
+}
       
 
     }
@@ -1429,7 +1500,34 @@ const observer = new IntersectionObserver(entries => {
 
   });
 
-}, { threshold: 0.7 });
+}, {  
+  threshold: 0.25,
+  rootMargin: "200px 0px" });
+
+function showClickToPlay(el, video){
+
+  const btn = document.createElement("div");
+  btn.innerText = "▶ Tap untuk play video";
+  btn.style.cssText = `
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,0.6);
+    color:#fff;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+  `;
+
+  el.style.position = "relative";
+  el.appendChild(btn);
+
+  btn.onclick = () => {
+    video.play();
+    btn.remove();
+  };
+}
 
 function initVideoObserver(){
   document.querySelectorAll(".post-video").forEach(el => {
@@ -1787,7 +1885,15 @@ async function deleteCommentNew(postId, commentId){
   }
 
 }
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".btn-delete-comment");
+  if (!btn) return;
 
+  const postId = btn.dataset.post;
+  const commentId = btn.dataset.id;
+
+  await deleteCommentNew(postId, commentId);
+});
 
 // refresh UI
 
@@ -1803,11 +1909,26 @@ function toggleComment(postId){
   box.style.display = (box.style.display === "block") ? "none" : "block";
 }
 
+document.addEventListener("click", (e) => {
 
+  const btn = e.target.closest(".btn-reply");
+  if(!btn) return;
+
+  const postId = btn.dataset.post;
+  const commentId = btn.dataset.comment;
+
+  const box = document.getElementById(`reply-${postId}-${commentId}`);
+  if(!box) return;
+
+  box.style.display = box.style.display === "block" ? "none" : "block";
+});
 
 // ADD REPLY
 async function addReply(postId, commentId){
+
   const input = document.getElementById(`r-${postId}-${commentId}`);
+  if(!input) return;
+
   const text = input.value.trim();
   if(!text) return;
 
@@ -1821,13 +1942,15 @@ async function addReply(postId, commentId){
     .add({
       user: user?.displayName || "Anon",
       avatar: user?.photoURL || "",
-      uid: user?.uid,   // 🔥 penting biar aman & unik
+      uid: user?.uid,
       text,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
   input.value = "";
-  document.getElementById(`reply-${postId}-${commentId}`).style.display = "none";
+
+  const box = document.getElementById(`reply-${postId}-${commentId}`);
+  if(box) box.style.display = "none";
 }
 // SETTINGS
 function openSettings(){
