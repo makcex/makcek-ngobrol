@@ -58,6 +58,21 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+ <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "88062d95-4528-4c42-8443-ee7d8cf83c2d",
+      safari_web_id: "web.onesignal.auto.336e9d4c-289f-452d-8560-a451da3453b9",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
 <style>
   
 body { 
@@ -126,18 +141,7 @@ body {
 }
 
 
-.brand{
-  position: relative;
- 
-   display: flex;
-   justify-content: center;
-  align-items: center;
-  gap: 8px;
- background: linear-gradient(145deg, #24262f, #1b1c22);
-  padding: 4px 8px;
-  border-radius: 8px;
-  
-}
+
 .username {
   font-weight: 700;
   font-size: 14px;
@@ -174,7 +178,7 @@ body {
 
 .logo{
   display: flex;
-  justify-content: space-between;
+  justify-content:space-between;
   align-items: center;
   gap:5px;
   padding: 0;
@@ -182,13 +186,12 @@ body {
 }
 .logo-content{
   display: flex;
-  justify-content: space-between;
+  justify-content:center;
   align-items: center;
+  margin: auto;
   gap:5px;
-  padding: 6px 10px;
-  height: 50px;
- background: linear-gradient(145deg, #24262f, #1b1c22);
-  padding: 4px 8px;
+  height: 30px;
+ 
   border-radius: 8px;
  
 }
@@ -197,33 +200,21 @@ body {
   height: 30px;
   border-radius: 6px;
 
-  /* 🔥 efek ngambang + glow biru */
-  background: linear-gradient(145deg, #2a2c36, #1c1e26);
-
-  /* 🔥 efek ngambang */
-  box-shadow:
-    6px 6px 12px rgba(0,0,0,0.7),     /* bayangan bawah */
-    -3px -3px 8px rgba(255,255,255,0.06), /* highlight atas */
-    inset 0 1px 1px rgba(255,255,255,0.08); /* glow dalam */
-
-  transition: all 0.25s ease;
+ 
 }
 .logo-content h1{
   margin: 0;
   font-size: 20px;
   color: #ddd;
 
-  transform: perspective(500px) translateZ(4px);
-
+ 
   /* 🔥 ini kunci 3D text */
   text-shadow:
-    0 1px 0 #aaa,
-    0 2px 0 #999,
-    0 3px 0 #888,
+   
     0 4px 4px rgba(0,0,0,0.8),  /* depth */
     0 0 6px rgba(0,150,255,0.15); /* glow tipis */
 
-  transition: all 0.3s ease;
+  
 }
 .avatar {
   width:40px;
@@ -232,16 +223,7 @@ body {
   background-size:cover;
   background-position:center;
 
-  transform: perspective(500px) translateZ(6px);
-
-  /* 🔥 efek 3D utama */
-  box-shadow:
-    6px 6px 12px rgba(0,0,0,0.8),     /* bayangan bawah */
-    -3px -3px 6px rgba(255,255,255,0.12), /* highlight atas */
-    inset 0 1px 2px rgba(255,255,255,0.15), /* cahaya dalam */
-    inset 0 -2px 4px rgba(0,0,0,0.4); /* depth dalam */
-
-  transition: all 0.3s ease;
+  
 }
 /* POST BOX */
 .post-box {
@@ -253,19 +235,12 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  box-shadow: 
-    0 10px 25px rgba(0,0,0,0.7),
-    0 2px 6px rgba(0,0,0,0.5),
-    0 0 0 1px rgba(255,255,255,0.06);
-
+ 
   background: #202123;
 
   border-radius: 8px; /* 🔥 bikin card */
  
-  backdrop-filter: blur(8px); /* optional glass effect */
-
-  transition: 0.2s ease;
-  
+ 
   padding:5px;
 }
 /* 🔥 semua tombol dalam post-box jadi 3D */
@@ -274,42 +249,63 @@ body {
   float: right;
   border: none;
   color:#ddd;
-  padding: 6px 15px;
-  border-radius: 999px;
+  background: #1e1e1e;
   cursor: pointer;
   font-weight: bold;
 
-  background: linear-gradient(145deg, #2a2c36, #1c1e26);
-
-  /* 🔥 efek ngambang */
-  box-shadow:
-    6px 6px 12px rgba(0,0,0,0.7),     /* bayangan bawah */
-    -3px -3px 8px rgba(255,255,255,0.06), /* highlight atas */
-    inset 0 1px 1px rgba(255,255,255,0.08); /* glow dalam */
-
-  transition: all 0.25s ease;
+  
 }
 .post-box button:hover {
-  transform: translateY(-4px) scale(1.02);
-
+ 
   box-shadow:
     10px 10px 20px rgba(0,0,0,0.8),
     -4px -4px 10px rgba(255,255,255,0.08),
     inset 0 1px 2px rgba(255,255,255,0.12);
 }
 .post-box button:active {
-  transform: translateY(1px) scale(0.97);
+ 
 
   box-shadow:
     inset 4px 4px 8px rgba(0,0,0,0.7),
     inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 .post-body{
-  font-size: clamp(0.5rem,1rem,1.5rem);
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  width: 80%;
-  padding-bottom: 0;
+  align-items: center;
+  width: 100%; 
+}
+.post-input {
+  flex: 1;
+  width: 100%;
+  padding-right: 100px;
+  border:none;
+  outline:none;
+ 
+  border-radius:20px;
+
+  background:  #181818;
+  color: #ECECF1;
+}
+.post-input::placeholder{
+  text-align: center;   /* horizontal center */
+  line-height: 20px;    /* bantu vertical feel */
+  color: #aaa;
+}
+.post-top{
+  display: flex;
+ 
+}
+.post-top button {
+  flex-shrink: 0;
+}
+.brand{
+  display: block;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+  flex-shrink: 0;
 }
 
 #gear{
@@ -318,41 +314,16 @@ body {
   right: 45px;
 }
 .file-label{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 6px 8px;
-  border-radius: 10px;
+   position: absolute;
+  right: 100px;  /* sesuaikan dekat tombol posting */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
   cursor: pointer;
-
-  background: linear-gradient(145deg, #2a2c36, #1c1e26);
-  color: #ddd;
-
-  /* 🔥 efek ngambang */
-  box-shadow:
-    5px 5px 10px rgba(0,0,0,0.7),
-    -3px -3px 8px rgba(255,255,255,0.05),
-    inset 0 1px 1px rgba(255,255,255,0.08);
-
-  transition: all 0.25s ease;
+  z-index: 10;
 }
-.file-label:hover {
-  transform: translateY(-4px) scale(1.05);
-
-  box-shadow:
-    8px 8px 16px rgba(0,0,0,0.8),
-    -4px -4px 10px rgba(255,255,255,0.06),
-    inset 0 1px 2px rgba(255,255,255,0.12);
-
-  color: #fff;
-}
-.file-label:active {
-  transform: translateY(1px) scale(0.95);
-
-  box-shadow:
-    inset 3px 3px 6px rgba(0,0,0,0.7),
-    inset -2px -2px 5px rgba(255,255,255,0.05);
+.file-label:hover{
+  background: #333;
 }
 
 #affiliateSection{
@@ -457,40 +428,8 @@ button {
   transform: scale(0.96);
 }
 /* INPUT */
-.post-input {
-  width:60%;
-  border:none;
-  outline:none;
-  padding:8px 10px;
-  border-radius:12px;
 
-  background: linear-gradient(145deg, #3f414f, #2c2e3a);
-  color: #ECECF1;
 
-  /* 🔥 efek 3D ngambang */
-  box-shadow: 
-    6px 6px 12px rgba(0,0,0,0.6),     /* bayangan bawah */
-    -4px -4px 10px rgba(255,255,255,0.05), /* highlight atas */
-    inset 0 1px 2px rgba(255,255,255,0.08); /* glow dalam */
-
-  transition: all 0.25s ease;
-}
-.post-input:focus {
-  transform: translateY(-3px); /* naik dikit */
-  box-shadow: 
-    10px 10px 20px rgba(0,0,0,0.7),
-    -5px -5px 12px rgba(255,255,255,0.06),
-    inset 0 1px 2px rgba(255,255,255,0.1);
-
-  background: linear-gradient(145deg, #4a4d5f, #2f3140);
-
-}
-.post-input:active {
-  transform: translateY(1px);
-  box-shadow: 
-    inset 3px 3px 6px rgba(0,0,0,0.6),
-    inset -2px -2px 5px rgba(255,255,255,0.05);
-}
 .post-header{
   display: flex;
   margin-bottom: 10px;
@@ -515,48 +454,34 @@ button {
   font-size: clamp(0.5rem, 0.8rem, 1rem) ;
   height: 100%;
   text-align: justify;
-  padding: 0;
+  padding: 5px;
   margin: 0;
+  
 }
 
 /* ACTION */
 .post-actions {
   display:flex;
+  gap: 15px;
   
-  padding:4px 0;
   margin-top:2px;
   margin-bottom: 15px;
 }
 .post-actions button {
-  background: transparent;
+  background: #333;
   border: none;
-  padding: 4px 6px;
+  margin-top: 5px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  color: #65676b;
+  font-size: 12px;
+  color: #ddd;
  
- 
-
-  transition: all 0.25s ease;
 }
-
 .post-actions button:hover {
-  transform: translateY(-4px) scale(1.02);
-
-  box-shadow:
-    10px 10px 20px rgba(0,0,0,0.8),
-    -4px -4px 10px rgba(255,255,255,0.08),
-    inset 0 1px 2px rgba(255,255,255,0.12);
+  background: #555;
 }
 
-.post-actions button:active {
-   transform: translateY(1px) scale(0.97);
 
-  box-shadow:
-    inset 4px 4px 8px rgba(0,0,0,0.7),
-    inset -2px -2px 5px rgba(255,255,255,0.05);
-}
 .actions span {
   font-size: 13px;
   color: #ddd;
@@ -564,27 +489,18 @@ button {
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 6px;
-  transition: 0.2s;
+  transition:  all 0.2s ease;
    
 }
 
 .actions span:hover {
-  transform: perspective(500px) translateZ(6px);
 
-  text-shadow:
-    0 1px 0 #ccc,
-    0 3px 0 #aaa,
-    0 5px 0 #888,
-    0 8px 10px rgba(0,0,0,0.9),
-    0 0 6px rgba(0,150,255,0.2); /* glow tipis */
+  background: #2a2c36;
 }
 .actions span:active {
-  transform: translateY(1px);
-
-  text-shadow:
-    0 1px 0 #999,
-    0 2px 2px rgba(0,0,0,0.6);
+ background: #2a2c36;
 }
+
 .comment-input button {
   box-shadow:0 1-5px 10px rgba(0,0,0,0.2);
   color: #ddd;
@@ -645,24 +561,9 @@ button {
 #file {
   display: none;
 }
-.file-label{
-  transition: all 0.3s ease;
 
-}
 
-.file-label:hover {
-  transform: translateY(-4px);
-}
-.post-top {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-   margin-top: 10px;
 
-}
-.post-top button {
-  flex-shrink: 0;
-}
 
 
 #loginBox{
@@ -797,8 +698,13 @@ display: none;
     width: 50%;
   }
   .file-label{
-    margin-left: 10px;
-    margin-right: 20px;
+     position: absolute;
+  right: 100px;  /* sesuaikan dekat tombol posting */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 10;
   }
   #fileInfo {
     font-size: 11px;
@@ -823,7 +729,7 @@ display: none;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 8px;
+    gap: 2px;
   }
 
   #content {
@@ -883,11 +789,12 @@ display: none;
           <div class="username"></div> 
     </div> 
     <div class="post-body">
-        <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
-         <label class="file-label" title="pilih file...">
-          +
+       <label class="file-label" title="pilih file...">
+          📎
           <input type="file" id="file" accept="image/*,video/*">
         </label>
+        <textarea id="content" class="post-input" placeholder="Apa yang kamu pikirkan?"></textarea>
+        
         <button onclick="createPost(event)">Posting</button>
         <div class="post-tools">
             <div id="fileInfo"></div>
@@ -941,6 +848,8 @@ display: none;
 <script>
   let lastPostId = null;
 let currentPlaying = null;
+let notifQueue = [];
+let showingNotif = false;
 let replyListeners = {};
 let firstLoad = true;
 const unsubscribeMap = {};
@@ -1597,11 +1506,11 @@ if (p.isLive && p.roomId) {
     <div style="font-size:11px;margin-top:3px;">🤍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
      
     <div class="post-actions">
-      <button onclick="toggleLike('${id}')">🤍</button>
-      <button onclick="toggleComment('${id}')">💬</button>
+      <button onclick="toggleLike('${id}')">🤍 sukai</button>
+      <button onclick="toggleComment('${id}')">💬 komentari</button>
 
       ${(p.uid === auth.currentUser?.uid || window.isAdmin)
-        ? `<button onclick="deletePost('${id}')">🗑</button>`
+        ? `<button onclick="deletePost('${id}')">🗑 hapus</button>`
         : ""}
     </div>
 
@@ -1620,7 +1529,7 @@ if (p.isLive && p.roomId) {
   
   
 }
-initVideoObserver()
+
 
 // REALTIME
 let postCache = {};
@@ -2257,24 +2166,52 @@ function renderMovies(list){
 //  search movie
 window.onload = function(){
 
-document.getElementById("search").addEventListener("input", async function(){
+  let searchTimer;
+  const movieCache = {};
 
-  const keyword = this.value || "movie";
+  document.getElementById("search").addEventListener("input", function(){
 
-  const box = document.getElementById("movieList");
-  box.innerHTML = "⏳ Cari film...";
+    clearTimeout(searchTimer);
 
-  try{
+    searchTimer = setTimeout(async () => {
 
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+full+movie&type=video&videoDuration=long&maxResults=20&key=${YT_API_KEY}`
-    );
+      const keyword = this.value.trim() || "movie";
+      const box = document.getElementById("movieList");
 
-    const data = await res.json();
+      box.innerHTML = "⏳ Cari film...";
 
+      try{
+
+        // 🔥 CACHE HIT (hemat API)
+        if(movieCache[keyword]){
+          renderList(movieCache[keyword], box);
+          return;
+        }
+
+        const res = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+movie&type=video&videoDuration=long&maxResults=20&key=${YT_API_KEY}`
+        );
+
+        const data = await res.json();
+
+        movieCache[keyword] = data.items;
+
+        renderList(data.items, box);
+
+      } catch(e){
+        box.innerHTML = "❌ Gagal cari film";
+      }
+
+    }, 700); // ⏱ delay biar gak spam API
+
+  });
+
+
+  // 🔥 pisahin render biar clean
+  function renderList(items, box){
     box.innerHTML = "";
 
-    data.items.forEach(v => {
+    items.forEach(v => {
       const id = v.id.videoId;
       const title = v.snippet.title;
       const img = v.snippet.thumbnails.medium.url;
@@ -2289,13 +2226,10 @@ document.getElementById("search").addEventListener("input", async function(){
         </div>
       `;
     });
-
-  } catch(e){
-    box.innerHTML = "❌ Gagal cari film";
   }
 
-});
 }
+
 // iklan di movies
 function showMovieAd(){
   if(!adsReady || !products.length){
@@ -2371,6 +2305,23 @@ function openMovies(){
 }
 // NOTIFIKASI
 function showNotification(user, text){
+  notifQueue.push({ user, text });
+
+  if(!showingNotif){
+    processNotif();
+  }
+}
+
+function processNotif(){
+
+  if(notifQueue.length === 0){
+    showingNotif = false;
+    return;
+  }
+
+  showingNotif = true;
+
+  const { user, text } = notifQueue.shift();
 
   const notif = document.createElement("div");
 
@@ -2396,11 +2347,14 @@ function showNotification(user, text){
 
   document.body.appendChild(notif);
 
+  const sound = new Audio("https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3");
+sound.play().catch(()=>{});
+
   setTimeout(() => {
     notif.remove();
-  }, 5000);
+    processNotif();
+  }, 4000);
 }
-
 
 
 window.addEventListener("load", () => {
@@ -2641,7 +2595,8 @@ pc.ontrack = (event) => {
     unsub();
   });
 
-  roomRef.collection("callerCandidates").onSnapshot(snapshot => {
+  const unsubCandidates = roomRef.collection("callerCandidates")
+  .onSnapshot(snapshot => {
     snapshot.docChanges().forEach(change => {
       if (change.type === "added") {
         pc.addIceCandidate(
@@ -2650,6 +2605,8 @@ pc.ontrack = (event) => {
       }
     });
   });
+
+liveUnsubscribes.push(unsubCandidates);
 }
 
 async function stopLive() {
@@ -2706,6 +2663,9 @@ async function stopLive() {
 
   // 🔥 RESET ROOM ID
   window.currentLiveRoomId = null;
+  // 🔥 STOP SEMUA LISTENER FIRESTORE (WAJIB)
+liveUnsubscribes.forEach(unsub => unsub());
+liveUnsubscribes = [];
 
   console.log("✅ KAMERA BENAR2 MATI");
 }
