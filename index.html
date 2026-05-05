@@ -85,8 +85,8 @@ body {
    }
 
    .icon-btn {
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
 
   display: flex;
   align-items: center;
@@ -263,6 +263,14 @@ body {
   background-position:center;
  
 }
+
+.avatar-user{
+  width: 30px;
+  height: 30px;
+   border-radius:50%;
+  background-size:cover;
+  background-position:center;
+}
 /* POST BOX */
 .post-box {
  position: relative;
@@ -383,6 +391,15 @@ margin-left: 20px;
 
   font-size: 18px;
   cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.inter button:hover{
+  transform: scale(0.96);
+}
+.inter button:active{
+  transform: scale(0.96);
 }
 
 #gear{
@@ -561,8 +578,8 @@ height: 200px;
   z-index: 10;
 }
 .post-actions button {
-  width: 25px;
-  height: 25px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   
   font-size: 14px;
@@ -583,9 +600,13 @@ height: 200px;
   -webkit-text-stroke: 0.4px black;
 
   backdrop-filter: blur(4px);
+  transition: 0.2s;
 }
 .post-actions button:hover {
   background: #ddd;
+}
+.post-actions button:active{
+  transform: scale(0.96);
 }
 
 .post-modal {
@@ -640,6 +661,7 @@ height: 200px;
   top: 10px;
   margin-bottom: 10px;
   display: flex;
+  flex-direction: column;
  z-index: 2;
   gap: 5px;
 
@@ -663,6 +685,7 @@ width: 500px;
 }
 .actions span:active {
  background: #2a2c36;
+ transform: scale(0.96);
 }
 
 .comment-input button {
@@ -805,9 +828,13 @@ width: 500px;
 
   font-size: 15px;
   cursor: pointer;
+  transition: 0.2s;
 }
 #bottomNav button:hover{
   transform: translateY(-5px);
+}
+#bottomNav button:active{
+transform: scale(0.96);
 }
 #movieList{
   position: relative;
@@ -876,7 +903,9 @@ display: none;
    object-fit: cover; 
 }
 
-
+.content{
+  margin-top: 30px;
+}
 .post-media {
    position: absolute;
   inset: 0;
@@ -912,8 +941,6 @@ object-fit: cover;
 .post-actions button {
   width: 25px;
   height: 25px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.4);
   color: black;
   font-size: 14px;
   border: none;
@@ -923,9 +950,44 @@ object-fit: cover;
  margin-right: 20px;
 }
 .post-header{
-  position: relative;
-  margin-bottom: 10px;
-  
+  position: absolute;
+
+  right: 30px;
+  bottom: 320px;
+
+  left: auto;   /* 🔥 reset */
+  top: auto;    /* 🔥 reset */
+
+  width: auto;  /* 🔥 penting */
+  max-width: 100px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.info {
+  position: absolute;
+  top: 100px;
+  text-align: center;
+  width: 200px;
+  height: 100vh;
+  background: #ddd;
+color: #ddd;
+z-index: 10;
+   background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.6),
+    rgba(0,0,0,0.2),
+    transparent
+  );
+
+}
+
+.hidden{
+  display: none;
 }
   
   #gear{
@@ -991,9 +1053,9 @@ object-fit: cover;
   }
   [id^="commentBox-"] {
   position: absolute; /* 🔥 keluar dari post */
-  bottom: 200px;
-  right: 80px;
-  width: 300px;
+ top:50px;
+  right: 60px;
+  width: 280px;
   max-height: 100vh;
   border-radius: 15px;
   padding: 5px 5px;
@@ -1012,32 +1074,40 @@ object-fit: cover;
  #bottomNav {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%); /* 🔥 biar center */
+  
+  
   width: 100%;
-  max-width: 600px;
-
+ 
+  padding: 2px;
   z-index: 99999; /* 🔥 HARUS tinggi */
   
   display: flex;
-  justify-content: space-around;
+  gap: 20px;
   align-items: center;
   
   background: transparent;
  
-  padding-bottom: 10px;
+  
+}
+#bottomNav button{
+  margin-left: 2px;
 }
 
 .inter {
   position: fixed;
   right: 15px;
-  bottom: 350px; /* 🔥 di bawah post-actions */
+  bottom: 400px; /* 🔥 di bawah post-actions */
 
   display: flex;
   flex-direction: column;
   gap: 12px;
 
   z-index: 1000;
+}
+#commentBox{
+  position: absolute;
+  width: 100%;
+  bottom: 500px;
 }
  
 }
@@ -1112,15 +1182,36 @@ object-fit: cover;
 <div id="feed"></div>
 
 <div class="inter">
-   <button onclick="openLink()">🌐</button>
-  <button onclick="openMovies()">🎬</button>
+   <button onclick="openLink()"><svg id="icon-browser" width="24" height="24" viewBox="0 0 24 24">
+  <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="black"/>
+  <line x1="3" y1="8" x2="21" y2="8" stroke="black"/>
+  <circle cx="6" cy="6" r="1" fill="black"/>
+  <circle cx="9" cy="6" r="1" fill="black"/>
+  <circle cx="12" cy="6" r="1" fill="black"/>
+</svg></button>
+  <button onclick="openMovies()"><svg id="icon-movie" width="24" height="24" viewBox="0 0 24 24">
+  <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="black"/>
+  <polygon points="10,9 16,12 10,15" fill="black"/>
+  <rect x="3" y="5" width="3" height="14" fill="black"/>
+  <rect x="18" y="5" width="3" height="14" fill="black"/>
+</svg></button>
   <button onclick="openAffiliate()">💰</button>
 </div>
 
 <div id="bottomNav">
-  <button onclick="startLiveLow()">🔴 Live</button>
-  <button onclick="stopLive()">🔴 Stop </button>
-   <button onclick="openPost()">➕ upload</button>
+  <button onclick="startLiveLow()"><svg width="24" height="24" viewBox="0 0 24 24">
+  <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="black"/>
+  <circle cx="17" cy="7" r="3" fill="red"/>
+</svg>live</button>
+  <button onclick="stopLive()">  <svg id="icon-stop-live" width="24" height="24" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="10" fill="none" stroke="red"/>
+  <rect x="9" y="9" width="6" height="6" fill="red"/>
+</svg>stop</button>
+   <button onclick="openPost()"> <svg id="icon-upload" width="24" height="24" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="10" fill="none" stroke="black"/>
+  <line x1="12" y1="8" x2="12" y2="16" stroke="black" stroke-width="2"/>
+  <line x1="8" y1="12" x2="16" y2="12" stroke="black" stroke-width="2"/>
+</svg>upload</button>
    <div class="brand">
           <div class="avatar" id="myAvatar"></div>
           <div class="username"></div> 
@@ -1794,7 +1885,7 @@ if (p.isLive && p.roomId) {
 </div>
 ` : ""}
 <div class="post-header"  >
-       <div class="avatar" 
+       <div class="avatar-user" 
      onclick="openChat('${p.uid}','${p.user}')"
       style="background-image:url('${p.avatar || ""}');position:relative;">
        <span id="badge-${p.uid}" 
@@ -1814,17 +1905,18 @@ if (p.isLive && p.roomId) {
     ">
     1
   </span>
-      <div style="margin-left:50px;">
-        <div class="post-user">${p.user}</div>
-        <div class="post-time">${time}</div>
-      </div>
+     
       
     </div>
     
+     
     </div>
-      
+       <div class="info hidden" id="info-${id}">
+        <div class="post-user">${p.user}</div>
+        <div class="post-time">${time}</div>
+      </div>
      <div class="content">${renderContent(p.content)}</div>
-   
+     
    
     <div class="post-actions">
        <div style="font-size:11px;margin-left:8px;font-weight:bold;color:black;"> <span id="like-${id}">${p.likes?.length || 0}</span></div>
@@ -1844,6 +1936,12 @@ if (p.isLive && p.roomId) {
         stroke-linecap="round"
         stroke-linejoin="round"/>
     </svg></button>
+
+     <button  onclick="toggleInfo('${id}')"><svg class="icon-line" width="24" height="24" viewBox="0 0 24 24">
+  <line x1="4" y1="6" x2="20" y2="6" stroke="white" stroke-width="2"/>
+  <line x1="4" y1="12" x2="20" y2="12" stroke="white" stroke-width="2"/>
+  <line x1="4" y1="18" x2="20" y2="18" stroke="white" stroke-width="2"/>
+</svg></button>
 
       ${(p.uid === auth.currentUser?.uid || window.isAdmin)
         ? `<button onclick="deletePost('${id}')"> <svg viewBox="0 0 24 24" class="icon-line">
@@ -1879,6 +1977,12 @@ if (p.isLive && p.roomId) {
   
 }
 
+// TOGGLE INFORMASI
+ function toggleInfo(id) {
+  const info = document.getElementById("info-" + id);
+  if (!info) return;
+  info.classList.toggle("hidden");
+}
 
 // REALTIME
 let postCache = {};
@@ -2748,18 +2852,28 @@ window.isLiveActive = false;
 let liveConnections = {};
 
 let liveUnsubscribes = [];
+window.viewerCache = new Set();
+const MAX_PEERS = 8;
+let pcMap = {};          // host connections
+let viewerMap = {};     // anti duplicate viewer
+let liveRoomRef = null;
+let viewerUnsubMap = {};
+let viewerListener = null;
+let viewerProcessing = new Set();
+let activeViewers = new Map(); // viewerId -> status
+let viewerLocked = new Set();
 
 function waitVideoAndPlay(roomId, videoId, retry = 0) {
   const video = document.getElementById(videoId);
 
   if (video) {
-    console.log("✅ VIDEO SIAP");
+    console.log("✅ VIDEO READY");
     autoWatchLive(roomId, videoId);
     return;
   }
 
   if (retry > 50) {
-    console.log("❌ VIDEO GAGAL DITEMUKAN");
+    console.log("❌ VIDEO NOT FOUND");
     return;
   }
 
@@ -2768,20 +2882,36 @@ function waitVideoAndPlay(roomId, videoId, retry = 0) {
   }, 200);
 }
 
+function getActivePeerCount() {
+  return Object.values(liveConnections)
+    .filter(pc => pc && pc !== "pending" && pc.connectionState !== "closed")
+    .length;
+}
 
-
+function canCreatePeer() {
+  return getActivePeerCount() < MAX_PEERS;
+}
 async function startLiveLow() {
+
+pcMap = {};
+viewerLocked.clear();
+  if (window.isLiveActive && window.currentLiveRoomId) {
+  console.log("LIVE ALREADY RUNNING");
+  return;
+}
+
   const user = auth.currentUser;
   if (!user) return alert("Login dulu");
 
-  window.isLiveActive = true; // 🔥 FIX PENTING
+  if (window.isLiveActive) return;
+  window.isLiveActive = true;
 
   const roomId = "room_" + user.uid;
   window.currentLiveRoomId = roomId;
 
-  const roomRef = db.collection("liveRooms").doc(roomId);
+  liveRoomRef = db.collection("liveRooms").doc(roomId);
 
-  await roomRef.set({
+  await liveRoomRef.set({
     host: user.uid,
     active: true,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2791,101 +2921,115 @@ async function startLiveLow() {
     video: true,
     audio: true
   });
-
-  const videoTrack = localStream.getVideoTracks()[0];
-if (videoTrack) {
-  videoTrack.contentHint = "motion";
-}
-
+console.log("🎥 STREAM TRACKS:", localStream.getTracks().length);
   document.getElementById("localVideo").srcObject = localStream;
+pcMap = {};
+viewerProcessing.clear();
+viewerUnsubMap = {};
 
-  // ======================
-  // VIEWERS LISTENER (FIXED)
-  // ======================
-  const snap = await roomRef.collection("viewers").get();
+viewerListener = liveRoomRef.collection("viewers")
+  .onSnapshot(snapshot => {
 
-  snap.forEach(doc => {
-    handleViewer(doc.id, doc.ref, roomRef);
-  });
+    snapshot.docChanges().forEach(change => {
 
-  const unsubViewers = roomRef.collection("viewers")
-    .onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(change => {
-        if (change.type === "added") {
-          handleViewer(change.doc.id, change.doc.ref, roomRef);
-        }
-      });
+      const id = change.doc.id;
+
+      if (change.type === "added") {
+
+        // 🔥 HARD LOCK (INI KUNCI UTAMA)
+        if (viewerLocked.has(id)) return;
+
+        viewerLocked.add(id);
+
+        handleViewer(id, change.doc.ref, liveRoomRef);
+      }
+
     });
 
-  liveUnsubscribes.push(unsubViewers);
+  });
+
+  console.log("🔥 LIVE STARTED:", roomId);
 }
-// ==========================
-// VIEWER WATCH LIVE
-// ==========================
+
 async function handleViewer(viewerId, viewerRef, roomRef) {
 
-  if (liveConnections[viewerId]) return;
+  try {
 
-  const pc = new RTCPeerConnection(iceServers);
-  liveConnections[viewerId] = pc;
+    // 🔥 BLOCK DUPLICATE TOTAL
+    if (pcMap[viewerId]) return;
 
-  // 🔥 AUTO RECOVERY CONNECTION
-pc.onconnectionstatechange = () => {
-  console.log("🔗 STATE:", pc.connectionState);
+    // 🔥 HARD LIMIT REAL COUNT
+    const activePeers = Object.keys(pcMap).length;
 
- if (pc.connectionState === "disconnected") {
-  setTimeout(() => {
-    try { pc.restartIce(); } catch(e) {}
-  }, 1000);
-}
-};
+    if (activePeers >= MAX_PEERS) {
+      console.log("🚫 MAX PEER REACHED");
 
-  // add stream
-  localStream.getTracks().forEach(track => {
-    pc.addTrack(track, localStream);
-  });
+      // optional: stop viewer join
+      await roomRef.update({ full: true });
 
-  // ICE → viewer
-  pc.onicecandidate = e => {
-    if (e.candidate) {
-      viewerRef.collection("hostCandidates").add(e.candidate.toJSON());
+      return;
     }
-  };
 
-  // viewer ICE → host
-  const unsubViewerCand = viewerRef.collection("viewerCandidates")
-    .onSnapshot(snap => {
-      snap.docChanges().forEach(change => {
-        if (change.type === "added") {
-          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-        }
-      });
+    const pc = new RTCPeerConnection(iceServers);
+    pcMap[viewerId] = pc;
+
+    console.log("🔥 NEW PEER:", viewerId);
+
+    if (!localStream) return;
+
+    localStream.getTracks().forEach(track => {
+      pc.addTrack(track, localStream);
     });
 
-  liveUnsubscribes.push(unsubViewerCand);
+    pc.onicecandidate = e => {
+      if (e.candidate) {
+        viewerRef.collection("hostCandidates")
+          .add(e.candidate.toJSON());
+      }
+    };
 
-  // OFFER
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
+    viewerRef.onSnapshot(async snap => {
 
-  await viewerRef.set({
-    offer: pc.localDescription.toJSON(),
-    offerCreatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true });
+      const data = snap.data();
 
-  // ANSWER LISTENER
-  const unsubAnswer = viewerRef.onSnapshot(async snap => {
-    const data = snap.data();
-    if (data?.answer && !pc.remoteDescription) {
-      await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-    }
-  });
+      if (data?.answer && !pc.remoteDescription) {
+        await pc.setRemoteDescription(
+          new RTCSessionDescription(data.answer)
+        );
+      }
 
-  liveUnsubscribes.push(unsubAnswer);
+    });
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    await viewerRef.set({
+      offer: pc.localDescription.toJSON()
+    }, { merge: true });
+
+    pc.onconnectionstatechange = () => {
+
+      if (pc.connectionState === "closed" ||
+          pc.connectionState === "failed") {
+
+        delete pcMap[viewerId];
+        viewerLocked.delete(viewerId);
+      }
+
+      console.log("🔗 STATE:", pc.connectionState);
+    };
+
+  } catch (err) {
+    console.error("❌ handleViewer:", err);
+
+    delete pcMap[viewerId];
+    viewerLocked.delete(viewerId);
+  }
 }
 
 async function autoWatchLive(roomId, videoId) {
-
+if (window._viewerStarted) return;
+window._viewerStarted = true;
   const video = document.getElementById(videoId);
   if (!video) return;
 
@@ -2899,43 +3043,40 @@ async function autoWatchLive(roomId, videoId) {
   });
 
   const pc = new RTCPeerConnection(iceServers);
-  const iceQueue = [];
-let remoteReady = false;
+
   const stream = new MediaStream();
   video.srcObject = stream;
 
   video.autoplay = true;
   video.playsInline = true;
-  video.muted = true; // 🔥 FIX AUTOPLAY BLOCK
-  video.play().catch(()=>{});
+  video.muted = true;
 
-  // RECEIVE STREAM
   pc.ontrack = (event) => {
     stream.addTrack(event.track);
   };
 
-  // ICE → host
+  // 🔥 FIX ICE NULL ERROR
   pc.onicecandidate = (event) => {
-     if (!pc.remoteDescription) return; // 🔥 FIX STABILITAS
+    if (!pc.remoteDescription) return;
     if (event.candidate) {
       viewerRef.collection("viewerCandidates")
         .add(event.candidate.toJSON());
     }
   };
 
-  // host ICE → viewer
+  // host ICE
   viewerRef.collection("hostCandidates")
     .onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
         if (change.type === "added") {
-          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          if (pc.remoteDescription) {
+            pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+          }
         }
       });
     });
 
-  // =========================
-  // OFFER (REALTIME FIX)
-  // =========================
+  // OFFER
   viewerRef.onSnapshot(async snap => {
     const data = snap.data();
     if (!data?.offer || pc.remoteDescription) return;
@@ -2951,18 +3092,15 @@ let remoteReady = false;
   });
 
   pc.onconnectionstatechange = () => {
-    console.log("🔗 STATE:", pc.connectionState);
+    console.log("🔗 VIEW STATE:", pc.connectionState);
   };
 }
-
 async function stopLive() {
 
   window.isLiveActive = false;
 
-  if (window.currentLiveRoomId) {
-    await db.collection("liveRooms")
-      .doc(window.currentLiveRoomId)
-      .update({ active: false });
+  if (liveRoomRef) {
+    await liveRoomRef.update({ active: false });
   }
 
   if (localStream) {
@@ -2970,24 +3108,14 @@ async function stopLive() {
     localStream = null;
   }
 
-  Object.values(liveConnections).forEach(pc => {
-    try { pc.close(); } catch(e){}
-  });
+  Object.values(pcMap).forEach(pc => pc.close());
+  pcMap = {};
 
-  liveConnections = {};
+  Object.values(viewerUnsubMap).forEach(u => u());
+  viewerUnsubMap = {};
 
-  liveUnsubscribes.forEach(u => {
-    try { u(); } catch(e){}
-  });
-
-  liveUnsubscribes = [];
-
-  window.currentLiveRoomId = null;
-
-  console.log("✅ LIVE STOP FIX TOTAL");
+  console.log("✅ LIVE STOP CLEAN");
 }
-
-
 </script>
 <script src="chat.js"></script>
 </div>
