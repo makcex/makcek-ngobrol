@@ -84,6 +84,28 @@ body {
   overflow-y: auto;
    }
 
+   .icon-btn {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+
+  border: none;
+}
+
+.icon-line {
+  width: 28px;
+  height: 28px;
+ 
+  border: none;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));
+}
+
 .reply-line {
   border-left: 2px solid #e4e6eb;
   margin-left: 20px;
@@ -104,26 +126,41 @@ body {
   background: #e4e6eb;
 }
 .post{
-   background:  #333;
-  margin-bottom: 12px;
-  padding: 2px;
-  border-radius: 5px;
-  box-shadow: 
-    0 2px 8px rgba(0,0,0,0.5),
-    0 0 0 1px rgba(255,255,255,0.04);
+  position: relative;
+  height: 100vh;
   width: 100%;
+
+  scroll-snap-align: start;
+  background: #eef2f7;
+
+  margin: 0;
+  overflow: hidden;
+}
+
+.post::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.6),
+    rgba(0,0,0,0.2),
+    transparent
+  );
+
+  z-index: 1;
 }
 
 .post-video {
   width: 100%;
-  aspect-ratio: 16 / 9; /* kayak TikTok */
+  
   background: black;
-  position: relative;
+  position: absolute;
   overflow: hidden;
    cursor: pointer;
-   display: flex;
-  align-items: center;
-  justify-content: center;
+  
+  height: 100%;
 }
 
 /* POST FILM */
@@ -133,24 +170,29 @@ body {
    object-fit: cover; 
 }
 
-.post-video iframe{
+
+.post-media {
+   position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-   object-fit: cover; 
-   border: none;
+  object-fit: cover;
+  background: black;
+
+}
+.post-video iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  inset: 0;
 }
 
-
-
 .username {
-  font-weight: 700;
+ 
   font-size: 14px;
-  color: #ddd;
-
-  transform: translateZ(2px);
-
-  /* 🔥 3D tapi halus (nggak setebal h1) */
- text-shadow:
+ color:#ddd;
+    text-shadow:
     0 1px 1px rgba(0,0,0,0.9),     /* shadow bawah */
     0 3px 6px rgba(0,0,0,0.7),     /* depth */
     0 -1px 2px rgba(255,255,255,0.25); /* 🔥 highlight diperkuat */
@@ -165,7 +207,7 @@ body {
 }
 
 
-.play-overlay{
+.play-header{
   position: absolute;
   top: 50%;
   left: 50%;
@@ -182,16 +224,17 @@ body {
   align-items: center;
   gap:5px;
   padding: 0;
-  height: 50px;
+  height: 30px;
+ width: 100%;
+
 }
 .logo-content{
   display: flex;
-  justify-content:center;
+  justify-content:space-between;
   align-items: center;
   margin: auto;
   gap:5px;
   height: 30px;
- 
   border-radius: 8px;
  
 }
@@ -205,16 +248,12 @@ body {
 .logo-content h1{
   margin: 0;
   font-size: 20px;
-  color: #ddd;
 
- 
-  /* 🔥 ini kunci 3D text */
+   color: white;
+
   text-shadow:
-   
-    0 4px 4px rgba(0,0,0,0.8),  /* depth */
-    0 0 6px rgba(0,150,255,0.15); /* glow tipis */
-
-  
+    0 1px 2px rgba(0,0,0,0.9),
+    0 2px 6px rgba(0,0,0,0.8);
 }
 .avatar {
   width:40px;
@@ -222,39 +261,24 @@ body {
   border-radius:50%;
   background-size:cover;
   background-position:center;
-
-  
+ 
 }
 /* POST BOX */
 .post-box {
  position: relative;
+ display: flex;
+justify-content: space-between;
+align-items: center;
   top: 0;
-  width: 100%;
   max-width: 600px;
-  height: 120px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
- 
-  background: #202123;
-
   border-radius: 8px; /* 🔥 bikin card */
- 
- 
   padding:5px;
 }
 /* 🔥 semua tombol dalam post-box jadi 3D */
-.post-box button {
-  position: relative;
-  float: right;
-  border: none;
-  color:#ddd;
-  background: #1e1e1e;
-  cursor: pointer;
-  font-weight: bold;
 
-  
-}
 .post-box button:hover {
  
   box-shadow:
@@ -276,16 +300,18 @@ body {
   width: 100%; 
 }
 .post-input {
-  flex: 1;
   width: 100%;
-  padding-right: 100px;
-  border:none;
-  outline:none;
- 
-  border-radius:20px;
+  padding: 12px 15px;
+  color: #222;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  height: 20px;
+  font-size: 15px;
+  line-height: 1.4;
 
-  background:  #181818;
-  color: #ECECF1;
+ background: linear-gradient(to bottom, #a7d8ff, #eaf6ff);
+
 }
 .post-input::placeholder{
   text-align: center;   /* horizontal center */
@@ -294,18 +320,69 @@ body {
 }
 .post-top{
   display: flex;
- 
+ gap: 50px;
 }
 .post-top button {
   flex-shrink: 0;
+  font-weight: bold;
+  color: #222;
+margin-left: 20px;
+  border-radius: 10px;
+  padding: 8px 12px;
+
+  /* 🔥 efek depth */
+  box-shadow:
+    4px 4px 8px rgba(0,0,0,0.7),
+    -2px -2px 6px rgba(255,255,255,0.05);
+}
+
+.post-top button:hover{
+   transform: translateY(-2px) scale(1.02);
+
+  box-shadow:
+    8px 8px 16px rgba(0,0,0,0.8),
+    -3px -3px 8px rgba(255,255,255,0.08);
+}
+.post-top.button:active{
+    transform: translateY(1px) scale(0.96);
+
+  box-shadow:
+    inset 3px 3px 6px rgba(0,0,0,0.8),
+    inset -2px -2px 4px rgba(255,255,255,0.05);
 }
 .brand{
   display: block;
   align-items: center;
   gap: 8px;
-
+  margin-bottom: 10px;
   width: fit-content;
   flex-shrink: 0;
+}
+
+.inter {
+  position: fixed;
+  right: 15px;
+  bottom: 300px; /* 🔥 di bawah post-actions */
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  z-index: 1000;
+}
+
+.inter button {
+  width: 30px;
+  height: 30px;
+
+  border-radius: 50%;
+  border: none;
+
+  background:transparent;
+  color: white;
+
+  font-size: 18px;
+  cursor: pointer;
 }
 
 #gear{
@@ -315,15 +392,15 @@ body {
 }
 .file-label{
    position: absolute;
-  right: 100px;  /* sesuaikan dekat tombol posting */
+  right: 150px;  /* sesuaikan dekat tombol posting */
   top: 50%;
   transform: translateY(-50%);
-  font-size: 1rem;
+  font-size: 2rem;
   cursor: pointer;
   z-index: 10;
 }
 .file-label:hover{
-  background: #333;
+  background: #a7d8ff;
 }
 
 #affiliateSection{
@@ -334,20 +411,16 @@ body {
 /* FEED */
 #feed {
   position: fixed;
-  top: 135px;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #f5f5f5;
-  box-shadow: 0 -5px 16px rgba(0,0,0,0.2);
+  top: 0;
+  bottom: 0;
+  left: 0;
   width: 100%;
-  -webkit-overflow-scrolling: touch; /* 🔥 iOS smooth */
-  max-width: 600px;
-   will-change: scroll-position;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-   /* mirip ChatGPT dark */
-  color: #e6e6e6;
+
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  background: #f5f5f5;
   
 }
 
@@ -430,61 +503,152 @@ button {
 /* INPUT */
 
 
-.post-header{
-  display: flex;
-  margin-bottom: 10px;
-  align-items: center;
-  background: #222;
-  border-radius: 5px;
-}
+
 .post-user{
   color: #ddd;
   font-weight: 600;
   font-family: sans-serif;
   font-size: 14px;
+   text-shadow:
+    0 1px 1px rgba(0,0,0,0.9),     /* shadow bawah */
+    0 3px 6px rgba(0,0,0,0.7),     /* depth */
+    0 -1px 2px rgba(255,255,255,0.25); /* 🔥 highlight diperkuat */
+  letter-spacing: 0.3px; /* biar lebih clean */
+
+  transition: all 0.25s ease;
 }
 .post-time{
-  color: #ddd;
+  color: #777;
   font-size: 10px;
+   text-shadow:
+    0 1px 1px rgba(0,0,0,0.9),     /* shadow bawah */
+    0 3px 6px rgba(0,0,0,0.7),     /* depth */
+    0 -1px 2px rgba(255,255,255,0.25); /* 🔥 highlight diperkuat */
+  letter-spacing: 0.3px; /* biar lebih clean */
+
+  transition: all 0.25s ease;
 }
 
 .content{
   width: 100%;
-  color: #ddd;
+ position: relative;
+ top: 10px;
   font-size: clamp(0.5rem, 0.8rem, 1rem) ;
-  height: 100%;
+  height: 100vh;
   text-align: justify;
   padding: 5px;
   margin: 0;
-  
+   color: #444;
+}
+.post-overlay {
+  position: absolute;
+  bottom: 80px;
+  left: 10px;
+  color: white;
+  z-index: 2;
 }
 
 /* ACTION */
 .post-actions {
-  display:flex;
+ position: absolute;
+  right: 10px;
+  bottom: 100px;
+
+  display: flex;
+  flex-direction: column;
   gap: 15px;
-  
-  margin-top:2px;
-  margin-bottom: 15px;
+height: 200px;
+  z-index: 10;
 }
 .post-actions button {
-  background: #333;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  
+  font-size: 14px;
   border: none;
-  margin-top: 5px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  color: #ddd;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ margin-right: 20px;
+ margin-bottom: 10px;
+  background: transparent;
  
+  color: white;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.9),
+    0 2px 6px rgba(0,0,0,0.8);
+
+  -webkit-text-stroke: 0.4px black;
+
+  backdrop-filter: blur(4px);
 }
 .post-actions button:hover {
-  background: #555;
+  background: #ddd;
 }
 
+.post-modal {
+  position: fixed;
+  inset: 0;
+
+  background: #e9ff;
+
+ background: linear-gradient(
+  to bottom,
+  #87ceeb 0%,
+  #b0e0ff 50%,
+  #f0f8ff 100%
+);
+
+  display: none;
+  flex-direction: column;
+
+  z-index: 999999;
+}
+
+
+.post-modal.show {
+  display: flex;
+}
+
+.post-modal .post-top {
+  margin-top: 60px;
+  padding: 15px;
+}
+
+.post-modal textarea {
+  width: 100%;
+  height: 50px;
+  font-size: 16px;
+  border-radius: 20px;
+}
+
+.close-post {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+}
+.post-header{
+  position: relative;
+  left: 5px;
+  top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+ z-index: 2;
+  gap: 5px;
+
+width: 500px;
+}
 
 .actions span {
   font-size: 13px;
-  color: #ddd;
+  color: #222;
   margin-right: 10px;
   cursor: pointer;
   padding: 4px 6px;
@@ -539,24 +703,28 @@ button {
     inset -2px -2px 5px rgba(255,255,255,0.05);
 }
 /* COMMENT */
-.commentBox{
-  margin-bottom: 15px;
-  background: #444654;
-   color: #ECECF1;
+[id^="commentBox-"] {
+  position: absolute; /* 🔥 keluar dari post */
+  bottom: 200px;
+  right: 150px;
+  width: 400px;
+  max-height: 100vh;
+  border-radius: 15px;
+  padding: 5px 5px;
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #222;
+
+  z-index: 999999; /* 🔥 paling atas */
+  overflow-y: auto;
 }
-.comment { display:flex; margin-top:8px;background: #444;border-radius:5px ;color: #ddd;border:1px solid #565869; }
+.comment { display:flex; margin-top:10px;background: transparent;border-radius:5px ;color: #222; }
 .bubble { border-radius:5px; padding:8px 12px;font-size: 12px; }
 .comment-input { display:flex; margin-top:8px;color:  #ddd; }
-.comment-input input { flex:1; border-radius:20px; border:none; padding:8px; background:#202123;color: #ddd;outline: none; background: linear-gradient(145deg, #3f414f, #2c2e3a);
-  color: #ECECF1;
-
-  /* 🔥 efek 3D ngambang */
-  box-shadow: 
-    6px 6px 12px rgba(0,0,0,0.6),     /* bayangan bawah */
-    -4px -4px 10px rgba(255,255,255,0.05), /* highlight atas */
-    inset 0 1px 2px rgba(255,255,255,0.08); /* glow dalam */
-
-  transition: all 0.25s ease; }
+.comment-input input { flex:1; border-radius:20px; border:none; padding:8px;color:#181818;outline: none; background: rgba(255,255,255,0.15);
+  box-shadow: 0 5px 8x rgba(0,0,0,0.2);}
   
 #file {
   display: none;
@@ -595,31 +763,47 @@ button {
   bottom: 0;
   left: 0;
   width: 100%;
-  z-index: 999999; /* 🔥 paling tinggi */
+  z-index: 2; /* 🔥 paling tinggi */
 }
 
- #bottomNav {
+#bottomNav {
   position: fixed;
+
+  
   bottom: 0;
-  left: 0;
+
+  display: flex;
+  gap: 50px;
+  justify-content: center;
   width: 100%;
-  display:flex;
-          /* 🔥 bikin sejajar */
-  justify-content: space-around; /* 🔥 jarak rata */
-  align-items: center;
-z-index: 99999;
-  background: #555;
-  border-top: 1px solid #ddd;
-  padding: 5px;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+
+  z-index: 1000;
 }
 
 #bottomNav button {
-  flex: 1;                   /* 🔥 semua tombol sama lebar */
-  text-align: center;
-  transition: all 0.3s ease;
-  background: none;
+  width: 45px;
+  height: 45px;
+
+  border-radius: 50%;
   border: none;
-  font-size: 18px;
+
+   background:transparent;
+  color: white;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.9),
+    0 2px 6px rgba(0,0,0,0.8);
+
+  -webkit-text-stroke: 0.4px black;
+
+  backdrop-filter: blur(4px);
+  font-size: 5px;
+
+  font-size: 15px;
   cursor: pointer;
 }
 #bottomNav button:hover{
@@ -627,7 +811,7 @@ z-index: 99999;
 }
 #movieList{
   position: relative;
-  z-index: 5000;
+  z-index: 1000;
   background: #444;
   max-height: 100vh;
   overflow-y: auto;
@@ -654,7 +838,7 @@ display: none;
 .live-box {
   position: relative;
   width: 100%;
-  height: 220px;
+  height: 100%;
   background: black;
   overflow: hidden;
   z-index: 1;
@@ -665,6 +849,7 @@ display: none;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  inset: 0;
   pointer-events: none; /* 🔥 biar nggak blok klik */
 }
 #localVideo{
@@ -673,13 +858,75 @@ display: none;
 
 @media (max-width: 600px) {
 
- #feed{
-  position: fixed;
-  top: 135px;
-  bottom: 60px;
+
+ .post-video {
   width: 100%;
+  background: black;
+  position: absolute;
+  overflow: hidden;
+   cursor: pointer;
+  
+  height: 100%;
+}
+
+/* POST FILM */
+.post-video video{
+  width: 100%;
+  height: 100%;
+   object-fit: cover; 
+}
+
+
+.post-media {
+   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: black;
+
+}
+.post-video iframe {
+  position: absolute;
+
+  width: 177.78vh;  /* 🔥 16:9 fix */
+  height: 100vh;
+
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+object-fit: cover;
+  border: none;
+}
+.post-actions {
+ position: absolute;
+  right: 10px;
+  bottom: 100px;
  
- }
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  z-index: 10;
+}
+.post-actions button {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  color: black;
+  font-size: 14px;
+  border: none;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ margin-right: 20px;
+}
+.post-header{
+  position: relative;
+  margin-bottom: 10px;
+  
+}
   
   #gear{
    right: 20px;
@@ -699,7 +946,7 @@ display: none;
   }
   .file-label{
      position: absolute;
-  right: 100px;  /* sesuaikan dekat tombol posting */
+  right: 120px;  /* sesuaikan dekat tombol posting */
   top: 50%;
   transform: translateY(-50%);
   font-size: 1rem;
@@ -718,9 +965,10 @@ display: none;
 
 
 .post-box {
-    left: 0;
+    display: flex;
+    left: 50px;
     transform: none;
-    width: 100%;
+    max-width: 300px;
     border-radius: 0;
     max-height: 160px;
   }
@@ -741,9 +989,23 @@ display: none;
   .actions{
     margin-bottom: 20px;
   }
-  .post-actions{
-    margin-bottom: 15px;
-  }
+  [id^="commentBox-"] {
+  position: absolute; /* 🔥 keluar dari post */
+  bottom: 200px;
+  right: 80px;
+  width: 300px;
+  max-height: 100vh;
+  border-radius: 15px;
+  padding: 5px 5px;
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #222;
+
+  z-index: 999999; /* 🔥 paling atas */
+  overflow-y: auto;
+}
   #loginBox{
     width: 200px;
   }
@@ -760,10 +1022,22 @@ display: none;
   display: flex;
   justify-content: space-around;
   align-items: center;
+  
+  background: transparent;
+ 
+  padding-bottom: 10px;
+}
 
-  background: #555;
-  border-top: 1px solid #ddd;
-  padding-bottom: 15px;
+.inter {
+  position: fixed;
+  right: 15px;
+  bottom: 350px; /* 🔥 di bawah post-actions */
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  z-index: 1000;
 }
  
 }
@@ -780,14 +1054,12 @@ display: none;
       <h1>Makcek Ngobrol</h1>
     </div>
     <button title="buat ID mu..." id="gear" onclick="openSettings()">⚙️</button>
-
   </div>
- 
+</div>
+
+<div id="postModal" class="post-modal">
+
   <div class="post-top">
-    <div class="brand">
-          <div class="avatar" id="myAvatar"></div>
-          <div class="username"></div> 
-    </div> 
     <div class="post-body">
        <label class="file-label" title="pilih file...">
           📎
@@ -800,12 +1072,10 @@ display: none;
             <div id="fileInfo"></div>
         </div>
     </div>
-  </div>
-      
-  <div id="previewBox" style="margin-top:10px;"></div>
-  
-</div>
-
+     <div id="previewBox" style="margin-top:10px;"></div>
+  </div>   
+   <button class="close-post" onclick="closePost()">❌</button>
+</div> 
 <div id="settingsBox" class="settings-box">
   <div class="settings-content">
     <h3>Pengaturan Profil</h3>
@@ -817,32 +1087,44 @@ display: none;
     <button onclick="removeAvatar()">Hapus Avatar</button>
   </div>
 </div>
+
 <div id="loginBox" style="padding:20px; border:1px solid #ddd; width:300px;">
   <h2>Isi identitas</h2>
   <input id="email" placeholder="Email" style="width:100%; margin-bottom:10px;">
   <input id="password" type="password" placeholder="Password" style="width:100%; margin-bottom:10px;">
-
   <button onclick="login(email.value, password.value)">Login</button>
   <button onclick="registerEmail()">Daftar</button>
 </div>
+
 <div id="movieSection">
   <input style="position: fixed;z-index: 9999;width: 100%;background: wheat;color: #444;height: 50px; " id="search" placeholder="Cari film...">
   <div id="movieList"></div>
   <div id="playerBox"></div> <!-- WAJIB DI SINI -->
 </div>
+
 <div id="affiliateSection" style="display:none; padding:10px; ">
   <h3>🔥 Produk Rekomendasi</h3>
   <div id="affiliateList" style="z-index: 9999;" ></div>
   <button onclick="closeAffiliate()" 
   style="position:absolute;top:10px;right:50px;">❌</button>
 </div>
+
 <div id="feed"></div>
-<div id="bottomNav">
-  <button onclick="openLink()">🌐</button>
+
+<div class="inter">
+   <button onclick="openLink()">🌐</button>
   <button onclick="openMovies()">🎬</button>
   <button onclick="openAffiliate()">💰</button>
+</div>
+
+<div id="bottomNav">
   <button onclick="startLiveLow()">🔴 Live</button>
   <button onclick="stopLive()">🔴 Stop </button>
+   <button onclick="openPost()">➕ upload</button>
+   <div class="brand">
+          <div class="avatar" id="myAvatar"></div>
+          <div class="username"></div> 
+    </div> 
 </div>
 <video id="localVideo" autoplay muted playsinline style="width:150px; position:fixed; bottom:80px; right:10px; z-index:2;"></video>
 <script>
@@ -859,6 +1141,30 @@ const MAX_DEPTH = 5;
 
 let products = [];
 let adsReady = false;
+
+const iceServers = [
+  // 🔵 STUN (gratis, cepat)
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+
+  // 🟢 TURN (openrelay - GRATIS)
+  {
+    urls: "turn:openrelay.metered.ca:80",
+    username: "openrelayproject",
+    credential: "openrelayproject"
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443",
+    username: "openrelayproject",
+    credential: "openrelayproject"
+  },
+  {
+    urls: "turn:openrelay.metered.ca:443?transport=tcp",
+    username: "openrelayproject",
+    credential: "openrelayproject"
+  }
+];
+
   const YT_API_KEY = "AIzaSyDiVHmHgrD9Po6SK_WHb5Ni58qTkaBGZsU";
 // FIREBASE
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -1437,6 +1743,13 @@ function initVideoObserver(){
 
 document.addEventListener("DOMContentLoaded", initVideoObserver);
 
+function openPost() {
+  document.getElementById("postModal").classList.add("show");
+}
+
+function closePost() {
+  document.getElementById("postModal").classList.remove("show");
+}
 
 function addPost(id, p){
 
@@ -1464,9 +1777,25 @@ if (p.isLive && p.roomId) {
             || (p.timestamp instanceof Date ? p.timestamp.toLocaleString() : "...");
 
   div.innerHTML = `
-    <div class="post-header">
-      <div class="avatar" 
-      onclick="openChat('${p.uid}','${p.user}')"
+   ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;" class="post-media" alt="img">` : ""}
+    
+    ${p.isLive ? `
+<div class="live-box">
+  <div style="position:absolute;top:5px;left:5px;color:red;font-weight:bold;">
+    🔴 LIVE
+  </div>
+   <video 
+    id="live-${id}" 
+    autoplay 
+    muted 
+    playsinline
+    style="width:100%;background:black;">
+  </video>  
+</div>
+` : ""}
+<div class="post-header"  >
+       <div class="avatar" 
+     onclick="openChat('${p.uid}','${p.user}')"
       style="background-image:url('${p.avatar || ""}');position:relative;">
        <span id="badge-${p.uid}" 
     style="
@@ -1485,32 +1814,51 @@ if (p.isLive && p.roomId) {
     ">
     1
   </span>
-      </div>
-      <div style="margin-left:8px;">
+      <div style="margin-left:50px;">
         <div class="post-user">${p.user}</div>
         <div class="post-time">${time}</div>
       </div>
+      
     </div>
-
-    <div class="content">${renderContent(p.content)}</div>
-    ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;">` : ""}
     
-    ${p.isLive ? `
-  <div class="live-box">
-    <div style="position:absolute;top:5px;left:5px;color:red;font-weight:bold;">
-      🔴 LIVE
     </div>
-    <video id="live-${id}" autoplay playsinline></video>
-  </div>
-` : ""}
-    <div style="font-size:11px;margin-top:3px;">🤍 <span id="like-${id}">${p.likes?.length || 0}</span></div>
-     
+      
+     <div class="content">${renderContent(p.content)}</div>
+   
+   
     <div class="post-actions">
-      <button onclick="toggleLike('${id}')">🤍 sukai</button>
-      <button onclick="toggleComment('${id}')">💬 komentari</button>
+       <div style="font-size:11px;margin-left:8px;font-weight:bold;color:black;"> <span id="like-${id}">${p.likes?.length || 0}</span></div>
+      <button onclick="toggleLike('${id}')"> <svg viewBox="0 0 24 24" class="icon-line">
+      <path d="M12 21s-6.5-4.3-9-7.8C1.2 10.8 2.5 7 5.8 6.2c1.8-.4 3.5.5 4.2 2 0 0 1.5-2.4 4.2-2 3.3.8 4.6 4.6 2.8 7-2.5 3.5-9 7.8-9 7.8z"
+        fill="none"
+        stroke="white"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+    </svg></button>
+      <button onclick="toggleComment('${id}')"> <svg viewBox="0 0 24 24" class="icon-line">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"
+        fill="none"
+        stroke="white"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+    </svg></button>
 
       ${(p.uid === auth.currentUser?.uid || window.isAdmin)
-        ? `<button onclick="deletePost('${id}')">🗑 hapus</button>`
+        ? `<button onclick="deletePost('${id}')"> <svg viewBox="0 0 24 24" class="icon-line">
+    <path d="M3 6h18" 
+      stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+
+    <path d="M8 6V4h8v2" 
+      stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+
+    <path d="M6 6l1 14h10l1-14" 
+      stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+
+    <path d="M10 11v6M14 11v6" 
+      stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+  </svg></button>`
         : ""}
     </div>
 
@@ -1519,9 +1867,10 @@ if (p.isLive && p.roomId) {
         <input id="c${id}" placeholder="Tulis komentar...">
         <button onclick="addComment('${id}')">➤</button>
       </div>
-    </div>
+   
 
-    <div id="comments-${id}"></div>
+      <div id="comments-${id}"></div>
+    </div>
   `;
 
   // 🔥 init komentar hanya sekali
@@ -2397,8 +2746,9 @@ let localStream;
 window.currentLiveRoomId = null;
 window.isLiveActive = false;
 let liveConnections = {};
-let pendingCandidates = [];
+
 let liveUnsubscribes = [];
+
 function waitVideoAndPlay(roomId, videoId, retry = 0) {
   const video = document.getElementById(videoId);
 
@@ -2418,261 +2768,228 @@ function waitVideoAndPlay(roomId, videoId, retry = 0) {
   }, 200);
 }
 
-function waitIceGathering(pc) {
-  return new Promise(resolve => {
-    if (pc.iceGatheringState === "complete") {
-      resolve();
-      return;
-    }
 
-    const check = () => {
-      if (pc.iceGatheringState === "complete") {
-        pc.removeEventListener("icegatheringstatechange", check);
-        resolve();
-      }
-    };
 
-    pc.addEventListener("icegatheringstatechange", check);
-  });
-}
 async function startLiveLow() {
   const user = auth.currentUser;
   if (!user) return alert("Login dulu");
 
+  window.isLiveActive = true; // 🔥 FIX PENTING
+
   const roomId = "room_" + user.uid;
   window.currentLiveRoomId = roomId;
-  window.isLiveActive = true;
 
   const roomRef = db.collection("liveRooms").doc(roomId);
 
   await roomRef.set({
     host: user.uid,
     active: true,
-    createdAt: Date.now()
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  // camera
   localStream = await navigator.mediaDevices.getUserMedia({
-    video: { width: 320, height: 240, frameRate: 10 },
+    video: true,
     audio: true
   });
-  const localVideo = document.getElementById("localVideo");
-  localVideo.srcObject = localStream;
-localVideo.style.display = "block";
-  pc = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+
+  const videoTrack = localStream.getVideoTracks()[0];
+if (videoTrack) {
+  videoTrack.contentHint = "motion";
+}
+
+  document.getElementById("localVideo").srcObject = localStream;
+
+  // ======================
+  // VIEWERS LISTENER (FIXED)
+  // ======================
+  const snap = await roomRef.collection("viewers").get();
+
+  snap.forEach(doc => {
+    handleViewer(doc.id, doc.ref, roomRef);
   });
 
+  const unsubViewers = roomRef.collection("viewers")
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          handleViewer(change.doc.id, change.doc.ref, roomRef);
+        }
+      });
+    });
+
+  liveUnsubscribes.push(unsubViewers);
+}
+// ==========================
+// VIEWER WATCH LIVE
+// ==========================
+async function handleViewer(viewerId, viewerRef, roomRef) {
+
+  if (liveConnections[viewerId]) return;
+
+  const pc = new RTCPeerConnection(iceServers);
+  liveConnections[viewerId] = pc;
+
+  // 🔥 AUTO RECOVERY CONNECTION
+pc.onconnectionstatechange = () => {
+  console.log("🔗 STATE:", pc.connectionState);
+
+ if (pc.connectionState === "disconnected") {
+  setTimeout(() => {
+    try { pc.restartIce(); } catch(e) {}
+  }, 1000);
+}
+};
+
+  // add stream
   localStream.getTracks().forEach(track => {
     pc.addTrack(track, localStream);
   });
 
-  pc.onicecandidate = (e) => {
+  // ICE → viewer
+  pc.onicecandidate = e => {
     if (e.candidate) {
-      roomRef.collection("callerCandidates").add(e.candidate.toJSON());
+      viewerRef.collection("hostCandidates").add(e.candidate.toJSON());
     }
   };
 
-  // 🔥 FIX: OFFER HARUS SET LOCAL DULU
+  // viewer ICE → host
+  const unsubViewerCand = viewerRef.collection("viewerCandidates")
+    .onSnapshot(snap => {
+      snap.docChanges().forEach(change => {
+        if (change.type === "added") {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+        }
+      });
+    });
+
+  liveUnsubscribes.push(unsubViewerCand);
+
+  // OFFER
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
 
-  await waitIceGathering(pc);
+  await viewerRef.set({
+    offer: pc.localDescription.toJSON(),
+    offerCreatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
 
-  await roomRef.update({
-    offer: pc.localDescription.toJSON()
-  });
-
-  console.log("📤 OFFER SENT");
-
-  // 🔥 FIX ANSWER LISTENER (ANTI LOOP)
-  let answered = false;
-
-  roomRef.onSnapshot(async snap => {
+  // ANSWER LISTENER
+  const unsubAnswer = viewerRef.onSnapshot(async snap => {
     const data = snap.data();
-    if (!data?.answer || answered) return;
-
-    answered = true;
-
-    await pc.setRemoteDescription(
-      new RTCSessionDescription(data.answer)
-    );
-
-    console.log("✅ ANSWER SET");
+    if (data?.answer && !pc.remoteDescription) {
+      await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+    }
   });
 
-  // 🔥 FIX ICE
-  roomRef.collection("calleeCandidates").onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === "added") {
-        const c = new RTCIceCandidate(change.doc.data());
-
-        if (pc.remoteDescription) {
-          pc.addIceCandidate(c);
-        } else {
-          pendingCandidates.push(c);
-        }
-      }
-    });
-  });
+  liveUnsubscribes.push(unsubAnswer);
 }
+
 async function autoWatchLive(roomId, videoId) {
-
-  if (liveConnections[videoId]) {
-    console.log("⛔ SUDAH CONNECT:", videoId);
-    return;
-  }
-
-  liveConnections[videoId] = true;
-
-  console.log("👀 CONNECT LIVE:", videoId);
 
   const video = document.getElementById(videoId);
   if (!video) return;
 
-  const pc = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+  const viewerId = "viewer_" + Date.now();
+
+  const roomRef = db.collection("liveRooms").doc(roomId);
+  const viewerRef = roomRef.collection("viewers").doc(viewerId);
+
+  await viewerRef.set({
+    joinedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  let remoteStream = new MediaStream();
-let started = false;
+  const pc = new RTCPeerConnection(iceServers);
+  const iceQueue = [];
+let remoteReady = false;
+  const stream = new MediaStream();
+  video.srcObject = stream;
 
-pc.ontrack = (event) => {
-  console.log("🎥 TRACK MASUK:", event.track.kind);
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true; // 🔥 FIX AUTOPLAY BLOCK
+  video.play().catch(()=>{});
 
-  remoteStream.addTrack(event.track);
+  // RECEIVE STREAM
+  pc.ontrack = (event) => {
+    stream.addTrack(event.track);
+  };
 
-  // 🔥 HANYA SET SEKALI
-  if (!started) {
-    started = true;
-
-    video.srcObject = remoteStream;
-
-    video.muted = true;
-    video.autoplay = true;
-    video.playsInline = true;
-
-    video.onloadedmetadata = () => {
-      video.play()
-        .then(() => console.log("▶️ PLAY OK"))
-        .catch(e => console.log("PLAY ERROR", e));
-    };
-  }
-};
-  pc.onicecandidate = (e) => {
-    if (e.candidate) {
-      db.collection("liveRooms")
-        .doc(roomId)
-        .collection("calleeCandidates")
-        .add(e.candidate.toJSON());
+  // ICE → host
+  pc.onicecandidate = (event) => {
+     if (!pc.remoteDescription) return; // 🔥 FIX STABILITAS
+    if (event.candidate) {
+      viewerRef.collection("viewerCandidates")
+        .add(event.candidate.toJSON());
     }
   };
 
-  const roomRef = db.collection("liveRooms").doc(roomId);
+  // host ICE → viewer
+  viewerRef.collection("hostCandidates")
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+        }
+      });
+    });
 
-  let answered = false;
-
-  const unsub = roomRef.onSnapshot(async snap => {
+  // =========================
+  // OFFER (REALTIME FIX)
+  // =========================
+  viewerRef.onSnapshot(async snap => {
     const data = snap.data();
+    if (!data?.offer || pc.remoteDescription) return;
 
-    if (!data?.offer || answered) return;
-
-    answered = true;
-
-    await pc.setRemoteDescription(
-      new RTCSessionDescription(data.offer)
-    );
+    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
 
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
-    await roomRef.update({
+    await viewerRef.update({
       answer: pc.localDescription.toJSON()
     });
-
-    console.log("📤 ANSWER SENT");
-
-    unsub();
   });
 
-  const unsubCandidates = roomRef.collection("callerCandidates")
-  .onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === "added") {
-        pc.addIceCandidate(
-          new RTCIceCandidate(change.doc.data())
-        );
-      }
-    });
-  });
-
-liveUnsubscribes.push(unsubCandidates);
+  pc.onconnectionstatechange = () => {
+    console.log("🔗 STATE:", pc.connectionState);
+  };
 }
 
 async function stopLive() {
-  console.log("🛑 STOP LIVE DIPANGGIL");
 
   window.isLiveActive = false;
 
-  // 🔥 MATIKAN ROOM
   if (window.currentLiveRoomId) {
     await db.collection("liveRooms")
       .doc(window.currentLiveRoomId)
       .update({ active: false });
-
-    // 🔥 matikan status live di post
-    const snap = await db.collection("posts")
-      .where("roomId", "==", window.currentLiveRoomId)
-      .get();
-
-    snap.forEach(doc => {
-      doc.ref.update({ isLive: false });
-    });
   }
 
-  // 🔥 STOP SEMUA TRACK (INI PALING PENTING)
   if (localStream) {
-    localStream.getTracks().forEach(track => {
-      track.stop();               // ⛔ stop kamera & mic
-    });
+    localStream.getTracks().forEach(t => t.stop());
     localStream = null;
   }
 
-  // 🔥 MATIKAN VIDEO LOCAL
-  const localVideo = document.getElementById("localVideo");
-  if (localVideo) {
-    localVideo.pause();
-    localVideo.srcObject = null;
-    localVideo.removeAttribute("src");
-    localVideo.load();
-    localVideo.style.display = "none";
-  }
+  Object.values(liveConnections).forEach(pc => {
+    try { pc.close(); } catch(e){}
+  });
 
-  // 🔥 CLOSE PEER CONNECTION (WAJIB)
-  if (pc) {
-    pc.getSenders().forEach(sender => {
-      if (sender.track) sender.track.stop(); // extra safety
-    });
+  liveConnections = {};
 
-    pc.ontrack = null;
-    pc.onicecandidate = null;
+  liveUnsubscribes.forEach(u => {
+    try { u(); } catch(e){}
+  });
 
-    pc.close();
-    pc = null;
-  }
+  liveUnsubscribes = [];
 
-  // 🔥 RESET ROOM ID
   window.currentLiveRoomId = null;
-  // 🔥 STOP SEMUA LISTENER FIRESTORE (WAJIB)
-liveUnsubscribes.forEach(unsub => unsub());
-liveUnsubscribes = [];
 
-  console.log("✅ KAMERA BENAR2 MATI");
+  console.log("✅ LIVE STOP FIX TOTAL");
 }
+
 
 </script>
 <script src="chat.js"></script>
-
 </div>
 </body>
 </html>

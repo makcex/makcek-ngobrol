@@ -23,13 +23,12 @@ window.openChat = function(targetUid, targetName){
     box.id = "chatBox";
     box.style = `
       position:fixed;
-      width:60%;
-      transform: translateX(30%);
-      padding: 20px;
-      height:500px;
-      bottom:30px;
-      background:#f5f5f5;
-      z-index:999999;
+      width:90%;
+     padding:10px 15px;
+    top:0;
+     bottom:50px;
+      background: linear-gradient(to bottom, #a7d8ff, #eaf6ff);
+      z-index:9999;
       display:flex;
       gap:10px;
        flex-direction:column;
@@ -52,13 +51,19 @@ window.openChat = function(targetUid, targetName){
 
     <div id="chatMessages" style="flex:1;overflow:auto;
     color:#222;
-    background:rgba(255,255,255,0.96);
-    box-shadow:rgba(0,0,0,0.2);
+   background: linear-gradient(
+  to bottom,
+  #87ceeb 0%,
+  #b0e0ff 50%,
+  #f0f8ff 100%
+);
     border-radius:10px;"></div>
 
     <div class="box-kirim" style="display:flex;height:50px;padding:5px">
       <input id="chatInput" style="flex:1;
-      background:rgba(255,255,255,0.96);
+      
+  background:#ddd;
+border:1px solid #1e1e1e;
       color:#222;
       border:none;
     box-shadow:rgba(0,0,0,0.2);
