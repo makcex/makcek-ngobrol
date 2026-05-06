@@ -151,6 +151,11 @@ body {
 
   z-index: 1;
 }
+.post-text{
+  display: flex;
+  text-align: justify;
+  margin-left: 20px;
+}
 
 .post-video {
   width: 100%;
@@ -553,7 +558,7 @@ button {
   font-size: clamp(0.5rem, 0.8rem, 1rem) ;
   height: 100vh;
   text-align: justify;
-  padding: 5px;
+  padding: 0;
   margin: 0;
    color: #444;
 }
@@ -568,9 +573,9 @@ button {
 /* ACTION */
 .post-actions {
  position: absolute;
-  right: 10px;
+ right: 5px;
   bottom: 100px;
-
+width: 50px;
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -892,7 +897,7 @@ display: none;
   position: absolute;
   overflow: hidden;
    cursor: pointer;
-  
+  margin:0;
   height: 100%;
 }
 
@@ -929,9 +934,9 @@ object-fit: cover;
 }
 .post-actions {
  position: absolute;
-  right: 10px;
+  right: 5px;
   bottom: 100px;
- 
+ width: 40px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -952,7 +957,7 @@ object-fit: cover;
 .post-header{
   position: absolute;
 
-  right: 30px;
+  right: 10px;
   bottom: 320px;
 
   left: auto;   /* 🔥 reset */
@@ -1084,7 +1089,7 @@ z-index: 10;
   display: flex;
   gap: 20px;
   align-items: center;
-  
+  justify-content: center;
   background: transparent;
  
   
@@ -1229,9 +1234,16 @@ const unsubscribeMap = {};
 const commentState = {};
 const replyState = {}; // key: postId_commentId
 const MAX_DEPTH = 5;
+window.liveState = {
+  isLive: false,
+  viewerCount: 0,
+  status: "OFF"
+};
 
 let products = [];
 let adsReady = false;
+window.liveStreams = window.liveStreams || {};
+
 
 const iceServers = [
   // 🔵 STUN (gratis, cepat)
@@ -1857,12 +1869,8 @@ function addPost(id, p){
     feed.prepend(div);
     feed.scrollTop = 0;
   }
-if (p.isLive && p.roomId) {
-  setTimeout(() => {
-    waitVideoAndPlay(p.roomId, "live-" + id);
-  }, 300);
-}
-  
+
+ setTimeout(() => attachStream(p.roomId), 0);
 
   const time = p.timestamp?.toDate?.().toLocaleString?.() 
             || (p.timestamp instanceof Date ? p.timestamp.toLocaleString() : "...");
@@ -2853,7 +2861,7 @@ let liveConnections = {};
 
 let liveUnsubscribes = [];
 window.viewerCache = new Set();
-const MAX_PEERS = 8;
+const MAX_PEERS = 10;
 let pcMap = {};          // host connections
 let viewerMap = {};     // anti duplicate viewer
 let liveRoomRef = null;
@@ -2862,25 +2870,9 @@ let viewerListener = null;
 let viewerProcessing = new Set();
 let activeViewers = new Map(); // viewerId -> status
 let viewerLocked = new Set();
+window.liveStreams = {};
 
-function waitVideoAndPlay(roomId, videoId, retry = 0) {
-  const video = document.getElementById(videoId);
 
-  if (video) {
-    console.log("✅ VIDEO READY");
-    autoWatchLive(roomId, videoId);
-    return;
-  }
-
-  if (retry > 50) {
-    console.log("❌ VIDEO NOT FOUND");
-    return;
-  }
-
-  setTimeout(() => {
-    waitVideoAndPlay(roomId, videoId, retry + 1);
-  }, 200);
-}
 
 function getActivePeerCount() {
   return Object.values(liveConnections)
@@ -2892,6 +2884,8 @@ function canCreatePeer() {
   return getActivePeerCount() < MAX_PEERS;
 }
 async function startLiveLow() {
+  window.liveState.isLive = true;
+updateLiveUI();
 
 pcMap = {};
 viewerLocked.clear();
@@ -2921,85 +2915,94 @@ viewerLocked.clear();
     video: true,
     audio: true
   });
+  
 console.log("🎥 STREAM TRACKS:", localStream.getTracks().length);
   document.getElementById("localVideo").srcObject = localStream;
 pcMap = {};
 viewerProcessing.clear();
 viewerUnsubMap = {};
 
+
+
 viewerListener = liveRoomRef.collection("viewers")
   .onSnapshot(snapshot => {
-
+const now = Date.now();
     snapshot.docChanges().forEach(change => {
 
+      const data = change.doc.data();
       const id = change.doc.id;
 
-      if (change.type === "added") {
+      // 🔥 BUANG VIEWER LAMA (lebih dari 15 detik)
+      if (!data.joinedAt) return;
 
-        // 🔥 HARD LOCK (INI KUNCI UTAMA)
+     
+
+      if (change.type === "added") {
         if (viewerLocked.has(id)) return;
 
         viewerLocked.add(id);
-
         handleViewer(id, change.doc.ref, liveRoomRef);
       }
 
     });
 
   });
-
   console.log("🔥 LIVE STARTED:", roomId);
+
 }
 
 async function handleViewer(viewerId, viewerRef, roomRef) {
 
   try {
 
-    // 🔥 BLOCK DUPLICATE TOTAL
     if (pcMap[viewerId]) return;
 
-    // 🔥 HARD LIMIT REAL COUNT
     const activePeers = Object.keys(pcMap).length;
-
-    if (activePeers >= MAX_PEERS) {
-      console.log("🚫 MAX PEER REACHED");
-
-      // optional: stop viewer join
-      await roomRef.update({ full: true });
-
-      return;
-    }
+    if (activePeers >= MAX_PEERS) return;
 
     const pc = new RTCPeerConnection(iceServers);
     pcMap[viewerId] = pc;
 
-    console.log("🔥 NEW PEER:", viewerId);
-
+    window.liveState.viewerCount = Object.keys(pcMap).length;
+updateLiveUI();
     if (!localStream) return;
 
+    // kirim stream host
     localStream.getTracks().forEach(track => {
       pc.addTrack(track, localStream);
     });
 
-    pc.onicecandidate = e => {
+    pc.onicecandidate = (e) => {
       if (e.candidate) {
         viewerRef.collection("hostCandidates")
           .add(e.candidate.toJSON());
       }
     };
 
+    // viewer ICE
+    viewerRef.collection("viewerCandidates")
+      .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === "added") {
+            const candidate = change.doc.data();
+            if (pc.remoteDescription) {
+              pc.addIceCandidate(new RTCIceCandidate(candidate));
+            }
+          }
+        });
+      });
+
+    // answer
     viewerRef.onSnapshot(async snap => {
-
       const data = snap.data();
-
       if (data?.answer && !pc.remoteDescription) {
         await pc.setRemoteDescription(
           new RTCSessionDescription(data.answer)
         );
       }
-
     });
 
+    // OFFER
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
@@ -3007,33 +3010,53 @@ async function handleViewer(viewerId, viewerRef, roomRef) {
       offer: pc.localDescription.toJSON()
     }, { merge: true });
 
+    // 🔥 FIX CORE LIVE STREAM
+    pc.ontrack = (event) => {
+      const stream = event.streams[0];
+
+      console.log("🎥 TRACK MASUK");
+
+      window.liveStreams[window.currentLiveRoomId] = stream;
+      attachStream(viewerId);
+    };
+
     pc.onconnectionstatechange = () => {
-
-      if (pc.connectionState === "closed" ||
-          pc.connectionState === "failed") {
-
+      if (["failed", "closed", "disconnected"].includes(pc.connectionState)) {
         delete pcMap[viewerId];
-        viewerLocked.delete(viewerId);
       }
-
-      console.log("🔗 STATE:", pc.connectionState);
     };
 
   } catch (err) {
-    console.error("❌ handleViewer:", err);
-
-    delete pcMap[viewerId];
-    viewerLocked.delete(viewerId);
+    console.error(err);
   }
 }
 
+function attachStream(viewerId) {
+ const roomId = window.currentLiveRoomId;
+
+const video = document.getElementById("localVideo") 
+           || document.querySelector("video[id^='live-']");
+
+const stream = window.liveStreams[roomId];
+
+  if (!video || !stream) return;
+
+  video.srcObject = stream;
+  video.muted = true;
+  video.playsInline = true;
+
+  video.play().catch(()=>{});
+}
+
 async function autoWatchLive(roomId, videoId) {
-if (window._viewerStarted) return;
-window._viewerStarted = true;
+
+  if (window._viewerStarted) return;
+  window._viewerStarted = true;
+
   const video = document.getElementById(videoId);
   if (!video) return;
 
-  const viewerId = "viewer_" + Date.now();
+  let viewerId = "viewer_" + Date.now();
 
   const roomRef = db.collection("liveRooms").doc(roomId);
   const viewerRef = roomRef.collection("viewers").doc(viewerId);
@@ -3044,44 +3067,24 @@ window._viewerStarted = true;
 
   const pc = new RTCPeerConnection(iceServers);
 
-  const stream = new MediaStream();
-  video.srcObject = stream;
-
-  video.autoplay = true;
-  video.playsInline = true;
-  video.muted = true;
-
   pc.ontrack = (event) => {
-    stream.addTrack(event.track);
+    console.log("🎥 VIEWER TRACK");
+
+    video.srcObject = event.streams[0];
+    video.muted = true;
+    video.playsInline = true;
+
+    video.play().catch(()=>{});
   };
 
-  // 🔥 FIX ICE NULL ERROR
-  pc.onicecandidate = (event) => {
-    if (!pc.remoteDescription) return;
-    if (event.candidate) {
-      viewerRef.collection("viewerCandidates")
-        .add(event.candidate.toJSON());
-    }
-  };
-
-  // host ICE
-  viewerRef.collection("hostCandidates")
-    .onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(change => {
-        if (change.type === "added") {
-          if (pc.remoteDescription) {
-            pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-          }
-        }
-      });
-    });
-
-  // OFFER
   viewerRef.onSnapshot(async snap => {
     const data = snap.data();
-    if (!data?.offer || pc.remoteDescription) return;
 
-    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    if (!data?.offer) return;
+
+    await pc.setRemoteDescription(
+      new RTCSessionDescription(data.offer)
+    );
 
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
@@ -3091,10 +3094,58 @@ window._viewerStarted = true;
     });
   });
 
-  pc.onconnectionstatechange = () => {
-    console.log("🔗 VIEW STATE:", pc.connectionState);
-  };
+  viewerRef.collection("hostCandidates")
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+        }
+      });
+    });
 }
+
+function updateLiveUI() {
+
+  const s = window.liveState;
+
+  if (!s.isLive) {
+    s.status = "OFF";
+  }
+  else if (s.viewerCount <= 0) {
+    s.status = "NO VIEWER";
+  }
+  else {
+    s.status = "VIEWING";
+  }
+
+  renderLiveStatus(s.status, s.viewerCount);
+}
+
+function renderLiveStatus(status, count) {
+
+  let el = document.getElementById("live-status");
+
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "live-status";
+
+    el.style.position = "fixed";
+    el.style.top = "10px";
+    el.style.left = "10px";
+    el.style.background = "black";
+    el.style.color = "white";
+    el.style.padding = "6px 10px";
+    el.style.zIndex = "9999";
+
+    document.body.appendChild(el);
+  }
+
+  el.innerHTML = `
+    <b>${status}</b><br>
+    VIEWERS: ${count}
+  `;
+}
+
 async function stopLive() {
 
   window.isLiveActive = false;
