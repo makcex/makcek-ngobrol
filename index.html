@@ -157,6 +157,18 @@ body {
   margin-left: 20px;
 }
 
+#live-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 700px;
+  z-index: 2147483647; /* ini MAX INT z-index */
+  background: black;
+   object-fit: cover;
+   display: block;
+}
+
 .post-video {
   width: 100%;
   
@@ -1204,7 +1216,7 @@ z-index: 10;
 </div>
 
 <div id="bottomNav">
-  <button onclick="startLiveLow()"><svg width="24" height="24" viewBox="0 0 24 24">
+  <button onclick="startLive()"><svg width="24" height="24" viewBox="0 0 24 24">
   <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="black"/>
   <circle cx="17" cy="7" r="3" fill="red"/>
 </svg>live</button>
@@ -1870,7 +1882,7 @@ function addPost(id, p){
     feed.scrollTop = 0;
   }
 
- setTimeout(() => attachStream(p.roomId), 0);
+
 
   const time = p.timestamp?.toDate?.().toLocaleString?.() 
             || (p.timestamp instanceof Date ? p.timestamp.toLocaleString() : "...");
@@ -2093,7 +2105,7 @@ async function createPost(e){
   likes: [],
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
   isLive: isLive,
-  roomId: window.currentLiveRoomId // 🔥 INI YANG KURANG
+  roomId: window.currentLiveRoomId || null // 🔥 INI YANG KURANG
 });
 if (isLive) {
   window.isLiveActive = false; // 🔥 reset biar post berikutnya normal
@@ -2854,320 +2866,353 @@ window.addEventListener("load", async () => {
 });
 
 // LIVE VIDEO
-let pc;
-let localStream;
-window.currentLiveRoomId = null;
-window.isLiveActive = false;
-let liveConnections = {};
-
-let liveUnsubscribes = [];
-window.viewerCache = new Set();
-const MAX_PEERS = 10;
-let pcMap = {};          // host connections
-let viewerMap = {};     // anti duplicate viewer
-let liveRoomRef = null;
-let viewerUnsubMap = {};
-let viewerListener = null;
-let viewerProcessing = new Set();
-let activeViewers = new Map(); // viewerId -> status
-let viewerLocked = new Set();
-window.liveStreams = {};
-
-
-
-function getActivePeerCount() {
-  return Object.values(liveConnections)
-    .filter(pc => pc && pc !== "pending" && pc.connectionState !== "closed")
-    .length;
-}
-
-function canCreatePeer() {
-  return getActivePeerCount() < MAX_PEERS;
-}
-async function startLiveLow() {
-  window.liveState.isLive = true;
-updateLiveUI();
-
-pcMap = {};
-viewerLocked.clear();
-  if (window.isLiveActive && window.currentLiveRoomId) {
-  console.log("LIVE ALREADY RUNNING");
-  return;
-}
-
-  const user = auth.currentUser;
-  if (!user) return alert("Login dulu");
-
-  if (window.isLiveActive) return;
-  window.isLiveActive = true;
-
-  const roomId = "room_" + user.uid;
-  window.currentLiveRoomId = roomId;
-
-  liveRoomRef = db.collection("liveRooms").doc(roomId);
-
-  await liveRoomRef.set({
-    host: user.uid,
-    active: true,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  localStream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  });
-  
-console.log("🎥 STREAM TRACKS:", localStream.getTracks().length);
-  document.getElementById("localVideo").srcObject = localStream;
-pcMap = {};
-viewerProcessing.clear();
-viewerUnsubMap = {};
-
-
-
-viewerListener = liveRoomRef.collection("viewers")
-  .onSnapshot(snapshot => {
-const now = Date.now();
-    snapshot.docChanges().forEach(change => {
-
-      const data = change.doc.data();
-      const id = change.doc.id;
-
-      // 🔥 BUANG VIEWER LAMA (lebih dari 15 detik)
-      if (!data.joinedAt) return;
-
-     
-
-      if (change.type === "added") {
-        if (viewerLocked.has(id)) return;
-
-        viewerLocked.add(id);
-        handleViewer(id, change.doc.ref, liveRoomRef);
-      }
-
-    });
-
-  });
-  console.log("🔥 LIVE STARTED:", roomId);
-
-}
-
-async function handleViewer(viewerId, viewerRef, roomRef) {
-
-  try {
-
-    if (pcMap[viewerId]) return;
-
-    const activePeers = Object.keys(pcMap).length;
-    if (activePeers >= MAX_PEERS) return;
-
-    const pc = new RTCPeerConnection(iceServers);
-    pcMap[viewerId] = pc;
-
-    window.liveState.viewerCount = Object.keys(pcMap).length;
-updateLiveUI();
-    if (!localStream) return;
-
-    // kirim stream host
-    localStream.getTracks().forEach(track => {
-      pc.addTrack(track, localStream);
-    });
-
-    pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        viewerRef.collection("hostCandidates")
-          .add(e.candidate.toJSON());
-      }
-    };
-
-    // viewer ICE
-    viewerRef.collection("viewerCandidates")
-      .onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-          if (change.type === "added") {
-            const candidate = change.doc.data();
-            if (pc.remoteDescription) {
-              pc.addIceCandidate(new RTCIceCandidate(candidate));
-            }
-          }
-        });
-      });
-
-    // answer
-    viewerRef.onSnapshot(async snap => {
-      const data = snap.data();
-      if (data?.answer && !pc.remoteDescription) {
-        await pc.setRemoteDescription(
-          new RTCSessionDescription(data.answer)
-        );
-      }
-    });
-
-    // OFFER
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-
-    await viewerRef.set({
-      offer: pc.localDescription.toJSON()
-    }, { merge: true });
-
-    // 🔥 FIX CORE LIVE STREAM
-    pc.ontrack = (event) => {
-      const stream = event.streams[0];
-
-      console.log("🎥 TRACK MASUK");
-
-      window.liveStreams[window.currentLiveRoomId] = stream;
-      attachStream(viewerId);
-    };
-
-    pc.onconnectionstatechange = () => {
-      if (["failed", "closed", "disconnected"].includes(pc.connectionState)) {
-        delete pcMap[viewerId];
-      }
-    };
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-function attachStream(viewerId) {
- const roomId = window.currentLiveRoomId;
-
-const video = document.getElementById("localVideo") 
-           || document.querySelector("video[id^='live-']");
-
-const stream = window.liveStreams[roomId];
-
-  if (!video || !stream) return;
-
-  video.srcObject = stream;
-  video.muted = true;
-  video.playsInline = true;
-
-  video.play().catch(()=>{});
-}
-
-async function autoWatchLive(roomId, videoId) {
-
-  if (window._viewerStarted) return;
-  window._viewerStarted = true;
-
-  const video = document.getElementById(videoId);
-  if (!video) return;
-
-  let viewerId = "viewer_" + Date.now();
-
-  const roomRef = db.collection("liveRooms").doc(roomId);
-  const viewerRef = roomRef.collection("viewers").doc(viewerId);
-
-  await viewerRef.set({
-    joinedAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  const pc = new RTCPeerConnection(iceServers);
-
-  pc.ontrack = (event) => {
-    console.log("🎥 VIEWER TRACK");
-
-    video.srcObject = event.streams[0];
-    video.muted = true;
-    video.playsInline = true;
-
-    video.play().catch(()=>{});
-  };
-
-  viewerRef.onSnapshot(async snap => {
-    const data = snap.data();
-
-    if (!data?.offer) return;
-
-    await pc.setRemoteDescription(
-      new RTCSessionDescription(data.offer)
-    );
-
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-
-    await viewerRef.update({
-      answer: pc.localDescription.toJSON()
-    });
-  });
-
-  viewerRef.collection("hostCandidates")
-    .onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(change => {
-        if (change.type === "added") {
-          pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-        }
-      });
-    });
-}
-
-function updateLiveUI() {
-
-  const s = window.liveState;
-
-  if (!s.isLive) {
-    s.status = "OFF";
-  }
-  else if (s.viewerCount <= 0) {
-    s.status = "NO VIEWER";
-  }
-  else {
-    s.status = "VIEWING";
-  }
-
-  renderLiveStatus(s.status, s.viewerCount);
-}
-
-function renderLiveStatus(status, count) {
-
-  let el = document.getElementById("live-status");
+/* =========================
+   GLOBAL LIVE STATE CLEAN
+========================= */
+
+window.liveState = {
+  isLive: false,
+  roomId: null,
+  stream: null,
+  viewerCount: 0,
+  pcs: {} // viewerId -> RTCPeerConnection
+};
+
+window.localStream = null;
+window.pc = null; // host peer (single viewer per pc instance if simple)
+window.viewerPCs = {};
+window.currentRoomId = null;
+
+function renderLiveUI() {
+  let el = document.getElementById("live-container");
 
   if (!el) {
     el = document.createElement("div");
-    el.id = "live-status";
-
-    el.style.position = "fixed";
-    el.style.top = "10px";
-    el.style.left = "10px";
-    el.style.background = "black";
-    el.style.color = "white";
-    el.style.padding = "6px 10px";
-    el.style.zIndex = "9999";
-
+    el.id = "live-container";
     document.body.appendChild(el);
   }
 
   el.innerHTML = `
-    <b>${status}</b><br>
-    VIEWERS: ${count}
+    <video id="localVideo"
+      autoplay
+      muted
+      playsinline
+      style="width:100%;height:100%;object-fit:cover;background:black;"></video>
+
+    <div id="live-status"
+      style="position:absolute;top:10px;left:10px;color:white;">
+      LIVE STARTING...
+    </div>
   `;
+}
+
+function updateLiveUI() {
+  const s = window.liveState;
+
+  const status =
+    !s.isLive ? "OFF" :
+    s.viewerCount === 0 ? "NO VIEWER" :
+    "LIVE";
+
+  const el = document.getElementById("live-status");
+  if (el) {
+    el.innerText = `${status} | VIEWERS: ${s.viewerCount}`;
+  }
+}
+
+async function startLive() {
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  renderLiveUI();
+
+  // 🔥 AMBIL CAMERA DULU
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  });
+
+  // 🔥 SIMPAN BARU
+ 
+ window.liveState.stream = stream;
+  window.liveState.isLive = true;
+
+  await db.collection("liveRooms")
+  .doc("ROOM1")
+  .set({
+    active: true,
+    createdAt: Date.now()
+  }, { merge: true });
+
+  window.liveState.roomId = "ROOM1";
+listenViewers("ROOM1");
+
+  // 🔥 BARU LOG (INI YANG BENAR)
+  console.log("🔥 STREAM OK:", stream);
+  console.log("VIDEO TRACK:", stream.getVideoTracks());
+  console.log("AUDIO TRACK:", stream.getAudioTracks());
+
+  const video = document.querySelector("#live-container video");
+
+  if (!video) {
+    console.log("❌ VIDEO NOT FOUND");
+    return;
+  }
+
+  video.srcObject = stream;
+
+  video.onloadedmetadata = () => {
+    video.play().catch(err => console.log(err));
+  };
+
+  console.log("🎥 STREAM ATTACHED");
+}
+
+function listenViewers(roomId) {
+
+  db.collection("liveRooms")
+    .doc(roomId)
+    .collection("viewers")
+    .onSnapshot(snapshot => {
+
+      console.log("👀 VIEWER UPDATE:", snapshot.size);
+
+      window.liveState.viewerCount = snapshot.size;
+      updateLiveUI();
+
+      snapshot.docChanges().forEach(change => {
+
+        if (change.type === "added") {
+          console.log("➕ VIEWER MASUK:", change.doc.id);
+
+          handleViewer(change.doc.id, change.doc.ref);
+        }
+
+        if (change.type === "removed") {
+          console.log("➖ VIEWER KELUAR:", change.doc.id);
+        }
+
+      });
+
+    }, error => {
+      console.log("❌ LISTENER ERROR:", error);
+    });
+}
+async function handleViewer(viewerId, viewerRef) {
+
+  console.log("⚡ HANDLE VIEWER:", viewerId);
+
+  if (window.liveState.pcs[viewerId]) return;
+
+  const stream = window.liveState.stream;
+
+  if (!stream) {
+    console.log("❌ STREAM BELUM READY");
+    return;
+  }
+
+  const pc = new RTCPeerConnection(iceServers);
+  window.liveState.pcs[viewerId] = pc;
+
+  // kirim stream ke viewer
+  stream.getTracks().forEach(track => {
+    pc.addTrack(track, stream);
+  });
+
+  // ICE host → viewer
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      viewerRef.collection("hostCandidates").add(e.candidate.toJSON());
+    }
+  };
+
+  let buffer = [];
+
+  // ICE viewer → host
+  viewerRef.collection("viewerCandidates")
+    .onSnapshot(snap => {
+      snap.docChanges().forEach(change => {
+        if (change.type === "added") {
+          const c = new RTCIceCandidate(change.doc.data());
+
+          if (!pc.remoteDescription) {
+            buffer.push(c);
+          } else {
+            pc.addIceCandidate(c).catch(console.error);
+          }
+        }
+      });
+    });
+
+  // OFFER
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  await viewerRef.set({
+    offer: pc.localDescription.toJSON()
+  });
+  console.log("📡 OFFER SENT:", pc.localDescription);
+
+  // ANSWER (FIXED)
+  viewerRef.onSnapshot(async snap => {
+    const data = snap.data();
+
+    if (data?.answer && !pc.currentRemoteDescription) {
+      await pc.setRemoteDescription(
+        new RTCSessionDescription(data.answer)
+      );
+
+      // flush ICE
+      buffer.forEach(c => pc.addIceCandidate(c).catch(console.error));
+      buffer = [];
+    }
+  });
+
+  // cleanup
+  pc.onconnectionstatechange = () => {
+    if (["failed", "closed", "disconnected"].includes(pc.connectionState)) {
+      delete window.liveState.pcs[viewerId];
+    }
+  };
+}
+
+async function joinRoom(roomId) {
+
+  console.log("📱 JOIN ROOM:", roomId);
+
+  const pc = new RTCPeerConnection(iceServers);
+
+  // 🔥 TERIMA VIDEO DARI HOST
+  pc.ontrack = (event) => {
+    console.log("🎥 STREAM MASUK");
+
+    let video = document.querySelector("#remoteVideo");
+
+    if (!video) {
+      video = document.createElement("video");
+      video.id = "remoteVideo";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.controls = true;
+      document.body.appendChild(video);
+    }
+
+    video.srcObject = event.streams[0];
+  };
+
+  // 🔄 ICE VIEWER → HOST
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      db.collection("liveRooms")
+        .doc(roomId)
+        .collection("viewerCandidates")
+        .add(e.candidate.toJSON());
+    }
+  };
+
+  // 📦 BUAT VIEWER DOC
+  const viewerRef = db.collection("liveRooms")
+    .doc(roomId)
+    .collection("viewers")
+    .doc();
+
+  await viewerRef.set({
+    createdAt: Date.now()
+  });
+
+  // 📩 TERIMA OFFER DARI HOST
+  viewerRef.onSnapshot(async snap => {
+    const data = snap.data();
+
+    if (data?.offer && !pc.currentRemoteDescription) {
+
+      console.log("📩 TERIMA OFFER");
+
+      await pc.setRemoteDescription(
+        new RTCSessionDescription(data.offer)
+      );
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      await viewerRef.update({
+        answer: pc.localDescription.toJSON()
+      });
+
+      console.log("📤 ANSWER TERKIRIM");
+    }
+  });
+
+  // 🔄 TERIMA ICE DARI HOST
+  db.collection("liveRooms")
+    .doc(roomId)
+    .collection("hostCandidates")
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          pc.addIceCandidate(
+            new RTCIceCandidate(change.doc.data())
+          ).catch(console.error);
+        }
+      });
+    });
+
+  console.log("📡 VIEWER READY");
 }
 
 async function stopLive() {
 
-  window.isLiveActive = false;
+  console.log("🛑 STOP LIVE DIJALANKAN");
 
-  if (liveRoomRef) {
-    await liveRoomRef.update({ active: false });
+  window.liveState.isLive = false;
+
+  const roomId = window.liveState.roomId;
+
+  // 🔥 update Firestore
+  if (roomId) {
+    await db.collection("liveRooms")
+      .doc(roomId)
+      .update({ active: false }, { merge: true });
   }
 
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
-    localStream = null;
+  // 🔥 STOP CAMERA STREAM
+  if (window.localStream) {
+    window.localStream.getTracks().forEach(track => {
+      track.stop();
+    });
+    window.localStream = null;
   }
 
-  Object.values(pcMap).forEach(pc => pc.close());
-  pcMap = {};
+  if (window.liveState.stream) {
+    window.liveState.stream.getTracks().forEach(track => {
+      track.stop();
+    });
+    window.liveState.stream = null;
+  }
 
-  Object.values(viewerUnsubMap).forEach(u => u());
-  viewerUnsubMap = {};
+  // 🔥 CLOSE ALL PEER CONNECTIONS
+  Object.values(window.liveState.pcs).forEach(pc => {
+    try {
+      pc.close();
+    } catch (e) {}
+  });
 
-  console.log("✅ LIVE STOP CLEAN");
+  window.liveState.pcs = {};
+
+  // 🔥 RESET STATE
+  window.liveState.roomId = null;
+  window.liveState.viewerCount = 0;
+
+  // 🔥 HAPUS UI BIAR CLEAR
+  const el = document.getElementById("live-container");
+  if (el) el.remove();
+
+  updateLiveUI();
+
+  console.log("✅ LIVE SUDAH STOP TOTAL");
 }
+
 </script>
 <script src="chat.js"></script>
 </div>
