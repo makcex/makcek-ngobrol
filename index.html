@@ -155,6 +155,7 @@ body {
   display: flex;
   text-align: justify;
   margin-left: 20px;
+  max-width: 600px;
 }
 
 #live-container {
@@ -163,7 +164,7 @@ body {
   left: 0;
   width: 100%;
   height: 700px;
-  z-index: 2147483647; /* ini MAX INT z-index */
+  z-index: 2; /* ini MAX INT z-index */
   background: black;
    object-fit: cover;
    display: block;
@@ -592,7 +593,7 @@ width: 50px;
   flex-direction: column;
   gap: 15px;
 height: 200px;
-  z-index: 10;
+  z-index: 1000;
 }
 .post-actions button {
   width: 50px;
@@ -757,7 +758,7 @@ width: 500px;
   -webkit-backdrop-filter: blur(6px);
   color: #222;
 
-  z-index: 999999; /* 🔥 paling atas */
+  z-index: 10; /* 🔥 paling atas */
   overflow-y: auto;
 }
 .comment { display:flex; margin-top:10px;background: transparent;border-radius:5px ;color: #222; }
@@ -953,7 +954,7 @@ object-fit: cover;
   flex-direction: column;
   gap: 18px;
 
-  z-index: 10;
+  z-index: 1000;
 }
 .post-actions button {
   width: 25px;
@@ -984,6 +985,17 @@ object-fit: cover;
   align-items: center;
   gap: 5px;
 }
+#live-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2; /* ini MAX INT z-index */
+  background: black;
+   object-fit: cover;
+   display: block;
+}
 
 .info {
   position: absolute;
@@ -993,7 +1005,7 @@ object-fit: cover;
   height: 100vh;
   background: #ddd;
 color: #ddd;
-z-index: 10;
+z-index: 99999999;
    background: linear-gradient(
     to top,
     rgba(0,0,0,0.6),
