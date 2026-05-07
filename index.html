@@ -1350,6 +1350,12 @@ if (snap.exists) {
     window.isAdmin = (role === "admin");
 console.log("ROLE USER:", role);
 console.log("IS ADMIN:", window.isAdmin);
+
+  // 🔥 USER AUTO DETECT LIVE
+if (!window.isAdmin) {
+
+  watchLiveRooms();
+}
     document.getElementById("loginBox").style.display = "none";
 
     document.querySelectorAll(".username").forEach(el => {
@@ -2888,12 +2894,15 @@ window.liveState = {
   stream: null,
   viewerCount: 0,
   pcs: {} // viewerId -> RTCPeerConnection
+  
 };
 
 window.localStream = null;
 window.pc = null; // host peer (single viewer per pc instance if simple)
 window.viewerPCs = {};
 window.currentRoomId = null;
+
+
 
 function renderLiveUI() {
   let el = document.getElementById("live-container");
@@ -2912,7 +2921,7 @@ function renderLiveUI() {
       style="width:100%;height:100%;object-fit:cover;background:black;"></video>
 
     <div id="live-status"
-      style="position:absolute;top:10px;left:10px;color:white;">
+      style="position:absolute;top:33px;left:10px;color:white;">
       LIVE STARTING...
     </div>
   `;
@@ -3061,9 +3070,9 @@ async function handleViewer(viewerId, viewerRef) {
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
 
-  await viewerRef.set({
-    offer: pc.localDescription.toJSON()
-  });
+ await viewerRef.set({
+  offer: pc.localDescription.toJSON()
+}, { merge: true });
   console.log("📡 OFFER SENT:", pc.localDescription);
 
   // ANSWER (FIXED)
@@ -3082,11 +3091,58 @@ async function handleViewer(viewerId, viewerRef) {
   });
 
   // cleanup
-  pc.onconnectionstatechange = () => {
-    if (["failed", "closed", "disconnected"].includes(pc.connectionState)) {
-      delete window.liveState.pcs[viewerId];
-    }
-  };
+  pc.onconnectionstatechange = async () => {
+
+  console.log(
+    "📶 VIEWER:",
+    pc.connectionState
+  );
+
+  if (
+    [
+      "failed",
+      "closed",
+      "disconnected"
+    ].includes(pc.connectionState)
+  ) {
+
+    try {
+
+      pc.close();
+
+    } catch (e) {}
+
+    try {
+
+      await viewerRef.delete();
+
+    } catch (e) {}
+  }
+};
+}
+
+function watchLiveRooms() {
+
+  db.collection("liveRooms")
+    .where("active", "==", true)
+    .onSnapshot(snapshot => {
+
+      snapshot.forEach(doc => {
+
+        const roomId = doc.id;
+
+        console.log("🔴 LIVE DETECTED:", roomId);
+
+        // 🔥 cegah join berulang
+        if (window.currentRoomId === roomId) {
+          return;
+        }
+
+        window.currentRoomId = roomId;
+
+        joinRoom(roomId);
+      });
+    });
 }
 
 async function joinRoom(roomId) {
@@ -3095,35 +3151,7 @@ async function joinRoom(roomId) {
 
   const pc = new RTCPeerConnection(iceServers);
 
-  // 🔥 TERIMA VIDEO DARI HOST
-  pc.ontrack = (event) => {
-    console.log("🎥 STREAM MASUK");
-
-    let video = document.querySelector("#remoteVideo");
-
-    if (!video) {
-      video = document.createElement("video");
-      video.id = "remoteVideo";
-      video.autoplay = true;
-      video.playsInline = true;
-      video.controls = true;
-      document.body.appendChild(video);
-    }
-
-    video.srcObject = event.streams[0];
-  };
-
-  // 🔄 ICE VIEWER → HOST
-  pc.onicecandidate = (e) => {
-    if (e.candidate) {
-      db.collection("liveRooms")
-        .doc(roomId)
-        .collection("viewerCandidates")
-        .add(e.candidate.toJSON());
-    }
-  };
-
-  // 📦 BUAT VIEWER DOC
+  // BUAT DOC VIEWER DULU
   const viewerRef = db.collection("liveRooms")
     .doc(roomId)
     .collection("viewers")
@@ -3133,36 +3161,90 @@ async function joinRoom(roomId) {
     createdAt: Date.now()
   });
 
-  // 📩 TERIMA OFFER DARI HOST
+  
+window.currentViewerRef = viewerRef;
+window.currentViewerPC = pc;//  tambahan
+
+window.addEventListener("beforeunload", async () => {
+
+  try {
+
+    pc.close();
+
+    await viewerRef.delete();
+
+  } catch (e) {}
+});// tambahan
+
+  // TERIMA STREAM
+  pc.ontrack = (event) => {
+
+    let video = document.querySelector("#remoteVideo");
+
+    if (!video) {
+      video = document.createElement("video");
+      video.id = "remoteVideo";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.controls = true;
+      video.style.position = "fixed";
+video.style.top = "0";
+video.style.left = "0";
+video.style.width = "100vw";
+video.style.height = "100vh";
+video.style.objectFit = "cover";
+video.style.background = "red";
+video.style.zIndex = "2";
+video.style.display = "block";
+video.style.opacity = "1";
+video.style.visibility = "visible";
+
+      document.body.appendChild(video);
+    }
+
+    video.srcObject = event.streams[0];
+  };
+
+  // ICE VIEWER -> HOST
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+
+      viewerRef
+        .collection("viewerCandidates")
+        .add(e.candidate.toJSON());
+    }
+  };
+
+  // TERIMA OFFER
   viewerRef.onSnapshot(async snap => {
+
     const data = snap.data();
 
     if (data?.offer && !pc.currentRemoteDescription) {
-
-      console.log("📩 TERIMA OFFER");
 
       await pc.setRemoteDescription(
         new RTCSessionDescription(data.offer)
       );
 
       const answer = await pc.createAnswer();
+
       await pc.setLocalDescription(answer);
 
       await viewerRef.update({
         answer: pc.localDescription.toJSON()
       });
-
-      console.log("📤 ANSWER TERKIRIM");
     }
   });
 
-  // 🔄 TERIMA ICE DARI HOST
-  db.collection("liveRooms")
-    .doc(roomId)
+  // HOST ICE
+  viewerRef
     .collection("hostCandidates")
     .onSnapshot(snapshot => {
+
       snapshot.docChanges().forEach(change => {
+
         if (change.type === "added") {
+
           pc.addIceCandidate(
             new RTCIceCandidate(change.doc.data())
           ).catch(console.error);
@@ -3172,7 +3254,6 @@ async function joinRoom(roomId) {
 
   console.log("📡 VIEWER READY");
 }
-
 async function stopLive() {
 
   console.log("🛑 STOP LIVE DIJALANKAN");
@@ -3224,6 +3305,8 @@ async function stopLive() {
 
   console.log("✅ LIVE SUDAH STOP TOTAL");
 }
+
+
 
 </script>
 <script src="chat.js"></script>
