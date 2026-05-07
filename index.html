@@ -156,6 +156,7 @@ body {
   text-align: justify;
   margin-left: 20px;
   max-width: 600px;
+  margin-right: 20px;
 }
 
 #live-container {
@@ -163,7 +164,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 700px;
+  height: 100%;
   z-index: 2; /* ini MAX INT z-index */
   background: black;
    object-fit: cover;
@@ -300,8 +301,9 @@ align-items: center;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  border-radius: 8px; /* 🔥 bikin card */
+  border-radius: 20px; /* 🔥 bikin card */
   padding:5px;
+  
 }
 /* 🔥 semua tombol dalam post-box jadi 3D */
 
@@ -450,7 +452,7 @@ margin-left: 20px;
   bottom: 0;
   left: 0;
   width: 100%;
-
+  z-index: 1;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
@@ -593,7 +595,8 @@ width: 50px;
   flex-direction: column;
   gap: 15px;
 height: 200px;
-  z-index: 1000;
+  z-index: 100;
+ 
 }
 .post-actions button {
   width: 50px;
@@ -1063,6 +1066,9 @@ z-index: 99999999;
     border-radius: 0;
     max-height: 160px;
   }
+  .logo-content img{
+    display: none;
+  }
 
   .post-top {
     display: flex;
@@ -1149,7 +1155,7 @@ z-index: 99999999;
 <div class="post-box">
   <div class="logo">
     <div class="logo-content">
-      <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="gambar logo">
+      <img style="z-index: 9999;" src="android-chrome-512x512.png" alt="gambar logo" loading="lazy">
       <h1>Makcek Ngobrol</h1>
     </div>
     <button title="buat ID mu..." id="gear" onclick="openSettings()">⚙️</button>
@@ -1256,7 +1262,7 @@ z-index: 99999999;
           <div class="username"></div> 
     </div> 
 </div>
-<video id="localVideo" autoplay muted playsinline style="width:150px; position:fixed; bottom:80px; right:10px; z-index:2;"></video>
+<video id="localVideo" autoplay muted playsinline style="width:150px; position:fixed; bottom:80px; right:10px; z-index:2;" preload="none"></video>
 <script>
   let lastPostId = null;
 let currentPlaying = null;
@@ -1804,7 +1810,7 @@ const observer = new IntersectionObserver(entries => {
         video.muted = true;
         video.playsInline = true;
         video.controls = true;
-        video.preload = "auto";
+        video.preload = "none";
 
         el.replaceChildren(video);
 
@@ -1916,7 +1922,7 @@ function addPost(id, p){
             || (p.timestamp instanceof Date ? p.timestamp.toLocaleString() : "...");
 
   div.innerHTML = `
-   ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;" class="post-media" alt="img">` : ""}
+   ${p.fileUrl ? `<img src="${p.fileUrl}" style="max-width:100%;" class="post-media" alt="img" loading="lazy">` : ""}
     
     ${p.isLive ? `
 <div class="live-box">
@@ -1928,7 +1934,7 @@ function addPost(id, p){
     autoplay 
     muted 
     playsinline
-    style="width:100%;background:black;">
+    style="width:100%;background:black;" preload="none"
   </video>  
 </div>
 ` : ""}
@@ -2413,7 +2419,7 @@ document.getElementById("file").addEventListener("change", function(){
   if(file.type.startsWith("image/")){
     previewBox.innerHTML = `
       <div style="position:relative; display:inline-block;">
-        <img src="${url}" style="max-width:100%; max-height:200px; border-radius:10px;" alt="foto preview">
+        <img src="${url}" style="max-width:100%; max-height:200px; border-radius:10px;" alt="foto preview" loading="lazy">
 
         <button onclick="removePreview()" 
           style="
@@ -2503,7 +2509,7 @@ if(adIndex >= products.length){
 
   ad.innerHTML = `
     <div style="display:flex;gap:10px;padding:10px;background:rgba(255,255,255,0.96);border-radius:10px;box-shadow:0 1px 12px rgba(0,0,0,0.2);width:300px;margin-bottom:10px;">
-      <img src="${item.img}" style="width:70px;height:70px;" alt="gambar iklan">
+      <img src="${item.img}" style="width:70px;height:70px;" alt="gambar iklan" loading="lazy">
       <div style="color:#222;">
         <b>${item.name || "Produk"}</b>
         <button onclick="window.open('${item.link}','_blank')"style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">>Beli</button>
@@ -2595,7 +2601,7 @@ async function loadAffiliate(){
           max-width: 300px;
         ">
           
-          <img src="${p.img}" style="width:80px;border-radius:8px;" alt="gambar produk">
+          <img src="${p.img}" style="width:80px;border-radius:8px;" alt="gambar produk" loading="lazy">
 
           <div style="flex:1;">
             <div style="font-weight:bold;">${p.name}</div>
@@ -2658,7 +2664,7 @@ function renderMovies(list){
       <div onclick="playMovie('${id}')"
         style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #ddd;cursor:pointer;align-items:center;">
         
-        <img src="${img}" style="width:80px;border-radius:8px;" alt="gambar produk">
+        <img src="${img}" style="width:80px;border-radius:8px;" alt="gambar produk" loading="lazy">
         
         <div>🎬 ${title}</div>
       </div>
@@ -2722,7 +2728,7 @@ window.onload = function(){
         <div onclick="playMovie('${id}')"
           style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #ddd;cursor:pointer;align-items:center;">
           
-          <img src="${img}" style="width:80px;border-radius:8px;" alt="movie">
+          <img src="${img}" style="width:80px;border-radius:8px;" alt="movie" loading="lazy">
           
           <div>🎬 ${title}</div>
         </div>
@@ -2746,7 +2752,7 @@ function showMovieAd(){
 
   ad.innerHTML = `
     <div style="display:flex;gap:10px;padding:10px;background:transparent;border-radius:10px;justify-content:center;align-items:center;">
-      <img src="${item.img}" style="width:70px;height:70px;object-fit:cover;" alt="iklan">
+      <img src="${item.img}" style="width:70px;height:70px;object-fit:cover;" alt="iklan" loading="lazy">
       <div>
         <b>${item.name}</b><br>
         <button onclick="window.open('${item.link}','_blank')"style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">Beli</button>
@@ -2928,7 +2934,7 @@ function renderLiveUI() {
       autoplay
       muted
       playsinline
-      style="width:100%;height:100%;object-fit:cover;background:black;"></video>
+      style="width:100%;height:100%;object-fit:cover;background:black;" preload="none"></video>
 
     <div id="live-status"
       style="position:absolute;top:33px;left:10px;color:white;">
@@ -3272,6 +3278,7 @@ createStopButton();
       video.autoplay = true;
       video.playsInline = true;
       video.controls = true;
+      video.preload ="none"
       video.style.position = "fixed";
 video.style.top = "0";
 video.style.left = "0";
