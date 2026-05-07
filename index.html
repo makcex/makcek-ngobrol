@@ -209,7 +209,7 @@ body {
 .username {
  
   font-size: 14px;
- color:#ddd;
+ color:#e5e5e5;
     text-shadow:
     0 1px 1px rgba(0,0,0,0.9),     /* shadow bawah */
     0 3px 6px rgba(0,0,0,0.7),     /* depth */
@@ -1226,7 +1226,17 @@ z-index: 99999999;
 </svg></button>
   <button onclick="openAffiliate()">💰</button>
 </div>
-
+<div id="liveUsers"  style="
+    position:fixed;
+    bottom:200px;
+    left:2px;
+    z-index:5;
+    background:transparent;
+    width: 100px;
+    height: 30px;
+    padding:2px;
+    border-radius:10px;
+  "></div>
 <div id="bottomNav">
   <button onclick="startLive()"><svg width="24" height="24" viewBox="0 0 24 24">
   <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="black"/>
@@ -1352,10 +1362,10 @@ console.log("ROLE USER:", role);
 console.log("IS ADMIN:", window.isAdmin);
 
   // 🔥 USER AUTO DETECT LIVE
-if (!window.isAdmin) {
+
 
   watchLiveRooms();
-}
+
     document.getElementById("loginBox").style.display = "none";
 
     document.querySelectorAll(".username").forEach(el => {
@@ -2111,8 +2121,8 @@ async function createPost(e){
   }
 
   // 🔥 INI YANG BENAR: cek LIVE dari real system kamu
-  const isLive = window.isLiveActive === true;
-  console.log("🔴 isLive:", isLive);
+  // const isLive = window.isLiveActive === true;
+  // console.log("🔴 isLive:", isLive);
 
   const docRef = await db.collection('posts').add({
   user: username,
@@ -2122,8 +2132,8 @@ async function createPost(e){
   fileUrl: fileUrl || null,
   likes: [],
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  isLive: isLive,
-  roomId: window.currentLiveRoomId || null // 🔥 INI YANG KURANG
+  // isLive: isLive,
+  // roomId: window.currentLiveRoomId || null // 🔥 INI YANG KURANG
 });
 if (isLive) {
   window.isLiveActive = false; // 🔥 reset biar post berikutnya normal
@@ -2901,7 +2911,7 @@ window.localStream = null;
 window.pc = null; // host peer (single viewer per pc instance if simple)
 window.viewerPCs = {};
 window.currentRoomId = null;
-
+window.liveState.unsubs ||= [];
 
 
 function renderLiveUI() {
@@ -2959,15 +2969,22 @@ async function startLive() {
  window.liveState.stream = stream;
   window.liveState.isLive = true;
 
-  await db.collection("liveRooms")
-  .doc("ROOM1")
+ const roomId = user.uid;
+
+await db.collection("liveRooms")
+  .doc(roomId)
   .set({
     active: true,
+    hostId: user.uid,
+    hostName: user.displayName || "User",
+    hostPhoto: user.photoURL || "",
+    viewerCount: 0,
     createdAt: Date.now()
   }, { merge: true });
 
-  window.liveState.roomId = "ROOM1";
-listenViewers("ROOM1");
+window.liveState.roomId = roomId;
+
+listenViewers(roomId);
 
   // 🔥 BARU LOG (INI YANG BENAR)
   console.log("🔥 STREAM OK:", stream);
@@ -2992,7 +3009,7 @@ listenViewers("ROOM1");
 
 function listenViewers(roomId) {
 
-  db.collection("liveRooms")
+  const unsub = db.collection("liveRooms")
     .doc(roomId)
     .collection("viewers")
     .onSnapshot(snapshot => {
@@ -3000,25 +3017,48 @@ function listenViewers(roomId) {
       console.log("👀 VIEWER UPDATE:", snapshot.size);
 
       window.liveState.viewerCount = snapshot.size;
+      db.collection("liveRooms")
+  .doc(roomId)
+  .set({
+    viewerCount: snapshot.size
+  }, { merge: true });
+
       updateLiveUI();
 
-      snapshot.docChanges().forEach(change => {
+      snapshot.forEach(doc => {
 
-        if (change.type === "added") {
-          console.log("➕ VIEWER MASUK:", change.doc.id);
+  const viewerId = doc.id;
 
-          handleViewer(change.doc.id, change.doc.ref);
-        }
+  const data = doc.data();
 
-        if (change.type === "removed") {
-          console.log("➖ VIEWER KELUAR:", change.doc.id);
-        }
+  // 🔥 VIEWER MATI / GHOST
+  if (
+    data.lastSeen &&
+    Date.now() - data.lastSeen > 30000
+  ) {
 
-      });
+    console.log("🗑️ DEAD VIEWER:", viewerId);
 
+    doc.ref.delete().catch(console.error);
+
+    return;
+  }
+
+  // 🔥 viewer belum punya peer
+  if (!window.liveState.pcs[viewerId]) {
+
+    console.log("➕ VIEWER MASUK:", viewerId);
+
+    handleViewer(
+      viewerId,
+      doc.ref
+    );
+  }
+});
     }, error => {
       console.log("❌ LISTENER ERROR:", error);
     });
+    window.liveState.unsubs.push(unsub);
 }
 async function handleViewer(viewerId, viewerRef) {
 
@@ -3127,24 +3167,40 @@ function watchLiveRooms() {
     .where("active", "==", true)
     .onSnapshot(snapshot => {
 
+      const box =
+        document.getElementById("liveUsers");
+
+      if (!box) return;
+
+      box.innerHTML = "";
+
       snapshot.forEach(doc => {
 
-        const roomId = doc.id;
+        const data = doc.data();
 
-        console.log("🔴 LIVE DETECTED:", roomId);
+        box.innerHTML += `
+          <div
+            onclick="joinRoom('${doc.id}')"
+            style="
+              color: #777;
+              text-shadow:
+    0 1px 1px rgba(0,0,0,0.9),     /* shadow bawah */
+    0 3px 6px rgba(0,0,0,0.7),     /* depth */
+    0 -1px 2px rgba(255,255,255,0.25); /* 🔥 highlight diperkuat */
+  letter-spacing: 0.3px; /* biar lebih clean */
 
-        // 🔥 cegah join berulang
-        if (window.currentRoomId === roomId) {
-          return;
-        }
-
-        window.currentRoomId = roomId;
-
-        joinRoom(roomId);
+  transition: all 0.25s ease;
+              cursor:pointer;
+              font-size:10px;
+              z-index:5;
+            "
+          >
+             ${data.hostName || "" }
+          </div>
+        `;
       });
     });
 }
-
 async function joinRoom(roomId) {
 
   console.log("📱 JOIN ROOM:", roomId);
@@ -3160,7 +3216,34 @@ async function joinRoom(roomId) {
   await viewerRef.set({
     createdAt: Date.now()
   });
+const heartbeat = setInterval(() => {
 
+  viewerRef.update({
+    lastSeen: Date.now()
+  }).catch(() => {});
+
+}, 10000);
+
+window.addEventListener("beforeunload", async () => {
+
+  console.log("🛑 VIEWER TAB CLOSED");
+
+  clearInterval(heartbeat);
+
+  try {
+
+    pc.close();
+
+  } catch (e) {}
+
+  try {
+
+    await viewerRef.delete();
+
+    console.log("🗑️ VIEWER CLEANED");
+
+  } catch (e) {}
+});
   
 window.currentViewerRef = viewerRef;
 window.currentViewerPC = pc;//  tambahan
@@ -3175,6 +3258,8 @@ window.addEventListener("beforeunload", async () => {
 
   } catch (e) {}
 });// tambahan
+
+createStopButton();
 
   // TERIMA STREAM
   pc.ontrack = (event) => {
@@ -3199,8 +3284,10 @@ video.style.display = "block";
 video.style.opacity = "1";
 video.style.visibility = "visible";
 
+
       document.body.appendChild(video);
     }
+    
 
     video.srcObject = event.streams[0];
   };
@@ -3254,6 +3341,66 @@ video.style.visibility = "visible";
 
   console.log("📡 VIEWER READY");
 }
+function stopViewerLive() {
+
+  console.log("🚪 VIEWER EXIT ROOM");
+
+  // 🔥 tutup peer connection viewer
+  if (window.currentViewerPC) {
+    try {
+      window.currentViewerPC.close();
+    } catch (e) {}
+  }
+
+  // 🔥 hapus doc viewer di firestore
+  if (window.currentViewerRef) {
+    try {
+      window.currentViewerRef.delete();
+    } catch (e) {}
+  }
+
+  // reset state
+  window.currentViewerPC = null;
+  window.currentViewerRef = null;
+  window.currentRoomId = null;
+
+  // hapus video
+  const v = document.querySelector("#remoteVideo");
+  if (v) v.remove();
+
+  const btn = document.getElementById("btn-stop-viewer");
+  if (btn) btn.remove();
+
+  console.log("✅ VIEWER LEFT ROOM");
+}
+
+function createStopButton() {
+
+  if (document.getElementById("btn-stop-viewer")) return;
+
+  const btn = document.createElement("button");
+
+  btn.id = "btn-stop-viewer";
+  btn.innerText = "STOP LIVE";
+
+  btn.onclick = stopViewerLive;
+
+  btn.style.cssText = `
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    z-index:999999;
+    padding:1px 1px;
+    background:red;
+    color:white;
+    border:none;
+    border-radius:10px;
+    
+  `;
+
+  document.body.appendChild(btn);
+}
+
 async function stopLive() {
 
   console.log("🛑 STOP LIVE DIJALANKAN");
@@ -3266,7 +3413,7 @@ async function stopLive() {
   if (roomId) {
     await db.collection("liveRooms")
       .doc(roomId)
-      .update({ active: false }, { merge: true });
+  .delete();
   }
 
   // 🔥 STOP CAMERA STREAM
@@ -3300,6 +3447,9 @@ async function stopLive() {
   // 🔥 HAPUS UI BIAR CLEAR
   const el = document.getElementById("live-container");
   if (el) el.remove();
+
+  const btn = document.getElementById("btn-stop-viewer");
+  if (btn) btn.remove();
 
   updateLiveUI();
 
