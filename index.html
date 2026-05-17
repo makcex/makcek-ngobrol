@@ -610,7 +610,7 @@ height: 200px;
  align-items: center;
  margin-right: 20px;
  margin-bottom: 10px;
-  background: transparent;
+  background: rgba(0,0,0,0.4);
  
   color: white;
 
@@ -830,12 +830,12 @@ width: 500px;
 
 #bottomNav button {
   width: 45px;
-  height: 45px;
+  height: 50px;
 
-  border-radius: 50%;
+  border-radius: 10px;
   border: none;
 
-   background:transparent;
+   background:rgba(255,255,255,0.15);
   color: white;
 
   text-shadow:
@@ -903,7 +903,9 @@ display: none;
 #localVideo{
   pointer-events: none;
 }
-
+#playerBox{
+  z-index: 1000;
+}
 @media (max-width: 600px) {
 
 
@@ -1244,15 +1246,15 @@ z-index: 99999999;
     border-radius:10px;
   "></div>
 <div id="bottomNav">
-  <button onclick="startLive()"><svg width="24" height="24" viewBox="0 0 24 24">
+  <button onclick="startLive()"><svg width="30" height="30" viewBox="0 0 24 24">
   <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="black"/>
   <circle cx="17" cy="7" r="3" fill="red"/>
 </svg>live</button>
-  <button onclick="stopLive()">  <svg id="icon-stop-live" width="24" height="24" viewBox="0 0 24 24">
+  <button onclick="stopLive()">  <svg id="icon-stop-live" width="30" height="30" viewBox="0 0 24 24">
   <circle cx="12" cy="12" r="10" fill="none" stroke="red"/>
   <rect x="9" y="9" width="6" height="6" fill="red"/>
 </svg>stop</button>
-   <button onclick="openPost()"> <svg id="icon-upload" width="24" height="24" viewBox="0 0 24 24">
+   <button onclick="openPost()"> <svg id="icon-upload" width="30" height="30" viewBox="0 0 24 24">
   <circle cx="12" cy="12" r="10" fill="none" stroke="black"/>
   <line x1="12" y1="8" x2="12" y2="16" stroke="black" stroke-width="2"/>
   <line x1="8" y1="12" x2="16" y2="12" stroke="black" stroke-width="2"/>
