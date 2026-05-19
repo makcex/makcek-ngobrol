@@ -56,62 +56,54 @@ function renderMovies(list){
 //  search movie
 window.onload = function () {
 
-  let searchTimer;
-  const movieCache = {};
-  let lastKeyword = "";
-
   const input = document.getElementById("search");
   const box = document.getElementById("movieList");
 
+  let searchTimer;
+  let movies = []; // 🔥 simpan semua data dari API
+
+  // 1. LOAD DATA SEKALI SAJA
+  async function loadMovies() {
+    box.innerHTML = "⏳ Loading film...";
+
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=movie&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
+      );
+
+      const data = await res.json();
+
+      movies = data.items || []; // simpan ke memory
+
+      renderMovies(movies);
+
+    } catch (e) {
+      box.innerHTML = "❌ Gagal load film";
+    }
+  }
+
+  // 2. SEARCH = FILTER (SAMA KAYAK YANG LO PELAJARI)
   input.addEventListener("input", function () {
 
     clearTimeout(searchTimer);
 
-    searchTimer = setTimeout(async () => {
+    searchTimer = setTimeout(() => {
 
-      let keyword = this.value.trim().toLowerCase();
+      const keyword = this.value.toLowerCase().trim();
 
-      if (!keyword) keyword = "movie";
+      const filtered = movies.filter(v =>
+        v.snippet.title.toLowerCase().includes(keyword)
+      );
 
-      // 🔥 anti spam keyword sama
-      if (keyword === lastKeyword) return;
-      lastKeyword = keyword;
+      renderMovies(filtered);
 
-      box.innerHTML = "⏳ Cari film...";
-
-      try {
-
-        // 🔥 CACHE HIT
-        if (movieCache[keyword]) {
-          renderMovies(movieCache[keyword]);
-          return;
-        }
-
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(keyword)}+movie&type=video&videoDuration=long&maxResults=20&key=${YT_API_KEY}`;
-
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (!data.items) {
-          box.innerHTML = "❌ Tidak ada hasil";
-          return;
-        }
-
-        // simpan cache
-        movieCache[keyword] = data.items;
-
-        renderMovies(data.items);
-
-      } catch (e) {
-        console.log(e);
-        box.innerHTML = "❌ Gagal cari film";
-      }
-
-    }, 800); // debounce lebih stabil
+    }, 300);
 
   });
 
+  loadMovies();
 };
+
 // iklan di movies
 function showMovieAd(){
   if(!adsReady || !products.length){
