@@ -2129,23 +2129,23 @@ async function createPost(e){
   }
 
   // 🔥 INI YANG BENAR: cek LIVE dari real system kamu
-  // const isLive = window.isLiveActive === true;
-  // console.log("🔴 isLive:", isLive);
+  //  const isLive = window.isLiveActive === true;
+  //  console.log("🔴 isLive:", isLive);
 
   const docRef = await db.collection('posts').add({
   user: username,
   uid: user.uid,
   avatar: avatar,
-  content: isLive ? "sekarang" : content || "",
+  content: content || "",
   fileUrl: fileUrl || null,
   likes: [],
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  // isLive: isLive,
+  // isLive: isLive
   // roomId: window.currentLiveRoomId || null // 🔥 INI YANG KURANG
 });
-if (isLive) {
-  window.isLiveActive = false; // 🔥 reset biar post berikutnya normal
-}
+// if (isLive) {
+//   window.isLiveActive = false; // 🔥 reset biar post berikutnya normal
+// }
 console.log("🚀 POST SUKSES ID:", docRef.id);
   // reset UI
   document.getElementById('content').value = '';
@@ -2638,9 +2638,10 @@ async function loadMovies(){
    const keyword = document.getElementById("search").value || "movie";
 
 const res = await fetch(
-  `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+full+movie&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
+  `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+full+movie&type=video&videoDuration=long&maxResults=10&key=${YT_API_KEY}`
 );
     const data = await res.json();
+    console.log(data)
     renderMovies(data.items);
 
   } catch(e){
