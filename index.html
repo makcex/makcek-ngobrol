@@ -291,17 +291,6 @@ document.getElementById("myAvatar").style.backgroundImage = `url(${avatarUrl})`;
 async function uploadToCloudinary(file){
 
   let uploadFile = file;
-// console.time("TOTAL");
-
-// console.time("COMPRESS");
-
-//   // ✅ compress hanya kalau image
-//   if(file.type.startsWith("image/")){
-//     uploadFile = await compressImage(file, 0.7, 720);
-//   }
-// console.timeEnd("COMPRESS");
-
-// console.time("UPLOAD");
   const formData = new FormData();
   formData.append("file", uploadFile);
   formData.append("upload_preset", "mini_fb_avatar");
@@ -315,44 +304,13 @@ const isVideo = file.type.startsWith("video");
     body: formData
   });
 
-  console.timeEnd("UPLOAD");
-
-console.timeEnd("TOTAL");
+  
 
   const data = await res.json();
   return data.secure_url.replace("/upload/", "/upload/q_auto,f_auto/");
 }
 
-  // compres
-// function compressImage(file, quality = 0.7, maxWidth = 1280){
-//   return new Promise((resolve) => {
-//     const reader = new FileReader();
-
-//     reader.onload = function(e){
-//       const img = new Image();
-
-//       img.onload = function(){
-//         const canvas = document.createElement("canvas");
-
-//         const scale = Math.min(maxWidth / img.width, 1);
-//         canvas.width = img.width * scale;
-//         canvas.height = img.height * scale;
-
-//         const ctx = canvas.getContext("2d");
-//         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-//         canvas.toBlob((blob) => {
-//           resolve(blob);
-//         }, "image/jpeg", quality);
-//       };
-
-//       img.src = e.target.result;
-//     };
-
-//     reader.readAsDataURL(file);
-//   });
-// }
-
+ 
   // register
 async function registerEmail(){
   const email = document.getElementById("email").value;

@@ -68,6 +68,7 @@ console.log("🚀 POST SUKSES ID:", docRef.id);
 
 function openPost() {
   document.getElementById("postModal").classList.add("show");
+   document.getElementById("content").focus();
 }
 
 function closePost() {
@@ -287,6 +288,7 @@ async function addReply(postId, commentId){
 function showReplyInput(postId, i){
   const el = document.getElementById(`reply-${postId}-${i}`);
   if(el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+   
 }
 
 document.addEventListener("click", (e) => {
@@ -301,6 +303,7 @@ document.addEventListener("click", (e) => {
   if(!box) return;
 
   box.style.display = box.style.display === "block" ? "none" : "block";
+  document.getElementById(`r-${postId}-${commentId}`).focus();
 });
 
 
@@ -456,6 +459,7 @@ function updateLoadMore(postId, box, user) {
 
 async function addComment(postId){
   const input = document.getElementById('c' + postId);
+   
   const text = input.value.trim();
   if(!text) return;
 
@@ -494,9 +498,11 @@ if(commentState[postId]){
 
 function toggleComment(postId){
   const box = document.getElementById("commentBox-" + postId);
+  
   if(!box) return;
 
   box.style.display = (box.style.display === "block") ? "none" : "block";
+  document.getElementById("c" + postId)?.focus();
 }
 
 async function deleteCommentNew(postId, commentId){
