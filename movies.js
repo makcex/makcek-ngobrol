@@ -25,90 +25,93 @@ function renderMovies(list){
   const box = document.getElementById("movieList");
   box.innerHTML = "";
 
+  const fragment = document.createDocumentFragment();
+
   list.forEach(v => {
     const id = v.id.videoId;
     const title = v.snippet.title;
-   
     const img = v.snippet.thumbnails.medium.url;
 
-    box.innerHTML += `
-      <div onclick="playMovie('${id}')"
-        style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #ddd;cursor:pointer;align-items:center;">
-        
-        <img src="${img}" style="width:80px;border-radius:8px;" alt="gambar produk" loading="lazy">
-        
-        <div>🎬 ${title}</div>
-      </div>
+    const div = document.createElement("div");
+    div.style.cssText = `
+      display:flex;gap:10px;
+      padding:10px;
+      border-bottom:1px solid #ddd;
+      cursor:pointer;
+      align-items:center;
     `;
+
+    div.onclick = () => playMovie(id);
+
+    div.innerHTML = `
+      <img src="${img}" style="width:80px;border-radius:8px;" loading="lazy">
+      <div>🎬 ${title}</div>
+    `;
+
+    fragment.appendChild(div);
   });
+
+  box.appendChild(fragment);
 }
 //  search movie
-window.onload = function(){
+window.onload = function () {
 
   let searchTimer;
   const movieCache = {};
+  let lastKeyword = "";
 
-  document.getElementById("search").addEventListener("input", function(){
+  const input = document.getElementById("search");
+  const box = document.getElementById("movieList");
+
+  input.addEventListener("input", function () {
 
     clearTimeout(searchTimer);
 
     searchTimer = setTimeout(async () => {
 
-      const keyword = this.value.trim() || "movie";
-      const box = document.getElementById("movieList");
+      let keyword = this.value.trim().toLowerCase();
+
+      if (!keyword) keyword = "movie";
+
+      // 🔥 anti spam keyword sama
+      if (keyword === lastKeyword) return;
+      lastKeyword = keyword;
 
       box.innerHTML = "⏳ Cari film...";
 
-      try{
+      try {
 
-        // 🔥 CACHE HIT (hemat API)
-        if(movieCache[keyword]){
-          renderList(movieCache[keyword], box);
+        // 🔥 CACHE HIT
+        if (movieCache[keyword]) {
+          renderMovies(movieCache[keyword]);
           return;
         }
 
-        const res = await fetch(
-          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+movie&type=video&videoDuration=long&maxResults=20&key=${YT_API_KEY}`
-        );
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(keyword)}+movie&type=video&videoDuration=long&maxResults=20&key=${YT_API_KEY}`;
 
+        const res = await fetch(url);
         const data = await res.json();
 
+        if (!data.items) {
+          box.innerHTML = "❌ Tidak ada hasil";
+          return;
+        }
+
+        // simpan cache
         movieCache[keyword] = data.items;
 
-        renderList(data.items, box);
+        renderMovies(data.items);
 
-      } catch(e){
+      } catch (e) {
+        console.log(e);
         box.innerHTML = "❌ Gagal cari film";
       }
 
-    }, 700); // ⏱ delay biar gak spam API
+    }, 800); // debounce lebih stabil
 
   });
 
-
-  // 🔥 pisahin render biar clean
-  function renderList(items, box){
-    box.innerHTML = "";
-
-    items.forEach(v => {
-      const id = v.id.videoId;
-      const title = v.snippet.title;
-      const img = v.snippet.thumbnails.medium.url;
-
-      box.innerHTML += `
-        <div onclick="playMovie('${id}')"
-          style="display:flex;gap:10px;padding:10px;border-bottom:1px solid #ddd;cursor:pointer;align-items:center;">
-          
-          <img src="${img}" style="width:80px;border-radius:8px;" alt="movie" loading="lazy">
-          
-          <div>🎬 ${title}</div>
-        </div>
-      `;
-    });
-  }
-
-}
-
+};
 // iklan di movies
 function showMovieAd(){
   if(!adsReady || !products.length){

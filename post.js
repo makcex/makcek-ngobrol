@@ -211,6 +211,7 @@ function loadReplies(postId, commentId){
 
   if(replyListeners[key]){
     replyListeners[key]();
+     delete replyListeners[key];
   }
 
   const ref = db.collection("posts")
@@ -225,23 +226,32 @@ function loadReplies(postId, commentId){
     const box = document.getElementById(`replies-${postId}-${commentId}`);
     if(!box) return;
 
-    box.innerHTML = "";
+     box.innerHTML = "";
 
-    snap.forEach(rdoc => {
-      const r = rdoc.data();
+   snap.forEach(rdoc => {
 
-      box.innerHTML += `
-        <div class="comment">
-          <div class="avatar-reply" style="background-image:url('${r.avatar || ""}')"></div>
-          <div>
-            <div class="bubble">
-              <b>${escapeHTML(r.user)}</b><br>
-              ${escapeHTML(r.text)}
-            </div>
-          </div>
-        </div>
-      `;
-    });
+  const r = rdoc.data();
+
+  const item = document.createElement("div");
+
+  item.className = "comment";
+
+  item.innerHTML = `
+    <div class="avatar-reply"
+         style="background-image:url('${r.avatar || ""}')">
+    </div>
+
+    <div>
+      <div class="bubble">
+        <b>${escapeHTML(r.user)}</b><br>
+        ${escapeHTML(r.text)}
+      </div>
+    </div>
+  `;
+
+  box.appendChild(item);
+
+});
   });
 }
 
