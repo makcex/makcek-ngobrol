@@ -148,7 +148,8 @@ function addPost(id, p){
      
    
     <div class="post-actions">
-       <div style="font-size:11px;margin-left:8px;font-weight:bold;color:black;"> <span id="like-${id}">${p.likes?.length || 0}</span></div>
+       <div style="font-size:12px;display:flex;width:12px;position:relative;top:40px;right:10px;"><span id="like-${id}">${p.likes?.length || 0}</span></div> 
+       
       <button onclick="toggleLike('${id}')"> <svg viewBox="0 0 24 24" class="icon-line">
       <path d="M12 21s-6.5-4.3-9-7.8C1.2 10.8 2.5 7 5.8 6.2c1.8-.4 3.5.5 4.2 2 0 0 1.5-2.4 4.2-2 3.3.8 4.6 4.6 2.8 7-2.5 3.5-9 7.8-9 7.8z"
         fill="none"
@@ -157,6 +158,7 @@ function addPost(id, p){
         stroke-linecap="round"
         stroke-linejoin="round"/>
     </svg></button>
+      <div style="font-size:12px;display:flex;width:12px;position:relative;top:40px;right:10px;"><span id="comment-badge-${id}">${p.comment?.length || 0}</span></div>
       <button onclick="toggleComment('${id}')"> <svg viewBox="0 0 24 24" class="icon-line">
       <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"
         fill="none"
@@ -164,7 +166,9 @@ function addPost(id, p){
         stroke-width="1.8"
         stroke-linecap="round"
         stroke-linejoin="round"/>
-    </svg></button>
+    </svg>
+     
+    </button>
 
      <button  onclick="toggleInfo('${id}')"><svg class="icon-line" width="24" height="24" viewBox="0 0 24 24">
   <line x1="4" y1="6" x2="20" y2="6" stroke="white" stroke-width="2"/>
@@ -203,7 +207,7 @@ function addPost(id, p){
   // 🔥 init komentar hanya sekali
   initComments(id);
   
-  
+  listenCommentBadge(id);
 }
 
 function loadReplies(postId, commentId){
@@ -493,6 +497,8 @@ if(commentState[postId]){
     box.innerHTML = "";
     loadCommentsPage(postId, box, user);
   }
+
+ 
 }
 
 

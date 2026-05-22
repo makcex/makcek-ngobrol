@@ -72,3 +72,28 @@ async function loadAdsFromFirebase(){
 window.addEventListener("load", async () => {
   await loadAdsFromFirebase();
 });
+
+// notif comentar
+function listenCommentBadge(postId){
+
+  db.collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .onSnapshot(snap => {
+
+      const total = snap.size;
+
+      const badge = document.getElementById("comment-badge-" + postId);
+      if(!badge) return;
+
+      if(total <= 0){
+        badge.style.display = "none";
+        return;
+      }
+
+      badge.style.display = "inline-flex";
+      badge.innerText = total.toLocaleString("id-ID");
+
+    });
+
+}
