@@ -3,10 +3,10 @@ async function loadMovies(){
   box.innerHTML = "⏳ Loading film...";
 
   try{
-   const keyword = document.getElementById("search").value || "movie";
+   const keyword = document.getElementById("search").value.trim() || "movie";
 
 const res = await fetch(
-  `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${keyword}+full+movie&type=video&videoDuration=long&maxResults=10&key=${YT_API_KEY}`
+  `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(keyword)}&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
 );
     const data = await res.json();
     console.log(data)
