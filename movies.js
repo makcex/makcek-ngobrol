@@ -1,25 +1,44 @@
+
+// DATA MOVIES
+let allMovies = [];
+
+
+// LOAD MOVIES + SEARCH YOUTUBE API
 async function loadMovies(){
+
   const box = document.getElementById("movieList");
+  const keyword = document.getElementById("search").value.trim() || "movie";
+
   box.innerHTML = "⏳ Loading film...";
 
   try{
-   const keyword = document.getElementById("search").value.trim() || "movie";
 
-const res = await fetch(
-  `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(keyword)}&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
-);
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(keyword)}&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
+    );
+
     const data = await res.json();
-    console.log(data)
-    renderMovies(data.items);
+
+    console.log(data);
+
+    if(data.error){
+      box.innerHTML = "❌ " + data.error.message;
+      return;
+    }
+
+    renderMovies(data.items || []);
 
   } catch(e){
+
     box.innerHTML = "❌ Gagal load film";
+
   }
 }
 
-let allMovies = [];
 
+// RENDER MOVIES
 function renderMovies(list){
+
   allMovies = list;
 
   const box = document.getElementById("movieList");
@@ -28,13 +47,16 @@ function renderMovies(list){
   const fragment = document.createDocumentFragment();
 
   list.forEach(v => {
+
     const id = v.id.videoId;
     const title = v.snippet.title;
     const img = v.snippet.thumbnails.medium.url;
 
     const div = document.createElement("div");
+
     div.style.cssText = `
-      display:flex;gap:10px;
+      display:flex;
+      gap:10px;
       padding:10px;
       border-bottom:1px solid #ddd;
       cursor:pointer;
@@ -49,80 +71,65 @@ function renderMovies(list){
     `;
 
     fragment.appendChild(div);
+
   });
 
   box.appendChild(fragment);
 }
-//  search movie
-window.onload = function () {
+
+
+// SEARCH MOVIE
+window.onload = function(){
 
   const input = document.getElementById("search");
-  const box = document.getElementById("movieList");
 
   let searchTimer;
-  let movies = []; // 🔥 simpan semua data dari API
 
-  // 1. LOAD DATA SEKALI SAJA
-  async function loadMovies() {
-    box.innerHTML = "⏳ Loading film...";
-
-    try {
-      const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=movie&type=video&videoDuration=long&maxResults=50&key=${YT_API_KEY}`
-      );
-
-      const data = await res.json();
-
-      movies = data.items || []; // simpan ke memory
-
-      renderMovies(movies);
-
-    } catch (e) {
-      box.innerHTML = "❌ Gagal load film";
-    }
-  }
-
-  // 2. SEARCH = FILTER (SAMA KAYAK YANG LO PELAJARI)
-  input.addEventListener("input", function () {
+  input.addEventListener("input", function(){
 
     clearTimeout(searchTimer);
 
-    searchTimer = setTimeout(() => {
+    searchTimer = setTimeout(function(){
 
-      const keyword = this.value.toLowerCase().trim();
+      loadMovies();
 
-      const filtered = movies.filter(v =>
-        v.snippet.title.toLowerCase().includes(keyword)
-      );
-
-      renderMovies(filtered);
-
-    }, 300);
+    }, 500);
 
   });
 
   loadMovies();
+
 };
 
-// iklan di movies
+
+// IKLAN DI MOVIES
 function showMovieAd(){
+
   if(!adsReady || !products.length){
     console.log("ADS belum ready");
     return;
   }
 
   const item = products[Math.floor(Math.random() * products.length)];
+
   if(!item?.img) return;
 
   const ad = document.createElement("div");
 
   ad.innerHTML = `
     <div style="display:flex;gap:10px;padding:10px;background:transparent;border-radius:10px;justify-content:center;align-items:center;">
+
       <img src="${item.img}" style="width:70px;height:70px;object-fit:cover;" alt="iklan" loading="lazy">
+
       <div>
         <b>${item.name}</b><br>
-        <button onclick="window.open('${item.link}','_blank')"style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">Beli</button>
+
+        <button onclick="window.open('${item.link}','_blank')"
+          style="margin-top:5px;background:#28a745;color:white;border:none;padding:5px 10px;border-radius:6px;">
+          Beli
+        </button>
       </div>
+
     </div>
   `;
 
@@ -137,13 +144,18 @@ function showMovieAd(){
   }
 
   setTimeout(() => ad.remove(), 8000);
+
 }
+
+
+// PLAY MOVIE
 function playMovie(id){
+
   const player = document.getElementById("playerBox");
 
   player.innerHTML = `
     <div style="position:fixed;bottom:0;left:0;width:100%;background:#000;z-index:100000;padding:10px;">
-      
+
       <iframe
         width="100%"
         height="220"
@@ -161,31 +173,52 @@ function playMovie(id){
         style="position:absolute;top:5px;right:25px;background:red;color:white;border:none;border-radius:50%;width:30px;height:30px;">
         ✕
       </button>
+
     </div>
   `;
+
 }
 
+
+// CLOSE PLAYER
 function closePlayer(){
+
   document.getElementById("playerBox").innerHTML = "";
- 
+
 }
 
+
+// OPEN MOVIES
 function openMovies(){
-  document.getElementById("movieSection").classList.toggle("show")
 
-  loadMovies(); // 🔥 dipanggil di sini
+  document.getElementById("movieSection").classList.toggle("show");
+
+  loadMovies();
+
 }
+
+
+// SCROLL MOVIE + IKLAN
 window.addEventListener("load", () => {
+
   const movieList = document.getElementById("movieList");
+
   let movieLastStep = 0;
 
-  movieList.addEventListener("scroll", function () {
+  movieList.addEventListener("scroll", function(){
+
     console.log("SCROLL MOVIE JALAN");
+
     const step = Math.floor(movieList.scrollTop / 600);
 
-    if (step > movieLastStep) {
-       showMovieAd();
+    if(step > movieLastStep){
+
+      showMovieAd();
+
       movieLastStep = step;
+
     }
+
   });
+
 });
